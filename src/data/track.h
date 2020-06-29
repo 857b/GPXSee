@@ -19,6 +19,7 @@ public:
 
 	GraphPair elevation() const;
 	GraphPair speed() const;
+	Graph vspeed() const;
 	Graph heartRate() const;
 	Graph temperature() const;
 	Graph cadence() const;
@@ -59,6 +60,7 @@ private:
 		QVector<qreal> distance;
 		QVector<qreal> time;
 		QVector<qreal> speed;
+		QVector<qreal> vspeed;
 		QSet<int> outliers;
 		QSet<int> stop;
 	};

@@ -44,6 +44,7 @@ HEADERS += src/common/config.h \
     src/GUI/infoitem.h \
     src/GUI/elevationgraph.h \
     src/GUI/speedgraph.h \
+    src/GUI/vspeedgraph.h \
     src/GUI/sliderinfoitem.h \
     src/GUI/filebrowser.h \
     src/GUI/units.h \
@@ -76,6 +77,7 @@ HEADERS += src/common/config.h \
     src/GUI/percentslider.h \
     src/GUI/elevationgraphitem.h \
     src/GUI/speedgraphitem.h \
+    src/GUI/vspeedgraphitem.h \
     src/GUI/heartrategraphitem.h \
     src/GUI/temperaturegraphitem.h \
     src/GUI/cadencegraphitem.h \
@@ -215,6 +217,7 @@ SOURCES += src/main.cpp \
     src/GUI/infoitem.cpp \
     src/GUI/elevationgraph.cpp \
     src/GUI/speedgraph.cpp \
+    src/GUI/vspeedgraph.cpp \
     src/GUI/sliderinfoitem.cpp \
     src/GUI/filebrowser.cpp \
     src/GUI/scaleitem.cpp \
@@ -243,6 +246,7 @@ SOURCES += src/main.cpp \
     src/GUI/percentslider.cpp \
     src/GUI/elevationgraphitem.cpp \
     src/GUI/speedgraphitem.cpp \
+    src/GUI/vspeedgraphitem.cpp \
     src/GUI/heartrategraphitem.cpp \
     src/GUI/temperaturegraphitem.cpp \
     src/GUI/cadencegraphitem.cpp \

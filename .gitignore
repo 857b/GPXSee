@@ -12,3 +12,7 @@ Makefile*
 # Binary
 GPXSee
 gpxsee
+
+# Editors
+*.swp
+*.vim

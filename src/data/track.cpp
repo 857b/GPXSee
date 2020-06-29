@@ -90,7 +90,7 @@ static GraphSegment filter(const GraphSegment &g, int window)
 
 Track::Track(const TrackData &data) : _data(data), _pause(0)
 {
-	qreal ds, dt;
+	qreal ds, de, dt;
 
 	for (int i = 0; i < _data.size(); i++) {
 		const SegmentData &sd = _data.at(i);
@@ -109,12 +109,14 @@ Track::Track(const TrackData &data) : _data(data), _pause(0)
 		  ? _segments.at(i-1).time.last() :
 		  sd.first().hasTimestamp() ? 0 : NAN);
 		seg.speed.append(sd.first().hasTimestamp() ? 0 : NAN);
+		seg.vspeed.append(sd.first().hasTimestamp() ? 0 : NAN);
 		acceleration.append(sd.first().hasTimestamp() ? 0 : NAN);
 		bool hasTime = !std::isnan(seg.time.first());
 
 		for (int j = 1; j < sd.size(); j++) {
 			ds = sd.at(j).coordinates().distanceTo(
 			  sd.at(j-1).coordinates());
+			de = sd.at(j).elevation() - sd.at(j-1).elevation();
 			seg.distance.append(seg.distance.last() + ds);
 
 			if (hasTime && sd.at(j).timestamp().isValid()) {
@@ -137,17 +139,21 @@ Track::Track(const TrackData &data) : _data(data), _pause(0)
 						seg.time[i] = NAN;
 					for (int i = 0; i < seg.speed.size(); i++)
 						seg.speed[i] = NAN;
+					for (int i = 0; i < seg.vspeed.size(); i++)
+						seg.vspeed[i] = NAN;
 				}
 			}
 			seg.time.append(seg.time.last() + dt);
 
 			if (dt < 1e-3) {
 				seg.speed.append(seg.speed.last());
+				seg.vspeed.append(seg.vspeed.last());
 				acceleration.append(acceleration.last());
 			} else {
 				qreal v = ds / dt;
 				qreal dv = v - seg.speed.last();
 				seg.speed.append(v);
+				seg.vspeed.append(de / dt);
 				acceleration.append(dv / dt);
 			}
 		}
@@ -209,13 +215,16 @@ Track::Track(const TrackData &data) : _data(data), _pause(0)
 				continue;
 			if (discardStopPoint(seg, j)) {
 				seg.distance[j] = seg.distance.at(last);
-				seg.speed[j] = 0;
+				seg.speed[j]  = 0;
+				seg.vspeed[j] = 0;
 			} else {
 				ds = sd.at(j).coordinates().distanceTo(
 				  sd.at(last).coordinates());
+				de = sd.at(j).elevation() - sd.at(last).elevation();
 				seg.distance[j] = seg.distance.at(last) + ds;
 
 				dt = seg.time.at(j) - seg.time.at(last);
+				seg.speed[j] = (dt < 1e-3) ? seg.speed.at(last) : ds / dt;
 				seg.speed[j] = (dt < 1e-3) ? seg.speed.at(last) : ds / dt;
 			}
 			last = j;
@@ -375,6 +384,41 @@ GraphPair Track::speed() const
 		else
 			return GraphPair(reportedSpeed(), Graph());
 	}
+}
+
+Graph Track::vspeed() const
+{
+	Graph ret;
+
+	for (int i = 0; i < _data.size(); i++) {
+		const SegmentData &sd = _data.at(i);
+		if (sd.size() < 2)
+			continue;
+		const Segment &seg = _segments.at(i);
+		GraphSegment gs;
+		QList<int> stop;
+		qreal v;
+
+		for (int j = 0; j < sd.size(); j++) {
+			if (seg.stop.contains(j) && !std::isnan(seg.vspeed.at(j))) {
+				v = 0;
+				stop.append(gs.size());
+			} else if (!std::isnan(seg.vspeed.at(j)) && !seg.outliers.contains(j))
+				v = seg.vspeed.at(j);
+			else
+				continue;
+
+			gs.append(GraphPoint(seg.distance.at(j), seg.time.at(j), v));
+		}
+
+		ret.append(filter(gs, _speedWindow));
+		GraphSegment &filtered = ret.last();
+
+		for (int j = 0; j < stop.size(); j++)
+			filtered[stop.at(j)].setY(0);
+	}
+
+	return ret;
 }
 
 Graph Track::heartRate() const

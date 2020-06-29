@@ -39,6 +39,7 @@
 #include "settings.h"
 #include "elevationgraph.h"
 #include "speedgraph.h"
+#include "vspeedgraph.h"
 #include "heartrategraph.h"
 #include "temperaturegraph.h"
 #include "cadencegraph.h"
@@ -636,6 +637,7 @@ void GUI::createGraphTabs()
 
 	_tabs.append(new ElevationGraph(_graphTabWidget));
 	_tabs.append(new SpeedGraph(_graphTabWidget));
+	_tabs.append(new VSpeedGraph(_graphTabWidget));
 	_tabs.append(new HeartRateGraph(_graphTabWidget));
 	_tabs.append(new CadenceGraph(_graphTabWidget));
 	_tabs.append(new PowerGraph(_graphTabWidget));
