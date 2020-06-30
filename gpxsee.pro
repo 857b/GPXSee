@@ -3,7 +3,7 @@ unix:!macx {
 } else {
     TARGET = GPXSee
 }
-VERSION = 7.30
+VERSION = 7.31
 
 QT += core \
     gui \
@@ -97,6 +97,7 @@ HEADERS += src/common/config.h \
     src/map/IMG/gmap.h \
     src/map/IMG/huffmanstream.h \
     src/map/IMG/huffmantable.h \
+    src/map/IMG/nodfile.h \
     src/map/IMG/mapdata.h \
     src/map/IMG/rastertile.h \
     src/map/IMG/textpathitem.h \
@@ -261,6 +262,7 @@ SOURCES += src/main.cpp \
     src/map/IMG/gmap.cpp \
     src/map/IMG/huffmanstream.cpp \
     src/map/IMG/huffmantable.cpp \
+    src/map/IMG/nodfile.cpp \
     src/map/IMG/mapdata.cpp \
     src/map/IMG/rastertile.cpp \
     src/map/IMG/textpathitem.cpp \

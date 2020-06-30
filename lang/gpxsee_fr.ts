@@ -1928,7 +1928,7 @@
     <message>
         <location filename="../src/GUI/vspeedgraphitem.cpp" line="25"/>
         <source>Maximum</source>
-		<translation>Maximum</translation>
+        <translation>Maximum</translation>
     </message>
     <message>
         <location filename="../src/GUI/vspeedgraphitem.cpp" line="27"/>

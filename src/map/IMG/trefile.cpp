@@ -70,14 +70,16 @@ bool TREFile::init()
 		return false;
 
 	if (hdrLen > 0x9A) {
-		// TRE7 info
+		// TRE7 info + flags
 		if (!(seek(hdl, _gmpOffset + 0x7C) && readUInt32(hdl, _extended.offset)
 		  && readUInt32(hdl, _extended.size)
-		  && readUInt16(hdl, _extended.itemSize)))
+		  && readUInt16(hdl, _extended.itemSize) && readUInt32(hdl, _flags)))
 			return false;
-		// flags
-		if (!(seek(hdl, _gmpOffset + 0x86) && readUInt32(hdl, _flags)))
-			return false;
+	} else {
+		_extended.offset = 0;
+		_extended.size = 0;
+		_extended.itemSize = 0;
+		_flags = 0;
 	}
 
 	// Tile levels
@@ -120,15 +122,43 @@ bool TREFile::init()
 	return (_firstLevel >= 0);
 }
 
+int TREFile::readExtEntry(Handle &hdl, quint32 &polygons, quint32 &lines,
+  quint32 &points)
+{
+	int rb = 0;
+
+	if (_flags & 1) {
+		if (!readUInt32(hdl, polygons))
+			return -1;
+		rb += 4;
+	} else
+		polygons = 0;
+	if (_flags & 2) {
+		if (!readUInt32(hdl, lines))
+			return -1;
+		rb += 4;
+	} else
+		lines = 0;
+	if (_flags & 4) {
+		if (!readUInt32(hdl, points))
+			return -1;
+		rb += 4;
+	} else
+		points = 0;
+
+	return rb;
+}
+
 bool TREFile::load(int idx)
 {
 	Handle hdl(this);
 	QList<SubDiv*> sl;
 	SubDiv *s = 0;
 	SubDivTree *tree = new SubDivTree();
+	const MapLevel &level = _levels.at(idx);
 
 
-	_subdivs.insert(_levels.at(idx).bits, tree);
+	_subdivs.insert(level.bits, tree);
 
 	quint32 skip = 0;
 	for (int i = 0; i < idx; i++)
@@ -137,7 +167,7 @@ bool TREFile::load(int idx)
 	if (!seek(hdl, _subdivOffset + skip * 16))
 		return false;
 
-	for (int j = 0; j < _levels.at(idx).subdivs; j++) {
+	for (int j = 0; j < level.subdivs; j++) {
 		quint32 oo;
 		qint32 lon, lat, width, height;
 		quint16 nextLevel;
@@ -156,10 +186,10 @@ bool TREFile::load(int idx)
 			s->setEnd(offset);
 
 		width &= 0x7FFF;
-		width = LS(width, 24 - _levels.at(idx).bits);
-		height = LS(height, 24 - _levels.at(idx).bits);
+		width = LS(width, 24 - level.bits);
+		height = LS(height, 24 - level.bits);
 
-		s = new SubDiv(offset, lon, lat, _levels.at(idx).bits, objects);
+		s = new SubDiv(offset, lon, lat, level.level, level.bits, objects);
 		sl.append(s);
 
 		double min[2], max[2];
@@ -184,36 +214,31 @@ bool TREFile::load(int idx)
 
 
 	// Objects with extended types (TRE7)
-	if (_extended.size && _extended.itemSize >= 12) {
-		/* Some maps skip entries for the inherited levels, some don't. Our
-		   decision is based on the difference between the extended subdivs
-		   count and the total subdivs count. */
+	if (_extended.size && _extended.itemSize) {
 		quint32 totalSubdivs = 0;
 		for (int i = 0; i < _levels.size(); i++)
 			totalSubdivs += _levels.at(i).subdivs;
 		quint32 extendedSubdivs = _extended.size / _extended.itemSize;
 		quint32 diff = totalSubdivs - extendedSubdivs + 1;
-
-		quint32 polygons, lines, points;
 		if (!seek(hdl, _extended.offset + (skip - diff) * _extended.itemSize))
 			goto error;
 
+		quint32 polygons, lines, points;
+		int rb;
 		for (int i = 0; i < sl.size(); i++) {
-			if (!(readUInt32(hdl, polygons) && readUInt32(hdl, lines)
-			  && readUInt32(hdl, points)))
+			if ((rb = readExtEntry(hdl, polygons, lines, points)) < 0)
 				goto error;
 
 			sl.at(i)->setExtOffsets(polygons, lines, points);
 			if (i)
 				sl.at(i-1)->setExtEnds(polygons, lines, points);
 
-			if (!seek(hdl, hdl.pos() + _extended.itemSize - 12))
+			if (!seek(hdl, hdl.pos() + _extended.itemSize - rb))
 				goto error;
 		}
 
 		if (idx != _levels.size() - 1) {
-			if (!(readUInt32(hdl, polygons) && readUInt32(hdl, lines)
-			  && readUInt32(hdl, points)))
+			if (readExtEntry(hdl, polygons, lines, points) < 0)
 				goto error;
 			sl.last()->setExtEnds(polygons, lines, points);
 		}
