@@ -63,6 +63,8 @@ private:
 		QVector<qreal> vspeed;
 		QSet<int> outliers;
 		QSet<int> stop;
+
+		qreal deltaY;
 	};
 
 	bool discardStopPoint(const Segment &seg, int i) const;

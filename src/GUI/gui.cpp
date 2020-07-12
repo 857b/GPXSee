@@ -1163,6 +1163,8 @@ void GUI::plot(QPrinter *printer)
 		mh = ih / 2;
 		info.plot(&p, QRectF(0, 0, printer->width(), ih), ratio);
 	}
+
+#if 0 //DISABLED
 	if (_graphTabWidget->isVisible() && !_options.separateGraphPage) {
 		qreal r = (((qreal)(printer)->width()) / (qreal)(printer->height()));
 		gh = (printer->width() > printer->height())
@@ -1172,10 +1174,12 @@ void GUI::plot(QPrinter *printer)
 		gt->plot(&p,  QRectF(0, printer->height() - gh, printer->width(), gh),
 		  ratio);
 	} else
+#endif
 		gh = 0;
 	_mapView->plot(&p, QRectF(0, ih + mh, printer->width(), printer->height()
 	  - (ih + 2*mh + gh)), ratio, _options.hiresPrint);
 
+#if 0 //DISABLED
 	if (_graphTabWidget->isVisible() && _options.separateGraphPage) {
 		printer->newPage();
 
@@ -1197,6 +1201,7 @@ void GUI::plot(QPrinter *printer)
 			}
 		}
 	}
+#endif
 }
 
 void GUI::reloadFiles()

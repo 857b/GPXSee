@@ -37,7 +37,6 @@ HEADERS += src/common/config.h \
     src/GUI/app.h \
     src/GUI/icons.h \
     src/GUI/gui.h \
-    src/GUI/axisitem.h \
     src/GUI/keys.h \
     src/GUI/slideritem.h \
     src/GUI/markeritem.h \
@@ -50,6 +49,7 @@ HEADERS += src/common/config.h \
     src/GUI/units.h \
     src/GUI/scaleitem.h \
     src/GUI/graphview.h \
+    src/GUI/graphwidget.h \
     src/GUI/waypointitem.h \
     src/GUI/palette.h \
     src/GUI/heartrategraph.h \
@@ -64,7 +64,6 @@ HEADERS += src/common/config.h \
     src/GUI/routeitem.h \
     src/GUI/graphitem.h \
     src/GUI/pathitem.h \
-    src/GUI/griditem.h \
     src/GUI/format.h \
     src/GUI/cadencegraph.h \
     src/GUI/powergraph.h \
@@ -212,7 +211,6 @@ SOURCES += src/main.cpp \
     src/common/tifffile.cpp \
     src/GUI/app.cpp \
     src/GUI/gui.cpp \
-    src/GUI/axisitem.cpp \
     src/GUI/slideritem.cpp \
     src/GUI/markeritem.cpp \
     src/GUI/infoitem.cpp \
@@ -223,6 +221,7 @@ SOURCES += src/main.cpp \
     src/GUI/filebrowser.cpp \
     src/GUI/scaleitem.cpp \
     src/GUI/graphview.cpp \
+    src/GUI/graphwidget.cpp \
     src/GUI/waypointitem.cpp \
     src/GUI/palette.cpp \
     src/GUI/heartrategraph.cpp \
@@ -235,7 +234,6 @@ SOURCES += src/main.cpp \
     src/GUI/routeitem.cpp \
     src/GUI/graphitem.cpp \
     src/GUI/pathitem.cpp \
-    src/GUI/griditem.cpp \
     src/GUI/format.cpp \
     src/GUI/cadencegraph.cpp \
     src/GUI/powergraph.cpp \

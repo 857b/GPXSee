@@ -45,7 +45,7 @@ QList<GraphItem*> GearRatioGraph::loadData(const Data &data)
 			_palette.nextColor();
 			graphs.append(0);
 		} else {
-			GearRatioGraphItem *gi = new GearRatioGraphItem(graph, _graphType,
+			GearRatioGraphItem *gi = new GearRatioGraphItem(graph, graphType(),
 			  _width, _palette.nextColor());
 
 			_tracks.append(gi);

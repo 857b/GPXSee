@@ -17,6 +17,7 @@ public:
 	void setText(const QString &x, const QString &y);
 	void setSide(Side side);
 	void setColor(const QColor &color);
+	void setTop(int top);
 
 private:
 	void updateBoundingRect();
@@ -26,6 +27,7 @@ private:
 	QRectF _boundingRect;
 	QColor _color;
 	QFont _font;
+	int   _top;
 };
 
 #endif // SLIDERINFOITEM_H

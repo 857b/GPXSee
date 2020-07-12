@@ -1,43 +1,50 @@
 #ifndef GRAPHVIEW_H
 #define GRAPHVIEW_H
 
-#include <QGraphicsView>
-#include <QList>
+#include <QWidget>
+#include <QPainter>
+#include <QLabel>
+
 #include "data/graph.h"
+#include "common/range.h"
+#include "common/kv.h"
 #include "palette.h"
 #include "units.h"
 #include "infoitem.h"
 
-
-class AxisItem;
+class GraphContent;
 class SliderItem;
 class SliderInfoItem;
 class GraphItem;
 class PathItem;
-class GridItem;
 class QGraphicsSimpleTextItem;
-class GraphicsScene;
+class GraphWidget;
 
-class GraphView : public QGraphicsView
+
+class GraphView : public QWidget
 {
 	Q_OBJECT
+
+	friend GraphContent;
 
 public:
 	GraphView(QWidget *parent = 0);
 	~GraphView();
 
-	bool isEmpty() const {return _graphs.isEmpty();}
-	const QList<KV<QString, QString> > &info() const {return _info->info();}
+	bool isEmpty() const;
+	const QList<KV<QString, QString> > &info() const {return _infos;}
 	void clear();
 
 	void plot(QPainter *painter, const QRectF &target, qreal scale);
 
 	void setPalette(const Palette &palette);
 	void setGraphWidth(int width);
-	void showGrid(bool show);
-	void showSliderInfo(bool show);
-	void useOpenGL(bool use);
-	void useAntiAliasing(bool use);
+	void setRenderHint(QPainter::RenderHint hint, bool enabled=true);
+	void showGrid(bool show = true);
+	void showZero(bool show = true);
+	void showSliderInfo(bool show = true);
+	void useOpenGL(bool use = true);
+	void useAntiAliasing(bool use = true);
 
 	void setSliderPosition(qreal pos);
 	void setSliderColor(const QColor &color);
@@ -48,72 +55,47 @@ signals:
 protected:
 	void addGraph(GraphItem *graph);
 	void removeGraph(GraphItem *graph);
+	GraphType graphType() const;
 	void setGraphType(GraphType type);
+	Units units() const;
 	void setUnits(Units units);
 
-	void resizeEvent(QResizeEvent *e);
-	void mousePressEvent(QMouseEvent *e);
-	void wheelEvent(QWheelEvent *e);
 	void changeEvent(QEvent *e);
-	void paintEvent(QPaintEvent *e);
 
-	const QString &yLabel() const {return _yLabel;}
-	const QString &yUnits() const {return _yUnits;}
-	qreal yScale() const {return _yScale;}
-	qreal yOffset() const {return _yOffset;}
+	const QString &yLabel() const;
+	const QString &yUnits() const;
+	qreal yScale() const;
+	qreal yOffset() const;
 	void setYLabel(const QString &label);
 	void setYUnits(const QString &units);
-	void setYScale(qreal scale) {_yScale = scale;}
-	void setYOffset(qreal offset) {_yOffset = offset;}
+	void setYScale(qreal scale);
+	void setYOffset(qreal offset);
 
-	void setSliderPrecision(int precision) {_precision = precision;}
-	void setMinYRange(qreal range) {_minYRange = range;}
+	void setSliderPrecision(int precision);
+	void setMinYRange(qreal range);
 
 	QRectF bounds() const;
 	void redraw();
 	void addInfo(const QString &key, const QString &value);
 	void clearInfo();
+	void updateInfo();
 
-	GraphType _graphType;
-	Units _units;
+protected:
 	Palette _palette;
-	int _width;
+	int     _width;
 
 private slots:
 	void emitSliderPositionChanged(const QPointF &pos);
 	void newSliderPosition(const QPointF &pos);
 
 private:
-	void redraw(const QSizeF &size);
-	void setXUnits();
-	void createXLabel();
-	void createYLabel();
-	void updateSliderPosition();
-	void updateSliderInfo();
-	void removeItem(QGraphicsItem *item);
-	void addItem(QGraphicsItem *item);
+	GraphWidget *_widgt;
+	QLabel      *_info;
 
-	GraphicsScene *_scene;
-
-	AxisItem *_xAxis, *_yAxis;
-	SliderItem *_slider;
-	SliderInfoItem *_sliderInfo;
-	InfoItem *_info;
-	GridItem *_grid;
-	QGraphicsSimpleTextItem *_message;
-	QList<GraphItem*> _graphs;
-
-	QRectF _bounds;
-	qreal _sliderPos;
-
-	qreal _xScale, _yScale;
-	qreal _yOffset;
-	QString _xUnits, _yUnits;
-	QString _xLabel, _yLabel;
-	int _precision;
-	qreal _minYRange;
-
-	qreal _zoom;
+	QList<KV<QString, QString> > _infos;
+	QGraphicsSimpleTextItem     *_message;//TODO
+	
+	qreal   _sliderPos;
 };
 
 #endif // GRAPHVIEW_H

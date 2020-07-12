@@ -3,6 +3,8 @@
 
 #include <QGraphicsObject>
 
+#include "common/range.h"
+
 class QColor;
 
 class SliderItem : public QGraphicsObject
@@ -16,8 +18,11 @@ public:
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	  QWidget *widget);
 
-	const QRectF &area() const {return _area;}
-	void setArea(const QRectF &area);
+	const RangeF &range() const {return _range;}
+
+	void setRange(const RangeF &range);
+	void setSliderHeight(qreal height);
+	void setSliderFixY(qreal y);
 
 	void setColor(const QColor &color);
 
@@ -30,8 +35,10 @@ protected:
 	QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
 private:
-	QRectF _area;
+	RangeF _range;
 	QColor _color;
+	qreal  _fixY;
+	qreal  _height;
 };
 
 #endif // SLIDERITEM_H

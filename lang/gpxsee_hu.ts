@@ -844,23 +844,23 @@
         <translation>Név</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1341"/>
+        <location filename="../src/GUI/gui.cpp" line="1346"/>
         <source>Open map file</source>
         <translation>Térképfájl megnyitása</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1361"/>
-        <location filename="../src/GUI/gui.cpp" line="1392"/>
+        <location filename="../src/GUI/gui.cpp" line="1366"/>
+        <location filename="../src/GUI/gui.cpp" line="1397"/>
         <source>Error loading map:</source>
         <translation>Térképbetöltési hiba:</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1402"/>
+        <location filename="../src/GUI/gui.cpp" line="1407"/>
         <source>No files loaded</source>
         <translation>Nincs betöltött fájl</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/GUI/gui.cpp" line="1406"/>
+        <location filename="../src/GUI/gui.cpp" line="1411"/>
         <source>%n files</source>
         <translation>
             <numerusform>%n fájl</numerusform>
@@ -912,61 +912,104 @@
 <context>
     <name>GraphView</name>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="47"/>
+        <location filename="../src/GUI/graphview.cpp" line="43"/>
         <source>Data not available</source>
         <translation>Nem elérhető</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="67"/>
-        <location filename="../src/GUI/graphview.cpp" line="178"/>
         <source>Distance</source>
-        <translation>Távolság</translation>
+        <translation type="obsolete">Távolság</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="111"/>
-        <location filename="../src/GUI/graphview.cpp" line="119"/>
         <source>ft</source>
-        <translation>láb</translation>
+        <translation type="obsolete">láb</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="114"/>
         <source>mi</source>
-        <translation>mérföld</translation>
+        <translation type="obsolete">mérföld</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="122"/>
         <source>nmi</source>
-        <translation>tengeri mérföld</translation>
+        <translation type="obsolete">tengeri mérföld</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="127"/>
         <source>m</source>
-        <translation>m</translation>
+        <translation type="obsolete">m</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="130"/>
         <source>km</source>
-        <translation>km</translation>
+        <translation type="obsolete">km</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="136"/>
         <source>s</source>
-        <translation>mp</translation>
+        <translation type="obsolete">mp</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="139"/>
         <source>min</source>
-        <translation>perc</translation>
+        <translation type="obsolete">perc</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="142"/>
         <source>h</source>
-        <translation>óra</translation>
+        <translation type="obsolete">óra</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="180"/>
         <source>Time</source>
-        <translation>Idő</translation>
+        <translation type="obsolete">Idő</translation>
+    </message>
+</context>
+<context>
+    <name>GraphWidget</name>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="53"/>
+        <location filename="../src/GUI/graphwidget.cpp" line="101"/>
+        <source>Distance</source>
+        <translation type="unfinished">Távolság</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="103"/>
+        <source>Time</source>
+        <translation type="unfinished">Idő</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="125"/>
+        <location filename="../src/GUI/graphwidget.cpp" line="133"/>
+        <source>ft</source>
+        <translation type="unfinished">láb</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="128"/>
+        <source>mi</source>
+        <translation type="unfinished">mérföld</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="136"/>
+        <source>nmi</source>
+        <translation type="unfinished">tengeri mérföld</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="141"/>
+        <source>m</source>
+        <translation type="unfinished">m</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="144"/>
+        <source>km</source>
+        <translation type="unfinished">km</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="150"/>
+        <source>s</source>
+        <translation type="unfinished">mp</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="153"/>
+        <source>min</source>
+        <translation type="unfinished">perc</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="156"/>
+        <source>h</source>
+        <translation type="unfinished">óra</translation>
     </message>
 </context>
 <context>
@@ -1902,17 +1945,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraph.cpp" line="31"/>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="34"/>
+        <source>Minimum</source>
+        <translation type="unfinished">Minimum</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="36"/>
         <source>Average</source>
         <translation type="unfinished">Átlag</translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraph.cpp" line="33"/>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="32"/>
         <source>Maximum</source>
         <translation type="unfinished">Maximum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraph.cpp" line="115"/>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="119"/>
         <source>m/s</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1920,17 +1968,22 @@
 <context>
     <name>VSpeedGraphItem</name>
     <message>
-        <location filename="../src/GUI/vspeedgraphitem.cpp" line="22"/>
+        <location filename="../src/GUI/vspeedgraphitem.cpp" line="26"/>
         <source>m/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraphitem.cpp" line="25"/>
+        <location filename="../src/GUI/vspeedgraphitem.cpp" line="29"/>
         <source>Maximum</source>
         <translation type="unfinished">Maximum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraphitem.cpp" line="27"/>
+        <location filename="../src/GUI/vspeedgraphitem.cpp" line="31"/>
+        <source>Minimum</source>
+        <translation type="unfinished">Minimum</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/vspeedgraphitem.cpp" line="33"/>
         <source>Average</source>
         <translation type="unfinished">Átlag</translation>
     </message>

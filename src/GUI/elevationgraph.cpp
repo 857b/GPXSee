@@ -71,9 +71,9 @@ GraphItem *ElevationGraph::loadGraph(const Graph &graph, PathType type,
 	if (!graph.isValid())
 		return 0;
 
-	ElevationGraphItem *gi = new ElevationGraphItem(graph, _graphType, _width,
-	  color, primary ? Qt::SolidLine : Qt::DashLine);
-	gi->setUnits(_units);
+	ElevationGraphItem *gi = new ElevationGraphItem(graph, graphType(), _width,
+						color, primary ? Qt::SolidLine : Qt::DashLine);
+	gi->setUnits(units());
 
 	if (type == TrackPath) {
 		_tracks.append(gi);

@@ -15,6 +15,7 @@ VSpeedGraph::VSpeedGraph(QWidget *parent) : GraphTab(parent)
 	setYUnits();
 	setYLabel(tr("Vertical Speed"));
 
+	showZero();
 	setSliderPrecision(1);
 }
 
@@ -28,10 +29,12 @@ void VSpeedGraph::setInfo()
 	if (_showTracks) {
 		QLocale l(QLocale::system());
 
-		GraphView::addInfo(tr("Average"), l.toString(avg() * yScale(), 'f',
-		  1) + UNIT_SPACE + yUnits());
 		GraphView::addInfo(tr("Maximum"), l.toString(max() * yScale(), 'f',
 		  1) + UNIT_SPACE + yUnits());
+		GraphView::addInfo(tr("Minimum"), l.toString(min() * yScale(), 'f',
+		  1) + UNIT_SPACE + yUnits());
+		GraphView::addInfo(tr("Average"), l.toString(avg() * yScale(), 'f',
+		  2) + UNIT_SPACE + yUnits());
 	} else
 		clearInfo();
 }
@@ -42,10 +45,11 @@ GraphItem *VSpeedGraph::loadGraph(const Graph &graph, const Track &track,
 	if (!graph.isValid())
 		return 0;
 
-	VSpeedGraphItem *gi = new VSpeedGraphItem(graph, _graphType, _width,
-	  color, primary ? Qt::SolidLine : Qt::DashLine, track.movingTime());
+	VSpeedGraphItem *gi
+		= new VSpeedGraphItem(graph, graphType(), _width, color,
+			primary ? Qt::SolidLine : Qt::DashLine, track.movingTime());
 	gi->setTimeType(_timeType);
-	gi->setUnits(_units);
+	gi->setUnits(units());
 
 	_tracks.append(gi);
 	if (_showTracks)

@@ -25,8 +25,15 @@ private:
 	int _min, _max;
 };
 
+class RangeF;
+
+RangeF operator*(qreal scale, const RangeF& r);
+RangeF operator+(qreal ofs,   const RangeF& r);
+
 class RangeF
 {
+	friend RangeF operator*(qreal, const RangeF&);
+	friend RangeF operator+(qreal, const RangeF&);
 public:
 	RangeF() {_min = 0; _max = 0;}
 	RangeF(qreal min, qreal max) : _min(min), _max(max) {}
@@ -43,6 +50,9 @@ public:
 
 	void setMin(qreal min) {_min = min;}
 	void setMax(qreal max) {_max = max;}
+
+	bool contains(qreal v) const {return _min <= v && v <= _max;}
+	qreal into(qreal v) const {return qMax(_min, qMin(_max, v));} 
 
 	void resize(qreal size);
 

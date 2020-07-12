@@ -844,23 +844,23 @@
         <translation>Ім’я</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1341"/>
+        <location filename="../src/GUI/gui.cpp" line="1346"/>
         <source>Open map file</source>
         <translation>Відкрити файл мапи</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1361"/>
-        <location filename="../src/GUI/gui.cpp" line="1392"/>
+        <location filename="../src/GUI/gui.cpp" line="1366"/>
+        <location filename="../src/GUI/gui.cpp" line="1397"/>
         <source>Error loading map:</source>
         <translation>Помилка завантаження мапи:</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1402"/>
+        <location filename="../src/GUI/gui.cpp" line="1407"/>
         <source>No files loaded</source>
         <translation>Файли не завантажені</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/GUI/gui.cpp" line="1406"/>
+        <location filename="../src/GUI/gui.cpp" line="1411"/>
         <source>%n files</source>
         <translation>
             <numerusform>%n файл</numerusform>
@@ -914,61 +914,104 @@
 <context>
     <name>GraphView</name>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="47"/>
+        <location filename="../src/GUI/graphview.cpp" line="43"/>
         <source>Data not available</source>
         <translation>Дані відсутні</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="67"/>
-        <location filename="../src/GUI/graphview.cpp" line="178"/>
         <source>Distance</source>
-        <translation>Відстань</translation>
+        <translation type="obsolete">Відстань</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="111"/>
-        <location filename="../src/GUI/graphview.cpp" line="119"/>
         <source>ft</source>
-        <translation>фт</translation>
+        <translation type="obsolete">фт</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="114"/>
         <source>mi</source>
-        <translation>миля</translation>
+        <translation type="obsolete">миля</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="122"/>
         <source>nmi</source>
-        <translation>мор.миля</translation>
+        <translation type="obsolete">мор.миля</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="127"/>
         <source>m</source>
-        <translation>м</translation>
+        <translation type="obsolete">м</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="130"/>
         <source>km</source>
-        <translation>км</translation>
+        <translation type="obsolete">км</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="136"/>
         <source>s</source>
-        <translation>с</translation>
+        <translation type="obsolete">с</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="139"/>
         <source>min</source>
-        <translation>хв</translation>
+        <translation type="obsolete">хв</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="142"/>
         <source>h</source>
-        <translation>год</translation>
+        <translation type="obsolete">год</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphview.cpp" line="180"/>
         <source>Time</source>
-        <translation>Час</translation>
+        <translation type="obsolete">Час</translation>
+    </message>
+</context>
+<context>
+    <name>GraphWidget</name>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="53"/>
+        <location filename="../src/GUI/graphwidget.cpp" line="101"/>
+        <source>Distance</source>
+        <translation type="unfinished">Відстань</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="103"/>
+        <source>Time</source>
+        <translation type="unfinished">Час</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="125"/>
+        <location filename="../src/GUI/graphwidget.cpp" line="133"/>
+        <source>ft</source>
+        <translation type="unfinished">фт</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="128"/>
+        <source>mi</source>
+        <translation type="unfinished">миля</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="136"/>
+        <source>nmi</source>
+        <translation type="unfinished">мор.миля</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="141"/>
+        <source>m</source>
+        <translation type="unfinished">м</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="144"/>
+        <source>km</source>
+        <translation type="unfinished">км</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="150"/>
+        <source>s</source>
+        <translation type="unfinished">с</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="153"/>
+        <source>min</source>
+        <translation type="unfinished">хв</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphwidget.cpp" line="156"/>
+        <source>h</source>
+        <translation type="unfinished">год</translation>
     </message>
 </context>
 <context>
@@ -1904,17 +1947,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraph.cpp" line="31"/>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="34"/>
+        <source>Minimum</source>
+        <translation type="unfinished">Мінімум</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="36"/>
         <source>Average</source>
         <translation type="unfinished">Середнє</translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraph.cpp" line="33"/>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="32"/>
         <source>Maximum</source>
         <translation type="unfinished">Максимум</translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraph.cpp" line="115"/>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="119"/>
         <source>m/s</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1922,17 +1970,22 @@
 <context>
     <name>VSpeedGraphItem</name>
     <message>
-        <location filename="../src/GUI/vspeedgraphitem.cpp" line="22"/>
+        <location filename="../src/GUI/vspeedgraphitem.cpp" line="26"/>
         <source>m/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraphitem.cpp" line="25"/>
+        <location filename="../src/GUI/vspeedgraphitem.cpp" line="29"/>
         <source>Maximum</source>
         <translation type="unfinished">Максимум</translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraphitem.cpp" line="27"/>
+        <location filename="../src/GUI/vspeedgraphitem.cpp" line="31"/>
+        <source>Minimum</source>
+        <translation type="unfinished">Мінімум</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/vspeedgraphitem.cpp" line="33"/>
         <source>Average</source>
         <translation type="unfinished">Середнє</translation>
     </message>

@@ -27,6 +27,7 @@ private:
 	  const QColor &color, bool primary);
 	qreal avg() const;
 	qreal max() const {return bounds().bottom();}
+	qreal min() const {return bounds().top();}
 	void setYUnits();
 	void setInfo();
 

@@ -47,8 +47,8 @@ QList<GraphItem*> TemperatureGraph::loadData(const Data &data)
 			graphs.append(0);
 		} else {
 			TemperatureGraphItem *gi = new TemperatureGraphItem(graph,
-			  _graphType, _width, _palette.nextColor());
-			gi->setUnits(_units);
+									graphType(), _width, _palette.nextColor());
+			gi->setUnits(units());
 
 			_tracks.append(gi);
 			if (_showTracks)

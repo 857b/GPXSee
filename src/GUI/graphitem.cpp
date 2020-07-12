@@ -8,10 +8,12 @@ GraphItem::GraphItem(const Graph &graph, GraphType type, int width,
   const QColor &color, Qt::PenStyle style, QGraphicsItem *parent)
   : GraphicsItem(parent), _graph(graph), _type(type), _secondaryGraph(0)
 {
+	Q_UNUSED(width);
 	Q_ASSERT(_graph.isValid());
 
 	_units = Metric;
 	_pen = QPen(color, width, style);
+	_pen.setCosmetic(true);
 	_sx = 0; _sy = 0;
 	_time = _graph.hasTime();
 	setZValue(2.0);
@@ -106,7 +108,7 @@ qreal GraphItem::yAtX(qreal x)
 		else if (p.x(_type) < x)
 			low = mid + 1;
 		else
-			return -p.y();
+			return p.y();
 	}
 
 	QLineF l;
@@ -117,7 +119,7 @@ qreal GraphItem::yAtX(qreal x)
 		l = QLineF(seg->at(mid-1).x(_type), seg->at(mid-1).y(),
 		  seg->at(mid).x(_type), seg->at(mid).y());
 
-	return -l.pointAt((x - l.p1().x()) / (l.p2().x() - l.p1().x())).y();
+	return l.pointAt((x - l.p1().x()) / (l.p2().x() - l.p1().x())).y();
 }
 
 qreal GraphItem::distanceAtTime(qreal time)
@@ -200,11 +202,11 @@ void GraphItem::updatePath()
 		for (int i = 0; i < _graph.size(); i++) {
 			const GraphSegment &segment = _graph.at(i);
 
-			_path.moveTo(segment.first().x(_type) * _sx, -segment.first().y()
-			  * _sy);
+			_path.moveTo(segment.first().x(_type) * _sx,
+					     segment.first().y() * _sy);
 			for (int i = 1; i < segment.size(); i++)
-				_path.lineTo(segment.at(i).x(_type) * _sx, -segment.at(i).y()
-				  * _sy);
+				_path.lineTo(segment.at(i).x(_type) * _sx,
+						 segment.at(i).y() * _sy);
 		}
 	}
 
@@ -221,16 +223,19 @@ void GraphItem::updateBounds()
 	qreal bottom, top, left, right;
 
 	QPointF p = QPointF(_graph.first().first().x(_type),
-	  -_graph.first().first().y());
-	bottom = p.y(); top = p.y(); left = p.x(); right = p.x();
+	                    _graph.first().first().y());
+	bottom = top = p.y();
+	left = right = p.x();
 
 	for (int i = 0; i < _graph.size(); i++) {
 		const GraphSegment &segment = _graph.at(i);
 
 		for (int j = 0; j < segment.size(); j++) {
-			p = QPointF(segment.at(j).x(_type), -segment.at(j).y());
-			bottom = qMax(bottom, p.y()); top = qMin(top, p.y());
-			right = qMax(right, p.x()); left = qMin(left, p.x());
+			p      = QPointF(segment.at(j).x(_type), segment.at(j).y());
+			top    = qMin(top,    p.y());
+			bottom = qMax(bottom, p.y());
+			left   = qMin(left,   p.x());
+			right  = qMax(right,  p.x());
 		}
 	}
 

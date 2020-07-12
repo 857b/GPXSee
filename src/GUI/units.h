@@ -1,10 +1,14 @@
 #ifndef UNITS_H
 #define UNITS_H
 
-enum Units {
+#include<QtGlobal>
+
+enum Units
+{
 	Metric,
 	Imperial,
 	Nautical
+
 };
 
 #define M2KM    0.001000000000  // m -> km
@@ -31,5 +35,15 @@ enum Units {
 #define C2FO    32.0 // Celsius to Farenheit - offset
 
 #define UNIT_SPACE     QString::fromUtf8("\xE2\x80\x89")
+
+template<typename T>
+inline T toUnit(const T& x, qreal scale, qreal ofs = 0.) {
+	return ofs + scale * x;
+}
+
+template<typename T>
+inline T fromUnit(const T& x, qreal scale, qreal ofs = 0.) {
+	return (-ofs + x) / scale;
+}
 
 #endif // UNITS_H

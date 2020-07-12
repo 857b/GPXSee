@@ -70,6 +70,7 @@ static GraphSegment filter(const GraphSegment &g, int window)
 
 	qreal acc = 0;
 	GraphSegment ret(g.size());
+	ret._sum = g._sum;
 
 	for (int i = 0; i < window; i++)
 		acc += g.at(i).y();
@@ -110,6 +111,8 @@ Track::Track(const TrackData &data) : _data(data), _pause(0)
 		  sd.first().hasTimestamp() ? 0 : NAN);
 		seg.speed.append(sd.first().hasTimestamp() ? 0 : NAN);
 		seg.vspeed.append(sd.first().hasTimestamp() ? 0 : NAN);
+		seg.deltaY = sd.last().elevation() - sd.first().elevation();
+
 		acceleration.append(sd.first().hasTimestamp() ? 0 : NAN);
 		bool hasTime = !std::isnan(seg.time.first());
 
@@ -396,6 +399,7 @@ Graph Track::vspeed() const
 			continue;
 		const Segment &seg = _segments.at(i);
 		GraphSegment gs;
+		gs._sum = seg.deltaY;
 		QList<int> stop;
 		qreal v;
 

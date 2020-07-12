@@ -4,15 +4,19 @@
 #include "vspeedgraphitem.h"
 
 
-VSpeedGraphItem::VSpeedGraphItem(const Graph &graph, GraphType type, int width,
-  const QColor &color, Qt::PenStyle style, qreal movingTime,
-  QGraphicsItem *parent) : GraphItem(graph, type, width, color, style, parent)
+VSpeedGraphItem::VSpeedGraphItem(const Graph &graph,
+		GraphType type, int width, const QColor &color,
+		Qt::PenStyle style, qreal movingTime, QGraphicsItem *parent)
+	: GraphItem(graph, type, width, color, style, parent)
 {
 	_timeType = Total;
 
 	_max = GraphItem::max();
-	_avg = graph.last().last().s() / graph.last().last().t();
-	_mavg = graph.last().last().s() / movingTime;
+	qreal deltaY = 0;
+	for (int j = 0; j < graph.size(); ++j)
+		deltaY += graph.at(j)._sum;
+	_avg = deltaY / graph.last().last().t();
+	_mavg = deltaY / movingTime;
 } 
 
 QString VSpeedGraphItem::info() const
@@ -24,8 +28,11 @@ QString VSpeedGraphItem::info() const
 
 	tt.insert(tr("Maximum"), l.toString(max() * scale, 'f', 1)
 	  + UNIT_SPACE + su);
-	tt.insert(tr("Average"), l.toString((_timeType == Total)
-	  ? avg() * scale : mavg() * scale, 'f', 1) + UNIT_SPACE + su);
+	tt.insert(tr("Minimum"), l.toString(min() * scale, 'f', 1)
+	  + UNIT_SPACE + su);
+	tt.insert(tr("Average"),
+			l.toString((_timeType == Total) ? avg() * scale : mavg() * scale,
+				'f', 2) + UNIT_SPACE + su);
 
 	return tt.toString();
 }

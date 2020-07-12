@@ -44,7 +44,7 @@ QList<GraphItem*> PowerGraph::loadData(const Data &data)
 			_palette.nextColor();
 			graphs.append(0);
 		} else {
-			PowerGraphItem *gi = new PowerGraphItem(graph, _graphType, _width,
+			PowerGraphItem *gi = new PowerGraphItem(graph, graphType(), _width,
 			  _palette.nextColor());
 
 			_tracks.append(gi);

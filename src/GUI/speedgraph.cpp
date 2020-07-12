@@ -46,10 +46,10 @@ GraphItem *SpeedGraph::loadGraph(const Graph &graph, const Track &track,
 	if (!graph.isValid())
 		return 0;
 
-	SpeedGraphItem *gi = new SpeedGraphItem(graph, _graphType, _width,
+	SpeedGraphItem *gi = new SpeedGraphItem(graph, graphType(), _width,
 	  color, primary ? Qt::SolidLine : Qt::DashLine, track.movingTime());
 	gi->setTimeType(_timeType);
-	gi->setUnits(_units);
+	gi->setUnits(units());
 
 	_tracks.append(gi);
 	if (_showTracks)

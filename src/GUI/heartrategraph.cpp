@@ -44,7 +44,7 @@ QList<GraphItem*> HeartRateGraph::loadData(const Data &data)
 			_palette.nextColor();
 			graphs.append(0);
 		} else {
-			HeartRateGraphItem *gi = new HeartRateGraphItem(graph, _graphType,
+			HeartRateGraphItem *gi = new HeartRateGraphItem(graph, graphType(),
 			  _width, _palette.nextColor());
 
 			_tracks.append(gi);

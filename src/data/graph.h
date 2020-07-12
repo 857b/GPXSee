@@ -40,7 +40,15 @@ inline QDebug operator<<(QDebug dbg, const GraphPoint &point)
 }
 #endif // QT_NO_DEBUG
 
-typedef QVector<GraphPoint> GraphSegment;
+class GraphSegment : public QVector<GraphPoint>
+{
+public:
+	// set for vspeed
+	qreal _sum = NAN;
+
+	GraphSegment() : QVector() {}
+	GraphSegment(int size) : QVector(size) {}
+};
 
 class Graph : public QList<GraphSegment>
 {

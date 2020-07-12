@@ -44,7 +44,7 @@ QList<GraphItem*> CadenceGraph::loadData(const Data &data)
 			_palette.nextColor();
 			graphs.append(0);
 		} else {
-			CadenceGraphItem *gi = new CadenceGraphItem(graph, _graphType,
+			CadenceGraphItem *gi = new CadenceGraphItem(graph, graphType(),
 			  _width, _palette.nextColor());
 
 			_tracks.append(gi);
