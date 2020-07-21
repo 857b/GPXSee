@@ -9,7 +9,7 @@
 
 typedef QVector<Trackpoint> SegmentData;
 
-class TrackData : public QList<SegmentData>
+class TrackInfos
 {
 public:
 	const QString &name() const {return _name;}
@@ -28,5 +28,7 @@ private:
 	QString _comment;
 	QVector<Link> _links;
 };
+
+class TrackData : public QList<SegmentData>, public TrackInfos {};
 
 #endif // TRACKDATA_H

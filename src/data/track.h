@@ -1,19 +1,127 @@
 #ifndef TRACK_H
 #define TRACK_H
 
+#include <QString>
 #include <QVector>
-#include <QSet>
+#include <QList>
 #include <QDateTime>
-#include <QDir>
+
+#include "common/coordinates.h"
+#include "link.h"
+
 #include "trackdata.h"
 #include "graph.h"
 #include "path.h"
 
-
-class Track
+enum ChanTy
 {
+	CTdistance,
+	CTelevation,
+	CTspeed,
+	CTaccel,
+	CTvSpeed,
+	CTheartRate,
+	CTtemperature,
+	CTcadence,
+	CTpower,
+	CTratio
+};
+
+enum ChanSrc
+{
+	CSbase, // from file
+	CSgpsDist,
+	CSgpsVit,
+	CSgpsAcc,
+	CSdem,
+	CSderiv
+};
+
+class Track : public TrackInfos {
 public:
+
+	class Channel : public QVector<qreal> 
+	{
+		public:
+			int     _id;     // in Track::_chanDescr
+
+			Channel() {}
+			Channel(int id): _id(id) {}
+
+			// [a, b[
+			qreal sum(int a, int b) const;
+			qreal avg(int a, int b) const;
+	};
+
+	struct Segment;
+
+	struct ChannelDescr
+	{
+		ChanTy  _ty;
+		ChanSrc _src;
+		int     _srcArg; // CSderiv
+
+		QString _name;
+
+		ChannelDescr() {}
+		ChannelDescr(ChanTy ty, ChanSrc src, int srcArg = ~0,
+					 QString name=QString())
+			: _ty(ty), _src(src), _srcArg(srcArg), _name(name) {}
+		ChannelDescr(ChanTy ty, ChanSrc src, QString name)
+			: _ty(ty), _src(src), _name(name) {}
+
+		QString fullName() const;
+
+		qreal sum(const Track& t, const Segment& s, int id,
+					int a, int b) const;
+	};
+
+	struct Segment
+	{
+		QVector<Coordinates> coord;
+		// may be empty if !hasTime()
+		QVector<QDateTime>   time;
+		QVector<Channel>     chan;
+		QSet<int>            outliers;
+		QSet<int>            stop;
+
+		// offset of the segment
+		qreal                dist0;
+		QDateTime            tms0;
+		qreal                time0;
+
+		bool                 timePres;
+		qreal                pauseTime;
+
+
+		Segment();
+
+		void           computeStopPoints(const Channel& speed,
+								qreal pauseInterval, qreal pauseSpeed);
+		bool           discardStopPoint(int i) const;
+		
+		// adding channels invalidates references
+		Channel&       append(const Channel& ch);
+		Channel&       append(const Channel& ch, int id);
+		Channel&       channel(int id);
+		const Channel& channel(int id) const;
+		const Channel* findChannel(int id) const;
+		
+		int            firstValid() const;
+		int            lastValid() const;
+		
+		bool           hasTime() const;
+		qreal          timeAt(int i) const;
+
+		int size() const {return coord.size();}
+		const Channel& operator[](int id) const {return channel(id);}
+		Channel& operator[](int id) {return channel(id);}
+	};
+
+
 	Track(const TrackData &data);
+
+	void computeChannels();
 
 	Path path() const;
 
@@ -31,11 +139,7 @@ public:
 	qreal movingTime() const;
 	QDateTime date() const;
 
-	const QString &name() const {return _data.name();}
-	const QString &description() const {return _data.description();}
-	const QString &comment() const {return _data.comment();}
-	const QVector<Link> &links() const {return _data.links();}
-
+	/* valid iff has a segment of length >= 2 */
 	bool isValid() const;
 
 	static void setElevationFilter(int window) {_elevationWindow = window;}
@@ -54,43 +158,36 @@ public:
 	  {_show2ndElevation = show;}
 	static void showSecondarySpeed(bool show)
 	  {_show2ndSpeed = show;}
+	
+	static QString tr(const char *sourceText, const char *disambiguation = 0);
 
 private:
-	struct Segment {
-		QVector<qreal> distance;
-		QVector<qreal> time;
-		QVector<qreal> speed;
-		QVector<qreal> vspeed;
-		QSet<int> outliers;
-		QSet<int> stop;
+	int newChannel(const ChannelDescr& ch);
+	int findChannel(int ct, int cs = -1) const;
+	Graph graphOfChannel(int cid, int filtrWindow = 1) const;
+	Graph graphOfType(ChanTy ty, int filtrWindow = 1) const;
 
-		qreal deltaY;
-	};
 
-	bool discardStopPoint(const Segment &seg, int i) const;
+	QVector<ChannelDescr>  _chanDescr;
+	QList<Segment>         _segments;
 
-	Graph demElevation() const;
-	Graph gpsElevation() const;
-	Graph reportedSpeed() const;
-	Graph computedSpeed() const;
+	int _chanDist; // distance since the beginning of the segment
 
-	TrackData _data;
-	QList<Segment> _segments;
-	qreal _pause;
+	qreal timeLength, distLength;
 
-	static bool _outlierEliminate;
-	static int _elevationWindow;
-	static int _speedWindow;
-	static int _heartRateWindow;
-	static int _cadenceWindow;
-	static int _powerWindow;
-	static bool _automaticPause;
+	static bool  _outlierEliminate;
+	static int   _elevationWindow;
+	static int   _speedWindow;
+	static int   _heartRateWindow;
+	static int   _cadenceWindow;
+	static int   _powerWindow;
+	static bool  _automaticPause;
 	static qreal _pauseSpeed;
-	static int _pauseInterval;
-	static bool _useReportedSpeed;
-	static bool _useDEM;
-	static bool _show2ndElevation;
-	static bool _show2ndSpeed;
+	static int   _pauseInterval;
+	static bool  _useReportedSpeed;
+	static bool  _useDEM;
+	static bool  _show2ndElevation;
+	static bool  _show2ndSpeed;
 };
 
-#endif // TRACK_H
+#endif

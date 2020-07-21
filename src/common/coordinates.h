@@ -10,8 +10,15 @@
 class Coordinates
 {
 public:
-	Coordinates() {_lon = NAN; _lat = NAN;}
-	Coordinates(double lon, double lat) {_lon = lon; _lat = lat;}
+	struct delta
+	{
+		double dLon, dLat; //radian
+
+		delta(double dlon, double dlat): dLon(dlon), dLat(dlat) {}
+	};
+
+	Coordinates(): _lon(NAN), _lat(NAN) {}
+	Coordinates(double lon, double lat): _lon(lon), _lat(lat) {}
 
 	double &rlon() {return _lon;}
 	double &rlat() {return _lat;}
@@ -28,8 +35,11 @@ public:
 
 	double distanceTo(const Coordinates &c) const;
 
+	delta  deltaTo(const Coordinates& c) const;
+	double deltaDistance(const delta& d) const;
+
 private:
-	double _lat, _lon;
+	double _lon, _lat;
 };
 
 Q_DECLARE_TYPEINFO(Coordinates, Q_PRIMITIVE_TYPE);

@@ -1,6 +1,8 @@
 #ifndef DEM_H
 #define DEM_H
 
+// Digital Elevation Model
+
 #include <QString>
 #include <QCache>
 #include <QByteArray>

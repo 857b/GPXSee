@@ -676,7 +676,7 @@
     <message>
         <location filename="../src/GUI/gui.cpp" line="737"/>
         <source>DEM directory:</source>
-        <translation>Dossier DEM :</translation>
+        <translation>Dossier MNT :</translation>
     </message>
     <message>
         <location filename="../src/GUI/gui.cpp" line="739"/>
