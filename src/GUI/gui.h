@@ -214,6 +214,8 @@ private:
 	POI *_poi;
 	Map *_map;
 
+	QObjectList _clearList;
+
 	FileBrowser *_browser;
 	QList<QString> _files;
 

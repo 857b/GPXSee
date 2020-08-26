@@ -4,23 +4,12 @@
 <context>
     <name>CadenceGraph</name>
     <message>
-        <location filename="../src/GUI/cadencegraph.cpp" line="11"/>
-        <source>rpm</source>
-        <translation>ford./perc</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/cadencegraph.cpp" line="12"/>
-        <location filename="../src/GUI/cadencegraph.h" line="16"/>
-        <source>Cadence</source>
-        <translation>Ütem</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/cadencegraph.cpp" line="27"/>
+        <location filename="../src/GUI/cadencegraph.cpp" line="15"/>
         <source>Average</source>
         <translation>Átlag</translation>
     </message>
     <message>
-        <location filename="../src/GUI/cadencegraph.cpp" line="29"/>
+        <location filename="../src/GUI/cadencegraph.cpp" line="16"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -28,18 +17,12 @@
 <context>
     <name>CadenceGraphItem</name>
     <message>
-        <location filename="../src/GUI/cadencegraphitem.cpp" line="17"/>
+        <location filename="../src/GUI/cadencegraph.cpp" line="28"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/cadencegraphitem.cpp" line="18"/>
-        <location filename="../src/GUI/cadencegraphitem.cpp" line="20"/>
-        <source>rpm</source>
-        <translation>ford./perc</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/cadencegraphitem.cpp" line="19"/>
+        <location filename="../src/GUI/cadencegraph.cpp" line="29"/>
         <source>Average</source>
         <translation>Átlag</translation>
     </message>
@@ -47,87 +30,87 @@
 <context>
     <name>Data</name>
     <message>
-        <location filename="../src/data/data.cpp" line="135"/>
+        <location filename="../src/data/data.cpp" line="136"/>
         <source>Supported files</source>
         <translation>Támogatott fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="136"/>
+        <location filename="../src/data/data.cpp" line="137"/>
         <source>CSV files</source>
         <translation>CSV fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="137"/>
+        <location filename="../src/data/data.cpp" line="138"/>
         <source>CUP files</source>
         <translation>CUP fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="138"/>
+        <location filename="../src/data/data.cpp" line="139"/>
         <source>FIT files</source>
         <translation>FIT fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="140"/>
+        <location filename="../src/data/data.cpp" line="141"/>
         <source>GeoJSON files</source>
         <translation>GeoJSON fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="142"/>
+        <location filename="../src/data/data.cpp" line="143"/>
         <source>GPI files</source>
         <translation>GPI fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="143"/>
+        <location filename="../src/data/data.cpp" line="144"/>
         <source>GPX files</source>
         <translation>GPX fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="144"/>
+        <location filename="../src/data/data.cpp" line="145"/>
         <source>IGC files</source>
         <translation>IGC fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="145"/>
+        <location filename="../src/data/data.cpp" line="146"/>
         <source>JPEG images</source>
         <translation>JPEG fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="146"/>
+        <location filename="../src/data/data.cpp" line="147"/>
         <source>KML files</source>
         <translation>KML fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="147"/>
+        <location filename="../src/data/data.cpp" line="148"/>
         <source>LOC files</source>
         <translation>LOC fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="148"/>
+        <location filename="../src/data/data.cpp" line="149"/>
         <source>NMEA files</source>
         <translation>NMEA fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="149"/>
+        <location filename="../src/data/data.cpp" line="150"/>
         <source>OziExplorer files</source>
         <translation>OziExplorer fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="150"/>
+        <location filename="../src/data/data.cpp" line="151"/>
         <source>SLF files</source>
         <translation>SLF fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="151"/>
+        <location filename="../src/data/data.cpp" line="152"/>
         <source>SML files</source>
         <translation>SML fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="152"/>
+        <location filename="../src/data/data.cpp" line="153"/>
         <source>TCX files</source>
         <translation>TCX fájlok</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="153"/>
+        <location filename="../src/data/data.cpp" line="154"/>
         <source>All files</source>
         <translation>Minden fájl</translation>
     </message>
@@ -135,73 +118,47 @@
 <context>
     <name>ElevationGraph</name>
     <message>
-        <location filename="../src/GUI/elevationgraph.cpp" line="40"/>
-        <location filename="../src/GUI/elevationgraph.h" line="16"/>
-        <source>Elevation</source>
-        <translation>Magasság</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/elevationgraph.cpp" line="57"/>
+        <location filename="../src/GUI/elevationgraph.cpp" line="93"/>
         <source>Ascent</source>
         <translation>Emelkedés</translation>
     </message>
     <message>
-        <location filename="../src/GUI/elevationgraph.cpp" line="59"/>
+        <location filename="../src/GUI/elevationgraph.cpp" line="94"/>
         <source>Descent</source>
         <translation>Süllyedés</translation>
     </message>
     <message>
-        <location filename="../src/GUI/elevationgraph.cpp" line="61"/>
+        <location filename="../src/GUI/elevationgraph.cpp" line="95"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/elevationgraph.cpp" line="63"/>
+        <location filename="../src/GUI/elevationgraph.cpp" line="96"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/elevationgraph.cpp" line="165"/>
-        <source>m</source>
-        <translation>m</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/elevationgraph.cpp" line="168"/>
-        <source>ft</source>
-        <translation>láb</translation>
     </message>
 </context>
 <context>
     <name>ElevationGraphItem</name>
     <message>
-        <location filename="../src/GUI/elevationgraphitem.cpp" line="33"/>
-        <source>m</source>
-        <translation>m</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/elevationgraphitem.cpp" line="33"/>
-        <source>ft</source>
-        <translation>láb</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/elevationgraphitem.cpp" line="36"/>
+        <location filename="../src/GUI/elevationgraph.cpp" line="49"/>
         <source>Ascent</source>
-        <translation>Emelkedés</translation>
+        <translation type="unfinished">Emelkedés</translation>
     </message>
     <message>
-        <location filename="../src/GUI/elevationgraphitem.cpp" line="38"/>
+        <location filename="../src/GUI/elevationgraph.cpp" line="50"/>
         <source>Descent</source>
-        <translation>Süllyedés</translation>
+        <translation type="unfinished">Süllyedés</translation>
     </message>
     <message>
-        <location filename="../src/GUI/elevationgraphitem.cpp" line="40"/>
+        <location filename="../src/GUI/elevationgraph.cpp" line="51"/>
         <source>Maximum</source>
-        <translation>Maximum</translation>
+        <translation type="unfinished">Maximum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/elevationgraphitem.cpp" line="42"/>
+        <location filename="../src/GUI/elevationgraph.cpp" line="52"/>
         <source>Minimum</source>
-        <translation>Minimum</translation>
+        <translation type="unfinished">Minimum</translation>
     </message>
 </context>
 <context>
@@ -315,32 +272,25 @@
 <context>
     <name>Format</name>
     <message>
-        <location filename="../src/GUI/format.cpp" line="54"/>
-        <location filename="../src/GUI/format.cpp" line="61"/>
-        <location filename="../src/GUI/format.cpp" line="84"/>
-        <source>ft</source>
-        <translation>láb</translation>
+        <location filename="../src/GUI/format.cpp" line="40"/>
+        <source>%1%2%3</source>
+        <comment>time with units</comment>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/format.cpp" line="57"/>
-        <source>mi</source>
-        <translation>mérföld</translation>
+        <location filename="../src/GUI/format.cpp" line="43"/>
+        <source>%1h</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/format.cpp" line="64"/>
-        <source>nmi</source>
-        <translation>tengeri mérföld</translation>
+        <location filename="../src/GUI/format.cpp" line="44"/>
+        <source>%1m</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/format.cpp" line="68"/>
-        <location filename="../src/GUI/format.cpp" line="81"/>
-        <source>m</source>
-        <translation>m</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/format.cpp" line="71"/>
-        <source>km</source>
-        <translation>km</translation>
+        <location filename="../src/GUI/format.cpp" line="45"/>
+        <source>%1s</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -494,16 +444,16 @@
     </message>
     <message>
         <location filename="../src/GUI/gui.cpp" line="373"/>
-        <location filename="../src/GUI/gui.cpp" line="1082"/>
-        <location filename="../src/GUI/gui.cpp" line="1149"/>
+        <location filename="../src/GUI/gui.cpp" line="1085"/>
+        <location filename="../src/GUI/gui.cpp" line="1152"/>
         <source>Distance</source>
         <translation>Távolság</translation>
     </message>
     <message>
         <location filename="../src/GUI/gui.cpp" line="380"/>
         <location filename="../src/GUI/gui.cpp" line="556"/>
-        <location filename="../src/GUI/gui.cpp" line="1085"/>
-        <location filename="../src/GUI/gui.cpp" line="1151"/>
+        <location filename="../src/GUI/gui.cpp" line="1088"/>
+        <location filename="../src/GUI/gui.cpp" line="1154"/>
         <source>Time</source>
         <translation>Idő</translation>
     </message>
@@ -534,8 +484,8 @@
     </message>
     <message>
         <location filename="../src/GUI/gui.cpp" line="417"/>
-        <location filename="../src/GUI/gui.cpp" line="1087"/>
-        <location filename="../src/GUI/gui.cpp" line="1153"/>
+        <location filename="../src/GUI/gui.cpp" line="1090"/>
+        <location filename="../src/GUI/gui.cpp" line="1156"/>
         <source>Moving time</source>
         <translation>Mozgásban töltött idő</translation>
     </message>
@@ -780,87 +730,87 @@
         <translation>Fájl megnyitása</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="850"/>
+        <location filename="../src/GUI/gui.cpp" line="853"/>
         <source>Error loading data file:</source>
         <translation>Adatfájl betöltési hiba:</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="853"/>
-        <location filename="../src/GUI/gui.cpp" line="888"/>
+        <location filename="../src/GUI/gui.cpp" line="856"/>
+        <location filename="../src/GUI/gui.cpp" line="891"/>
         <source>Line: %1</source>
         <translation>Sor: %1</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="861"/>
+        <location filename="../src/GUI/gui.cpp" line="864"/>
         <source>Open POI file</source>
         <translation>POI fájl megnyitása</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="885"/>
+        <location filename="../src/GUI/gui.cpp" line="888"/>
         <source>Error loading POI file:</source>
         <translation>Hiba a POI fájl betöltése során:</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1056"/>
-        <location filename="../src/GUI/gui.cpp" line="1127"/>
+        <location filename="../src/GUI/gui.cpp" line="1059"/>
+        <location filename="../src/GUI/gui.cpp" line="1130"/>
         <source>Tracks</source>
         <translation>Nyomvonalak</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1059"/>
-        <location filename="../src/GUI/gui.cpp" line="1129"/>
+        <location filename="../src/GUI/gui.cpp" line="1062"/>
+        <location filename="../src/GUI/gui.cpp" line="1132"/>
         <source>Routes</source>
         <translation>Útvonalak</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1062"/>
-        <location filename="../src/GUI/gui.cpp" line="1131"/>
+        <location filename="../src/GUI/gui.cpp" line="1065"/>
+        <location filename="../src/GUI/gui.cpp" line="1134"/>
         <source>Waypoints</source>
         <translation>Köztespontok</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1065"/>
-        <location filename="../src/GUI/gui.cpp" line="1133"/>
+        <location filename="../src/GUI/gui.cpp" line="1068"/>
+        <location filename="../src/GUI/gui.cpp" line="1136"/>
         <source>Areas</source>
         <translation>Területek</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1071"/>
-        <location filename="../src/GUI/gui.cpp" line="1075"/>
-        <location filename="../src/GUI/gui.cpp" line="1139"/>
+        <location filename="../src/GUI/gui.cpp" line="1074"/>
+        <location filename="../src/GUI/gui.cpp" line="1078"/>
         <location filename="../src/GUI/gui.cpp" line="1142"/>
+        <location filename="../src/GUI/gui.cpp" line="1145"/>
         <source>Date</source>
         <translation>Dátum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1108"/>
-        <location filename="../src/GUI/gui.cpp" line="1109"/>
+        <location filename="../src/GUI/gui.cpp" line="1111"/>
+        <location filename="../src/GUI/gui.cpp" line="1112"/>
         <source>Statistics</source>
         <translation>Összesítés</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1123"/>
+        <location filename="../src/GUI/gui.cpp" line="1126"/>
         <source>Name</source>
         <translation>Név</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1346"/>
+        <location filename="../src/GUI/gui.cpp" line="1353"/>
         <source>Open map file</source>
         <translation>Térképfájl megnyitása</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1366"/>
-        <location filename="../src/GUI/gui.cpp" line="1397"/>
+        <location filename="../src/GUI/gui.cpp" line="1373"/>
+        <location filename="../src/GUI/gui.cpp" line="1404"/>
         <source>Error loading map:</source>
         <translation>Térképbetöltési hiba:</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gui.cpp" line="1407"/>
+        <location filename="../src/GUI/gui.cpp" line="1414"/>
         <source>No files loaded</source>
         <translation>Nincs betöltött fájl</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/GUI/gui.cpp" line="1411"/>
+        <location filename="../src/GUI/gui.cpp" line="1418"/>
         <source>%n files</source>
         <translation>
             <numerusform>%n fájl</numerusform>
@@ -870,23 +820,17 @@
 <context>
     <name>GearRatioGraph</name>
     <message>
-        <location filename="../src/GUI/gearratiograph.cpp" line="12"/>
-        <location filename="../src/GUI/gearratiograph.h" line="17"/>
-        <source>Gear ratio</source>
-        <translation>Áttétel</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/gearratiograph.cpp" line="27"/>
+        <location filename="../src/GUI/gearratiograph.cpp" line="15"/>
         <source>Most used</source>
         <translation>Legtöbbször használt</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gearratiograph.cpp" line="29"/>
+        <location filename="../src/GUI/gearratiograph.cpp" line="16"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gearratiograph.cpp" line="31"/>
+        <location filename="../src/GUI/gearratiograph.cpp" line="17"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -894,144 +838,44 @@
 <context>
     <name>GearRatioGraphItem</name>
     <message>
-        <location filename="../src/GUI/gearratiographitem.cpp" line="35"/>
+        <location filename="../src/GUI/gearratiograph.cpp" line="84"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gearratiographitem.cpp" line="36"/>
+        <location filename="../src/GUI/gearratiograph.cpp" line="85"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/gearratiographitem.cpp" line="37"/>
+        <location filename="../src/GUI/gearratiograph.cpp" line="86"/>
         <source>Most used</source>
         <translation>Leggyakrabban használt</translation>
     </message>
 </context>
 <context>
-    <name>GraphView</name>
-    <message>
-        <location filename="../src/GUI/graphview.cpp" line="43"/>
-        <source>Data not available</source>
-        <translation>Nem elérhető</translation>
-    </message>
-    <message>
-        <source>Distance</source>
-        <translation type="obsolete">Távolság</translation>
-    </message>
-    <message>
-        <source>ft</source>
-        <translation type="obsolete">láb</translation>
-    </message>
-    <message>
-        <source>mi</source>
-        <translation type="obsolete">mérföld</translation>
-    </message>
-    <message>
-        <source>nmi</source>
-        <translation type="obsolete">tengeri mérföld</translation>
-    </message>
-    <message>
-        <source>m</source>
-        <translation type="obsolete">m</translation>
-    </message>
-    <message>
-        <source>km</source>
-        <translation type="obsolete">km</translation>
-    </message>
-    <message>
-        <source>s</source>
-        <translation type="obsolete">mp</translation>
-    </message>
-    <message>
-        <source>min</source>
-        <translation type="obsolete">perc</translation>
-    </message>
-    <message>
-        <source>h</source>
-        <translation type="obsolete">óra</translation>
-    </message>
-    <message>
-        <source>Time</source>
-        <translation type="obsolete">Idő</translation>
-    </message>
-</context>
-<context>
     <name>GraphWidget</name>
     <message>
-        <location filename="../src/GUI/graphwidget.cpp" line="53"/>
-        <location filename="../src/GUI/graphwidget.cpp" line="101"/>
+        <location filename="../src/GUI/graphwidget.cpp" line="50"/>
+        <location filename="../src/GUI/graphwidget.cpp" line="96"/>
         <source>Distance</source>
         <translation type="unfinished">Távolság</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphwidget.cpp" line="103"/>
+        <location filename="../src/GUI/graphwidget.cpp" line="98"/>
         <source>Time</source>
         <translation type="unfinished">Idő</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/graphwidget.cpp" line="125"/>
-        <location filename="../src/GUI/graphwidget.cpp" line="133"/>
-        <source>ft</source>
-        <translation type="unfinished">láb</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/graphwidget.cpp" line="128"/>
-        <source>mi</source>
-        <translation type="unfinished">mérföld</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/graphwidget.cpp" line="136"/>
-        <source>nmi</source>
-        <translation type="unfinished">tengeri mérföld</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/graphwidget.cpp" line="141"/>
-        <source>m</source>
-        <translation type="unfinished">m</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/graphwidget.cpp" line="144"/>
-        <source>km</source>
-        <translation type="unfinished">km</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/graphwidget.cpp" line="150"/>
-        <source>s</source>
-        <translation type="unfinished">mp</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/graphwidget.cpp" line="153"/>
-        <source>min</source>
-        <translation type="unfinished">perc</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/graphwidget.cpp" line="156"/>
-        <source>h</source>
-        <translation type="unfinished">óra</translation>
     </message>
 </context>
 <context>
     <name>HeartRateGraph</name>
     <message>
-        <location filename="../src/GUI/heartrategraph.cpp" line="11"/>
-        <source>bpm</source>
-        <translation>ütés/perc</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/heartrategraph.cpp" line="12"/>
-        <location filename="../src/GUI/heartrategraph.h" line="16"/>
-        <source>Heart rate</source>
-        <translation>Pulzusszám</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/heartrategraph.cpp" line="27"/>
+        <location filename="../src/GUI/heartrategraph.cpp" line="22"/>
         <source>Average</source>
         <translation>Átlag</translation>
     </message>
     <message>
-        <location filename="../src/GUI/heartrategraph.cpp" line="29"/>
+        <location filename="../src/GUI/heartrategraph.cpp" line="23"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -1039,18 +883,12 @@
 <context>
     <name>HeartRateGraphItem</name>
     <message>
-        <location filename="../src/GUI/heartrategraphitem.cpp" line="17"/>
+        <location filename="../src/GUI/heartrategraph.cpp" line="8"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/heartrategraphitem.cpp" line="18"/>
-        <location filename="../src/GUI/heartrategraphitem.cpp" line="20"/>
-        <source>bpm</source>
-        <translation>ütés</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/heartrategraphitem.cpp" line="19"/>
+        <location filename="../src/GUI/heartrategraph.cpp" line="9"/>
         <source>Average</source>
         <translation>Átlag</translation>
     </message>
@@ -1632,23 +1470,12 @@
 <context>
     <name>PowerGraph</name>
     <message>
-        <location filename="../src/GUI/powergraph.cpp" line="11"/>
-        <source>W</source>
-        <translation>W</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/powergraph.cpp" line="12"/>
-        <location filename="../src/GUI/powergraph.h" line="16"/>
-        <source>Power</source>
-        <translation>Teljesítmény</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/powergraph.cpp" line="27"/>
+        <location filename="../src/GUI/powergraph.cpp" line="15"/>
         <source>Average</source>
         <translation>Átlag</translation>
     </message>
     <message>
-        <location filename="../src/GUI/powergraph.cpp" line="29"/>
+        <location filename="../src/GUI/powergraph.cpp" line="16"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -1656,18 +1483,12 @@
 <context>
     <name>PowerGraphItem</name>
     <message>
-        <location filename="../src/GUI/powergraphitem.cpp" line="17"/>
+        <location filename="../src/GUI/powergraph.cpp" line="28"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/powergraphitem.cpp" line="18"/>
-        <location filename="../src/GUI/powergraphitem.cpp" line="20"/>
-        <source>W</source>
-        <translation>W</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/powergraphitem.cpp" line="19"/>
+        <location filename="../src/GUI/powergraph.cpp" line="29"/>
         <source>Average</source>
         <translation>Átlag</translation>
     </message>
@@ -1732,28 +1553,7 @@
 <context>
     <name>SpeedGraph</name>
     <message>
-        <location filename="../src/GUI/speedgraph.cpp" line="16"/>
-        <location filename="../src/GUI/speedgraph.h" line="18"/>
-        <source>Speed</source>
-        <translation>Sebesség</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/speedgraph.cpp" line="31"/>
-        <source>min/km</source>
-        <translation>perc/km</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/speedgraph.cpp" line="32"/>
-        <source>min/mi</source>
-        <translation>perc/mérföld</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/speedgraph.cpp" line="32"/>
-        <source>min/nmi</source>
-        <translation>perc/tengeri mérföld</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/speedgraph.cpp" line="34"/>
+        <location filename="../src/GUI/speedgraph.cpp" line="35"/>
         <source>Average</source>
         <translation>Átlag</translation>
     </message>
@@ -1767,66 +1567,21 @@
         <source>Pace</source>
         <translation>Tempó</translation>
     </message>
-    <message>
-        <location filename="../src/GUI/speedgraph.cpp" line="127"/>
-        <source>kn</source>
-        <translation>csomó</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/speedgraph.cpp" line="130"/>
-        <source>mi/h</source>
-        <translation>mph</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/speedgraph.cpp" line="133"/>
-        <source>km/h</source>
-        <translation>km/h</translation>
-    </message>
 </context>
 <context>
     <name>SpeedGraphItem</name>
     <message>
-        <location filename="../src/GUI/speedgraphitem.cpp" line="23"/>
-        <source>mi/h</source>
-        <translation>mph</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/speedgraphitem.cpp" line="24"/>
-        <source>kn</source>
-        <translation>csomó</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/speedgraphitem.cpp" line="24"/>
-        <source>km/h</source>
-        <translation>km/h</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/speedgraphitem.cpp" line="27"/>
-        <source>min/km</source>
-        <translation>perc/km</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/speedgraphitem.cpp" line="28"/>
-        <source>min/mi</source>
-        <translation>perc/mérföld</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/speedgraphitem.cpp" line="28"/>
-        <source>min/nmi</source>
-        <translation>perc/tengeri mérföld</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/speedgraphitem.cpp" line="31"/>
+        <location filename="../src/GUI/speedgraph.cpp" line="15"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/speedgraphitem.cpp" line="33"/>
+        <location filename="../src/GUI/speedgraph.cpp" line="16"/>
         <source>Average</source>
         <translation>Átlag</translation>
     </message>
     <message>
-        <location filename="../src/GUI/speedgraphitem.cpp" line="35"/>
+        <location filename="../src/GUI/speedgraph.cpp" line="18"/>
         <source>Pace</source>
         <translation>Tempó</translation>
     </message>
@@ -1834,63 +1589,105 @@
 <context>
     <name>TemperatureGraph</name>
     <message>
-        <location filename="../src/GUI/temperaturegraph.cpp" line="12"/>
-        <location filename="../src/GUI/temperaturegraph.h" line="16"/>
-        <source>Temperature</source>
-        <translation>Hőmérséklet</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/temperaturegraph.cpp" line="27"/>
+        <location filename="../src/GUI/temperaturegraph.cpp" line="24"/>
         <source>Average</source>
         <translation>Átlag</translation>
     </message>
     <message>
-        <location filename="../src/GUI/temperaturegraph.cpp" line="29"/>
+        <location filename="../src/GUI/temperaturegraph.cpp" line="25"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/temperaturegraph.cpp" line="31"/>
+        <location filename="../src/GUI/temperaturegraph.cpp" line="26"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/temperaturegraph.cpp" line="102"/>
-        <source>C</source>
-        <translation>°C</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/temperaturegraph.cpp" line="106"/>
-        <source>F</source>
-        <translation>°F</translation>
     </message>
 </context>
 <context>
     <name>TemperatureGraphItem</name>
     <message>
-        <location filename="../src/GUI/temperaturegraphitem.cpp" line="21"/>
-        <source>C</source>
-        <translation>°C</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/temperaturegraphitem.cpp" line="21"/>
-        <source>F</source>
-        <translation>°F</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/temperaturegraphitem.cpp" line="24"/>
+        <location filename="../src/GUI/temperaturegraph.cpp" line="8"/>
         <source>Average</source>
         <translation>Átlag</translation>
     </message>
     <message>
-        <location filename="../src/GUI/temperaturegraphitem.cpp" line="26"/>
+        <location filename="../src/GUI/temperaturegraph.cpp" line="10"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/temperaturegraphitem.cpp" line="28"/>
+        <location filename="../src/GUI/temperaturegraph.cpp" line="9"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
+    </message>
+</context>
+<context>
+    <name>Track</name>
+    <message>
+        <location filename="../src/data/track.cpp" line="16"/>
+        <source>Distance</source>
+        <translation type="unfinished">Távolság</translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="18"/>
+        <source>Elevation</source>
+        <translation type="unfinished">Magasság</translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="20"/>
+        <source>Speed</source>
+        <translation type="unfinished">Sebesség</translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="22"/>
+        <source>Acceleration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="24"/>
+        <source>Vertical Speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="26"/>
+        <source>Heart rate</source>
+        <translation type="unfinished">Pulzusszám</translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="28"/>
+        <source>Temperature</source>
+        <translation type="unfinished">Hőmérséklet</translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="30"/>
+        <source>Cadence</source>
+        <translation type="unfinished">Ütem</translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="32"/>
+        <source>Power</source>
+        <translation type="unfinished">Teljesítmény</translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="34"/>
+        <source>Gear ratio</source>
+        <translation type="unfinished">Áttétel</translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="37"/>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="257"/>
+        <source>computed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="258"/>
+        <source>computed from %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1937,53 +1734,140 @@
     </message>
 </context>
 <context>
-    <name>VSpeedGraph</name>
+    <name>Unit</name>
     <message>
-        <location filename="../src/GUI/vspeedgraph.cpp" line="16"/>
-        <location filename="../src/GUI/vspeedgraph.h" line="18"/>
-        <source>Vertical Speed</source>
+        <location filename="../src/GUI/units.cpp" line="32"/>
+        <source>m/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraph.cpp" line="34"/>
+        <location filename="../src/GUI/units.cpp" line="33"/>
+        <source>kn</source>
+        <translation type="unfinished">csomó</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="34"/>
+        <source>mi/h</source>
+        <translation type="unfinished">mph</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="35"/>
+        <source>km/h</source>
+        <translation type="unfinished">km/h</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="37"/>
+        <source>/nmi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="38"/>
+        <source>/mi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="39"/>
+        <source>/km</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="41"/>
+        <source>m</source>
+        <translation type="unfinished">m</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="42"/>
+        <source>km</source>
+        <translation type="unfinished">km</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="43"/>
+        <source>ft</source>
+        <translation type="unfinished">láb</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="44"/>
+        <source>mi</source>
+        <translation type="unfinished">mérföld</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="45"/>
+        <source>nmi</source>
+        <translation type="unfinished">tengeri mérföld</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="47"/>
+        <source>s</source>
+        <translation type="unfinished">mp</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="48"/>
+        <source>min</source>
+        <translation type="unfinished">perc</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="49"/>
+        <source>h</source>
+        <translation type="unfinished">óra</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="51"/>
+        <source>bpm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="53"/>
+        <source>deg C</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="54"/>
+        <source>deg F</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="56"/>
+        <source>rpm</source>
+        <translation type="unfinished">ford./perc</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/units.cpp" line="58"/>
+        <source>W</source>
+        <translation type="unfinished">W</translation>
+    </message>
+</context>
+<context>
+    <name>VSpeedGraph</name>
+    <message>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="27"/>
         <source>Minimum</source>
         <translation type="unfinished">Minimum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraph.cpp" line="36"/>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="28"/>
         <source>Average</source>
         <translation type="unfinished">Átlag</translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraph.cpp" line="32"/>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="26"/>
         <source>Maximum</source>
         <translation type="unfinished">Maximum</translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/vspeedgraph.cpp" line="119"/>
-        <source>m/s</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>VSpeedGraphItem</name>
     <message>
-        <location filename="../src/GUI/vspeedgraphitem.cpp" line="26"/>
-        <source>m/s</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/GUI/vspeedgraphitem.cpp" line="29"/>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="9"/>
         <source>Maximum</source>
         <translation type="unfinished">Maximum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraphitem.cpp" line="31"/>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="10"/>
         <source>Minimum</source>
         <translation type="unfinished">Minimum</translation>
     </message>
     <message>
-        <location filename="../src/GUI/vspeedgraphitem.cpp" line="33"/>
+        <location filename="../src/GUI/vspeedgraph.cpp" line="11"/>
         <source>Average</source>
         <translation type="unfinished">Átlag</translation>
     </message>

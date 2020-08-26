@@ -1,6 +1,7 @@
 #ifndef TRACK_H
 #define TRACK_H
 
+#include <QObject>
 #include <QString>
 #include <QVector>
 #include <QList>
@@ -27,6 +28,8 @@ enum ChanTy
 	CTratio
 };
 
+QString chanTyName(ChanTy ty);
+
 enum ChanSrc
 {
 	CSbase, // from file
@@ -37,7 +40,9 @@ enum ChanSrc
 	CSderiv
 };
 
-class Track : public TrackInfos {
+class Track : public QObject, public TrackInfos {
+	Q_OBJECT
+
 public:
 
 	class Channel : public QVector<qreal> 
@@ -47,10 +52,13 @@ public:
 
 			Channel() {}
 			Channel(int id): _id(id) {}
+			Channel(int id, int sz): QVector(sz), _id(id) {}
 
 			// [a, b[
 			qreal sum(int a, int b) const;
 			qreal avg(int a, int b) const;
+			Channel filter(int window) const;
+			bool  hasData() const;
 	};
 
 	struct Segment;
@@ -72,8 +80,11 @@ public:
 
 		QString fullName() const;
 
+		// s must have an id-channel
 		qreal sum(const Track& t, const Segment& s, int id,
 					int a, int b) const;
+		qreal sum(const Track& t, int id) const;
+		qreal tsum(const Track& t, int id) const;
 	};
 
 	struct Segment
@@ -111,42 +122,66 @@ public:
 		int            lastValid() const;
 		
 		bool           hasTime() const;
+		// need hasTime()
 		qreal          timeAt(int i) const;
+		qreal          totalTime() const;
+		qreal          movingTime() const;
 
 		int size() const {return coord.size();}
 		const Channel& operator[](int id) const {return channel(id);}
 		Channel& operator[](int id) {return channel(id);}
 	};
+	
+	struct ChannelPoint {
+		int   seg_num;
+		int   pt0, pt1;
+		qreal t;
+
+		ChannelPoint(int sg = -1, int p0 = 0, int p1 = 0)
+			: seg_num(sg), pt0(p0), pt1(p1), t(0) {}
+		operator bool() const {return ~seg_num;}
+		qreal interpol(qreal v0, qreal v1) const {
+			return (1 - t) * v0 + t * v1;
+		}
+		qreal interpol(const Channel& ch) const {
+			return interpol(ch.at(pt0), ch.at(pt1));
+		}
+	};
 
 
-	Track(const TrackData &data);
+	Track(QObject* parent, const TrackData &data);
 
 	void computeChannels();
 
 	Path path() const;
 
-	GraphPair elevation() const;
-	GraphPair speed() const;
-	Graph vspeed() const;
-	Graph heartRate() const;
-	Graph temperature() const;
-	Graph cadence() const;
-	Graph power() const;
-	Graph ratio() const;
+	const QList<Segment>& segments() const {return _segments;}
+	QVector<ChannelDescr> chanDescr() const {return _chanDescr;}
+	int          distChan() const {return _chanDist;}
 
-	qreal distance() const;
-	qreal time() const;
-	qreal movingTime() const;
-	QDateTime date() const;
+	QList<int>   findChannels(ChanTy ct)  const;
+
+	qreal        distance()   const;
+	qreal        time()       const;
+	qreal        movingTime() const;
+	QDateTime    date()   const;
+
+	ChannelPoint pointAtTime(qreal t)     const;
+	ChannelPoint pointAtDistance(qreal d) const;
+	qreal        distanceAtTime(qreal t)  const;
 
 	/* valid iff has a segment of length >= 2 */
 	bool isValid() const;
+	bool hasTime() const;
+	bool hasData(int chanId) const;
 
+	static int  filterWindow(ChanTy ct);
 	static void setElevationFilter(int window) {_elevationWindow = window;}
 	static void setSpeedFilter(int window) {_speedWindow = window;}
 	static void setHeartRateFilter(int window) {_heartRateWindow = window;}
 	static void setCadenceFilter(int window) {_cadenceWindow = window;}
 	static void setPowerFilter(int window) {_powerWindow = window;}
+
 	static void setAutomaticPause(bool set) {_automaticPause = set;}
 	static void setPauseSpeed(qreal speed) {_pauseSpeed = speed;}
 	static void setPauseInterval(int interval) {_pauseInterval = interval;}
@@ -158,14 +193,10 @@ public:
 	  {_show2ndElevation = show;}
 	static void showSecondarySpeed(bool show)
 	  {_show2ndSpeed = show;}
-	
-	static QString tr(const char *sourceText, const char *disambiguation = 0);
 
 private:
 	int newChannel(const ChannelDescr& ch);
 	int findChannel(int ct, int cs = -1) const;
-	Graph graphOfChannel(int cid, int filtrWindow = 1) const;
-	Graph graphOfType(ChanTy ty, int filtrWindow = 1) const;
 
 
 	QVector<ChannelDescr>  _chanDescr;

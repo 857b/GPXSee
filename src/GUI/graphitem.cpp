@@ -4,28 +4,33 @@
 #include "graphitem.h"
 
 
-GraphItem::GraphItem(const Graph &graph, GraphType type, int width,
-  const QColor &color, Qt::PenStyle style, QGraphicsItem *parent)
-  : GraphicsItem(parent), _graph(graph), _type(type), _secondaryGraph(0)
+GraphItem::GraphItem(QObject* oParent, GraphType type,
+			int width, const QColor &color, Qt::PenStyle style,
+			QGraphicsItem *iParent)
+	: QObject(oParent), GraphicsItem(iParent),
+	  _type(type),
+	  _shpWidth(4)
 {
-	Q_UNUSED(width);
-	Q_ASSERT(_graph.isValid());
-
 	_units = Metric;
 	_pen = QPen(color, width, style);
 	_pen.setCosmetic(true);
-	_sx = 0; _sy = 0;
-	_time = _graph.hasTime();
+	_pen.setWidth(width);
 	setZValue(2.0);
 	setAcceptHoverEvents(true);
+}
 
+void GraphItem::updateG()
+{
+	prepareGeometryChange();
+	updatePath();
+	updateShape();
 	updateBounds();
 }
 
 void GraphItem::updateShape()
 {
 	QPainterPathStroker s;
-	s.setWidth(_pen.width() + 1);
+	s.setWidth(qMax(_shpWidth, _pen.widthF()));
 	_shape = s.createStroke(_path);
 }
 
@@ -50,11 +55,8 @@ void GraphItem::setGraphType(GraphType type)
 	if (type == _type)
 		return;
 
-	prepareGeometryChange();
-
 	_type = type;
-	updatePath();
-	updateBounds();
+	updateG();
 }
 
 void GraphItem::setColor(const QColor &color)
@@ -78,7 +80,124 @@ void GraphItem::setWidth(int width)
 	updateShape();
 }
 
-const GraphSegment *GraphItem::segment(qreal x, GraphType type) const
+void GraphItem::emitSliderPositionChanged(qreal pos)
+{
+	if (_type == Time)
+		emit sliderPositionChanged(hasTime() ? distanceAtTime(pos) : NAN);
+	else
+		emit sliderPositionChanged(pos);
+}
+
+void GraphItem::hover(bool hover)
+{
+	if (hover) {
+		_pen.setWidth(_pen.width() + 1);
+		setZValue(zValue() + 1.0);
+	} else {
+		_pen.setWidth(_pen.width() - 1);
+		setZValue(zValue() - 1.0);
+	}
+
+	update();
+}
+
+void GraphItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+	Q_UNUSED(event);
+
+	_pen.setWidth(_pen.width() + 1);
+	setZValue(zValue() + 1.0);
+	update();
+
+	emit selected(true);
+}
+
+void GraphItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+	Q_UNUSED(event);
+
+	_pen.setWidth(_pen.width() - 1);
+	setZValue(zValue() - 1.0);
+	update();
+
+	emit selected(false);
+}
+
+void GraphItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+	Popup::show(event->screenPos(), info(), event->widget());
+	GraphicsItem::mousePressEvent(event);
+}
+
+
+// GraphItem0
+
+GraphItem0::GraphItem0(const Graph &graph, GraphType type, int width,
+	  const QColor &color, Qt::PenStyle style, QGraphicsItem *parent)
+  : GraphItem(NULL, type, width, color, style, parent),
+	_graph(graph),
+	_secondaryGraph(NULL)
+{
+	Q_ASSERT(_graph.isValid());
+	updateG();
+}
+
+bool GraphItem0::hasTime() const
+{
+	return _graph.hasTime();
+}
+
+void GraphItem0::updatePath()
+{
+	_path = QPainterPath();
+
+	if (!(gType() == Time && !hasTime())) {
+		for (int i = 0; i < _graph.size(); i++) {
+			const GraphSegment &segment = _graph.at(i);
+
+			_path.moveTo(segment.first().x(gType()),
+					     segment.first().y());
+			for (int i = 1; i < segment.size(); i++)
+				_path.lineTo(segment.at(i).x(gType()),
+						 segment.at(i).y());
+		}
+	}
+}
+
+void GraphItem0::updateBounds()
+{
+	if (gType() == Time && !hasTime()) {
+		_bounds = QRectF();
+		return;
+	}
+
+	qreal bottom, top, left, right;
+
+	QPointF p = QPointF(_graph.first().first().x(gType()),
+	                    _graph.first().first().y());
+	bottom = top = p.y();
+	left = right = p.x();
+
+	for (int i = 0; i < _graph.size(); i++) {
+		const GraphSegment &segment = _graph.at(i);
+
+		for (int j = 0; j < segment.size(); j++) {
+			p      = QPointF(segment.at(j).x(gType()), segment.at(j).y());
+			top    = qMin(top,    p.y());
+			bottom = qMax(bottom, p.y());
+			left   = qMin(left,   p.x());
+			right  = qMax(right,  p.x());
+		}
+	}
+
+	if (left == right)
+		_bounds = QRectF();
+	else
+		_bounds = QRectF(QPointF(left, top), QPointF(right, bottom));
+}
+
+
+const GraphSegment *GraphItem0::segment(qreal x, GraphType type) const
 {
 	for (int i = 0; i < _graph.size(); i++)
 		if (x <= _graph.at(i).last().x(type))
@@ -87,9 +206,9 @@ const GraphSegment *GraphItem::segment(qreal x, GraphType type) const
 	return 0;
 }
 
-qreal GraphItem::yAtX(qreal x)
+qreal GraphItem0::yAtX(qreal x) const
 {
-	const GraphSegment *seg = segment(x, _type);
+	const GraphSegment *seg = segment(x, gType());
 	if (!seg)
 		return NAN;
 
@@ -97,32 +216,32 @@ qreal GraphItem::yAtX(qreal x)
 	int high = seg->count() - 1;
 	int mid = 0;
 
-	if (!(x >= seg->at(low).x(_type) && x <= seg->at(high).x(_type)))
+	if (!(x >= seg->at(low).x(gType()) && x <= seg->at(high).x(gType())))
 		return NAN;
 
 	while (low <= high) {
 		mid = low + ((high - low) / 2);
 		const GraphPoint &p = seg->at(mid);
-		if (p.x(_type) > x)
+		if (p.x(gType()) > x)
 			high = mid - 1;
-		else if (p.x(_type) < x)
+		else if (p.x(gType()) < x)
 			low = mid + 1;
 		else
 			return p.y();
 	}
 
 	QLineF l;
-	if (seg->at(mid).x(_type) < x)
-		l = QLineF(seg->at(mid).x(_type), seg->at(mid).y(),
-		  seg->at(mid+1).x(_type), seg->at(mid+1).y());
+	if (seg->at(mid).x(gType()) < x)
+		l = QLineF(seg->at(mid).x(gType()), seg->at(mid).y(),
+		  seg->at(mid+1).x(gType()), seg->at(mid+1).y());
 	else
-		l = QLineF(seg->at(mid-1).x(_type), seg->at(mid-1).y(),
-		  seg->at(mid).x(_type), seg->at(mid).y());
+		l = QLineF(seg->at(mid-1).x(gType()), seg->at(mid-1).y(),
+		  seg->at(mid).x(gType()), seg->at(mid).y());
 
 	return l.pointAt((x - l.p1().x()) / (l.p2().x() - l.p1().x())).y();
 }
 
-qreal GraphItem::distanceAtTime(qreal time)
+qreal GraphItem0::distanceAtTime(qreal time) const
 {
 	const GraphSegment *seg = segment(time, Time);
 	if (!seg)
@@ -157,129 +276,7 @@ qreal GraphItem::distanceAtTime(qreal time)
 	return l.pointAt((time - l.p1().x()) / (l.p2().x() - l.p1().x())).y();
 }
 
-void GraphItem::emitSliderPositionChanged(qreal pos)
-{
-	if (_type == Time)
-		emit sliderPositionChanged(_time ? distanceAtTime(pos) : NAN);
-	else
-		emit sliderPositionChanged(pos);
-}
-
-void GraphItem::hover(bool hover)
-{
-	if (hover) {
-		_pen.setWidth(_pen.width() + 1);
-		setZValue(zValue() + 1.0);
-	} else {
-		_pen.setWidth(_pen.width() - 1);
-		setZValue(zValue() - 1.0);
-	}
-
-	update();
-}
-
-void GraphItem::setScale(qreal sx, qreal sy)
-{
-	if (_sx == sx && _sy == sy)
-		return;
-
-	prepareGeometryChange();
-
-	_sx = sx; _sy = sy;
-	updatePath();
-}
-
-void GraphItem::updatePath()
-{
-	if (_sx == 0 && _sy == 0)
-		return;
-
-	prepareGeometryChange();
-
-	_path = QPainterPath();
-
-	if (!(_type == Time && !_time)) {
-		for (int i = 0; i < _graph.size(); i++) {
-			const GraphSegment &segment = _graph.at(i);
-
-			_path.moveTo(segment.first().x(_type) * _sx,
-					     segment.first().y() * _sy);
-			for (int i = 1; i < segment.size(); i++)
-				_path.lineTo(segment.at(i).x(_type) * _sx,
-						 segment.at(i).y() * _sy);
-		}
-	}
-
-	updateShape();
-}
-
-void GraphItem::updateBounds()
-{
-	if (_type == Time && !_time) {
-		_bounds = QRectF();
-		return;
-	}
-
-	qreal bottom, top, left, right;
-
-	QPointF p = QPointF(_graph.first().first().x(_type),
-	                    _graph.first().first().y());
-	bottom = top = p.y();
-	left = right = p.x();
-
-	for (int i = 0; i < _graph.size(); i++) {
-		const GraphSegment &segment = _graph.at(i);
-
-		for (int j = 0; j < segment.size(); j++) {
-			p      = QPointF(segment.at(j).x(_type), segment.at(j).y());
-			top    = qMin(top,    p.y());
-			bottom = qMax(bottom, p.y());
-			left   = qMin(left,   p.x());
-			right  = qMax(right,  p.x());
-		}
-	}
-
-	if (left == right)
-		_bounds = QRectF();
-	else
-		_bounds = QRectF(QPointF(left, top), QPointF(right, bottom));
-}
-
-qreal GraphItem::max() const
-{
-	qreal ret = _graph.first().first().y();
-
-	for (int i = 0; i < _graph.size(); i++) {
-		const GraphSegment &segment = _graph.at(i);
-
-		for (int j = 0; j < segment.size(); j++) {
-			qreal y = segment.at(j).y();
-			if (y > ret)
-				ret = y;
-		}
-	}
-
-	return ret;
-}
-
-qreal GraphItem::min() const
-{
-	qreal ret = _graph.first().first().y();
-
-	for (int i = 0; i < _graph.size(); i++) {
-		const GraphSegment &segment = _graph.at(i);
-
-		for (int j = 0; j < segment.size(); j++) {
-			qreal y = segment.at(j).y();
-			if (y < ret)
-				ret = y;
-		}
-	}
-
-	return ret;
-}
-
-qreal GraphItem::avg() const
+qreal GraphItem0::avg() const
 {
 	qreal sum = 0;
 
@@ -293,30 +290,3 @@ qreal GraphItem::avg() const
 	return sum/_graph.last().last().s();
 }
 
-void GraphItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
-	Q_UNUSED(event);
-
-	_pen.setWidth(_pen.width() + 1);
-	setZValue(zValue() + 1.0);
-	update();
-
-	emit selected(true);
-}
-
-void GraphItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
-	Q_UNUSED(event);
-
-	_pen.setWidth(_pen.width() - 1);
-	setZValue(zValue() - 1.0);
-	update();
-
-	emit selected(false);
-}
-
-void GraphItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-	Popup::show(event->screenPos(), info(), event->widget());
-	GraphicsItem::mousePressEvent(event);
-}

@@ -3,33 +3,35 @@
 
 #include "graphtab.h"
 
-class TemperatureGraphItem;
+class TemperatureGraphItem: public GraphItem2
+{
+	Q_OBJECT
 
-class TemperatureGraph : public GraphTab
+public:
+	TemperatureGraphItem(GraphSet* s, int c, GraphType t,
+						const Style& y, GraphTab1* g)
+		: GraphItem2(s, c, t, y, g) {}
+
+protected:
+	virtual void makeTooltip(ToolTip& tt) const;
+};
+
+class TemperatureGraph : public GraphTab2
 {
 	Q_OBJECT
 
 public:
 	TemperatureGraph(QWidget *parent = 0);
-	~TemperatureGraph();
 
-	QString label() const {return tr("Temperature");}
-	QList<GraphItem*> loadData(const Data &data);
-	void clear();
 	void setUnits(enum Units units);
-	void showTracks(bool show);
+
+protected:
+	void updateTracksInfos();
+	GraphItem1* makeTrackItem(GraphSet* set, int chId,
+									const GraphItem1::Style& st);
 
 private:
-	qreal avg() const;
-	qreal min() const {return bounds().top();}
-	qreal max() const {return bounds().bottom();}
 	void setYUnits(Units units);
-	void setInfo();
-
-	QVector<QPointF> _avg;
-
-	bool _showTracks;
-	QList<TemperatureGraphItem *> _tracks;
 };
 
 #endif // TEMPERATUREGRAPH_H

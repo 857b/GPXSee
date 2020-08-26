@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <QLabel>
+#include <utility>
 
 #include "data/graph.h"
 #include "common/range.h"
@@ -29,7 +30,6 @@ class GraphView : public QWidget
 
 public:
 	GraphView(QWidget *parent = 0);
-	~GraphView();
 
 	bool isEmpty() const;
 	const QList<KV<QString, QString> > &info() const {return _infos;}
@@ -49,6 +49,10 @@ public:
 	void setSliderPosition(qreal pos);
 	void setSliderColor(const QColor &color);
 
+	virtual std::pair<GraphItem*, GraphItem*> mainGraphs();
+	
+	const Unit& yUnit() const;
+
 signals:
 	void sliderPositionChanged(qreal);
 
@@ -60,18 +64,15 @@ protected:
 	Units units() const;
 	void setUnits(Units units);
 
-	void changeEvent(QEvent *e);
-
 	const QString &yLabel() const;
 	const QString &yUnits() const;
 	qreal yScale() const;
 	qreal yOffset() const;
 	void setYLabel(const QString &label);
-	void setYUnits(const QString &units);
-	void setYScale(qreal scale);
-	void setYOffset(qreal offset);
 
-	void setSliderPrecision(int precision);
+	void setYUnit(const Unit& unit);
+
+	void setSliderFmt(const Unit::Fmt& fmt);
 	void setMinYRange(qreal range);
 
 	QRectF bounds() const;
@@ -93,7 +94,6 @@ private:
 	QLabel      *_info;
 
 	QList<KV<QString, QString> > _infos;
-	QGraphicsSimpleTextItem     *_message;//TODO
 	
 	qreal   _sliderPos;
 };

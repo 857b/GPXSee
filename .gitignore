@@ -16,3 +16,6 @@ gpxsee
 # Editors
 *.swp
 *.vim
+
+# Local
+_local

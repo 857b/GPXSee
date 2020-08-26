@@ -3,9 +3,55 @@
 
 #include "graphtab.h"
 
-class ElevationGraphItem;
+class ElevationGraphItem_data
+{
+	Q_DECLARE_TR_FUNCTIONS(ElevationGraphItem)
 
-class ElevationGraph : public GraphTab
+public:
+	ElevationGraphItem_data(const Graph& g);
+	ElevationGraphItem_data(const Track& t, int chId);
+
+	qreal ascent()  const {return _ascent;}
+	qreal descent() const {return _descent;}
+
+protected:
+	void makeTooltip(ToolTip& tt, Unit u, qreal min, qreal max) const;
+
+	qreal _ascent, _descent;
+};
+
+class ElevationGraphTItem : public GraphItem1,
+							public ElevationGraphItem_data
+{
+	Q_OBJECT
+
+public:
+	ElevationGraphTItem(GraphSet* s, int c, GraphType t,
+						const Style& y, GraphTab1* g)
+		: GraphItem1(s, c, t, y, g),
+		  ElevationGraphItem_data(track(), chanId()) {}
+
+protected:
+	virtual void makeTooltip(ToolTip& tt) const {
+		return ElevationGraphItem_data::makeTooltip(tt, graph().yUnit(),
+					GraphItem1::min(), GraphItem1::max());
+	}
+};
+
+class ElevationGraphRItem : public GraphItem0,
+							public ElevationGraphItem_data
+{
+	Q_OBJECT
+
+public:
+	ElevationGraphRItem(const Graph &g, GraphType t, int w,
+					   const QColor &c, Qt::PenStyle y)
+		: GraphItem0(g, t, w, c, y), ElevationGraphItem_data(g) {}
+
+	QString info() const;
+};
+
+class ElevationGraph : public GraphTab1
 {
 	Q_OBJECT
 
@@ -13,35 +59,32 @@ public:
 	ElevationGraph(QWidget *parent = 0);
 	~ElevationGraph();
 
-	QString label() const {return tr("Elevation");}
-	QList<GraphItem*> loadData(const Data &data);
+	QList<QList<GraphItem*> > loadData(Data &data);
 	void clear();
 	void setUnits(enum Units units);
-	void showTracks(bool show);
 	void showRoutes(bool show);
 
-private:
-	enum PathType {TrackPath, RoutePath};
+protected:
+	void updateInfoKeys();
+	GraphItem1* makeTrackItem(GraphSet* set, int chId,
+									const GraphItem1::Style& st);
 
-	qreal max() const;
-	qreal min() const;
-	qreal ascent() const;
+private:
+	qreal ascent()  const;
 	qreal descent() const;
 
+	qreal trackAscent()  const;
+	qreal trackDescent() const;
+
 	void setYUnits(Units units);
-	void setInfo();
 
-	GraphItem *loadGraph(const Graph &graph, PathType type, const QColor &color,
-	  bool primary);
-	void showItems(const QList<ElevationGraphItem *> &list, bool show);
+	ElevationGraphRItem *loadRGraph(const Graph &graph,
+									const QColor &color, bool primary);
 
-	qreal _trackAscent, _trackDescent;
 	qreal _routeAscent, _routeDescent;
-	qreal _trackMax, _routeMax;
-	qreal _trackMin, _routeMin;
 
-	bool _showTracks, _showRoutes;
-	QList<ElevationGraphItem *> _tracks, _routes;
+	bool _showRoutes;
+	QList<ElevationGraphRItem *> _routes;
 };
 
 #endif // ELEVATIONGRAPH_H

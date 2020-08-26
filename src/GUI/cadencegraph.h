@@ -3,30 +3,30 @@
 
 #include "graphtab.h"
 
-class CadenceGraphItem;
+class CadenceGraphItem: public GraphItem2
+{
+	Q_OBJECT
 
-class CadenceGraph : public GraphTab
+public:
+	CadenceGraphItem(GraphSet* s, int c, GraphType t,
+						const Style& y, GraphTab1* g)
+		: GraphItem2(s, c, t, y, g) {}
+
+protected:
+	virtual void makeTooltip(ToolTip& tt) const;
+};
+
+class CadenceGraph : public GraphTab2
 {
 	Q_OBJECT
 
 public:
 	CadenceGraph(QWidget *parent = 0);
-	~CadenceGraph();
 
-	QString label() const {return tr("Cadence");}
-	QList<GraphItem*> loadData(const Data &data);
-	void clear();
-	void showTracks(bool show);
-
-private:
-	qreal avg() const;
-	qreal max() const {return bounds().bottom();}
-	void setInfo();
-
-	QVector<QPointF> _avg;
-
-	bool _showTracks;
-	QList<CadenceGraphItem *> _tracks;
+protected:
+	void updateTracksInfos();
+	GraphItem1* makeTrackItem(GraphSet* set, int chId,
+									const GraphItem1::Style& st);
 };
 
 #endif // CADENCEGRAPH_H

@@ -77,12 +77,13 @@ QMap<QString, Parser*> Data::_parsers = parsers();
 void Data::processData(QList<TrackData> &trackData, QList<RouteData> &routeData)
 {
 	for (int i = 0; i < trackData.count(); i++)
-		_tracks.append(Track(trackData.at(i)));
+		_tracks.append(new Track(_parent, trackData.at(i)));
 	for (int i = 0; i < routeData.count(); i++)
 		_routes.append(Route(routeData.at(i)));
 }
 
-Data::Data(const QString &fileName)
+Data::Data(QObject* parent, const QString &fileName)
+	: _parent(parent)
 {
 	QFile file(fileName);
 	QFileInfo fi(fileName);

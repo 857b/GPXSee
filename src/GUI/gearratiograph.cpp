@@ -1,84 +1,33 @@
-#include <QLocale>
-#include "data/data.h"
-#include "gearratiographitem.h"
 #include "gearratiograph.h"
 
+static const Unit::Fmt fmt = Unit::Fmt(2);
 
-GearRatioGraph::GearRatioGraph(QWidget *parent) : GraphTab(parent)
+GearRatioGraph::GearRatioGraph(QWidget *parent)
+	: GraphTab1(CTratio, parent)
 {
-	_showTracks = true;
-
-	GraphView::setYUnits("");
-	setYLabel(tr("Gear ratio"));
-
-	setSliderPrecision(2);
+	setYUnit(Unit());
+	setSliderFmt(fmt);
 }
 
-GearRatioGraph::~GearRatioGraph()
+void GearRatioGraph::updateTracksInfos()
 {
-	qDeleteAll(_tracks);
+	const Unit& u(yUnit());
+	addInfo(tr("Most used"), top(), u, fmt);
+	addInfo(tr("Minimum"),   min(), u, fmt);
+	addInfo(tr("Maximum"),   max(), u, fmt);
 }
 
-void GearRatioGraph::setInfo()
+GraphItem1* GearRatioGraph::makeTrackItem(GraphSet* set, int chId,
+								const GraphItem1::Style& st)
 {
-	if (_showTracks) {
-		QLocale l(QLocale::system());
-
-		GraphView::addInfo(tr("Most used"), l.toString(top() * yScale(),
-		  'f', 2) + UNIT_SPACE + yUnits());
-		GraphView::addInfo(tr("Minimum"), l.toString(min() * yScale(), 'f',
-		  2) + UNIT_SPACE + yUnits());
-		GraphView::addInfo(tr("Maximum"), l.toString(max() * yScale(), 'f',
-		  2) + UNIT_SPACE + yUnits());
-	} else
-		clearInfo();
+	return new GearRatioGraphItem(set, chId, graphType(), st, this);
 }
 
-QList<GraphItem*> GearRatioGraph::loadData(const Data &data)
-{
-	QList<GraphItem*> graphs;
-
-	for (int i = 0; i < data.tracks().count(); i++) {
-		const Graph &graph = data.tracks().at(i).ratio();
-
-		if (!graph.isValid()) {
-			_palette.nextColor();
-			graphs.append(0);
-		} else {
-			GearRatioGraphItem *gi = new GearRatioGraphItem(graph, graphType(),
-			  _width, _palette.nextColor());
-
-			_tracks.append(gi);
-			if (_showTracks)
-				addGraph(gi);
-
-			for (QMap<qreal, qreal>::const_iterator it = gi->map().constBegin();
-			  it != gi->map().constEnd(); ++it)
-				_map.insert(it.key(), _map.value(it.key()) + it.value());
-			graphs.append(gi);
-		}
-	}
-
-	for (int i = 0; i < data.routes().count(); i++) {
-		_palette.nextColor();
-		graphs.append(0);
-	}
-
-	for (int i = 0; i < data.areas().count(); i++)
-		_palette.nextColor();
-
-	setInfo();
-	redraw();
-
-	return graphs;
-}
-
-qreal GearRatioGraph::top() const
+static qreal topOfMap(const QMap<qreal, qreal>& m)
 {
 	qreal key = NAN, val = NAN;
-
-	for (QMap<qreal, qreal>::const_iterator it = _map.constBegin();
-	  it != _map.constEnd(); ++it) {
+	for (QMap<qreal, qreal>::const_iterator it = m.constBegin();
+	  it != m.constEnd(); ++it) {
 		if (std::isnan(val) || it.value() > val) {
 			val = it.value();
 			key = it.key();
@@ -88,28 +37,51 @@ qreal GearRatioGraph::top() const
 	return key;
 }
 
-void GearRatioGraph::clear()
+struct usage_f {
+	QMap<qreal, qreal> u;
+	void operator() (const GraphItem1& it1) {
+		const QMap<qreal, qreal>& s(
+			static_cast<const GearRatioGraphItem&>(it1).usageDist());
+		for (QMap<qreal, qreal>::const_iterator it = s.constBegin();
+				it != s.constEnd(); ++it)
+			u.insert(it.key(), u.value(it.key(), 0.) + it.value());
+	}
+};
+
+
+qreal GearRatioGraph::top() const
 {
-	qDeleteAll(_tracks);
-	_tracks.clear();
-
-	_map.clear();
-
-	GraphTab::clear();
+	usage_f f;
+	iterTrackItems(f);
+	return topOfMap(f.u);
 }
-
-void GearRatioGraph::showTracks(bool show)
+	
+GearRatioGraphItem::GearRatioGraphItem(GraphSet* s, int c, GraphType t,
+						const Style& y, GraphTab1* g)
+		: GraphItem1(s, c, t, y, g)
 {
-	_showTracks = show;
+	const QList<Track::Segment>& sgs(track().segments());
+	int distId = track().distChan();
+	for (int i_s = 0; i_s < sgs.size(); ++i_s) {
+		const Track::Segment& sg(sgs.at(i_s));
+		const Track::Channel* ch(sg.findChannel(chanId()));
+		if (!ch) continue;
+		const Track::Channel& dst(sg[distId]);
 
-	for (int i = 0; i < _tracks.size(); i++) {
-		if (show)
-			addGraph(_tracks.at(i));
-		else
-			removeGraph(_tracks.at(i));
+		for (int i = 1; i < ch->size(); i++) {
+			qreal  r = ch->at(i - 1);
+			qreal ds = dst.at(i) - dst.at(i - 1);
+			_usageDist.insert(r, _usageDist.value(r, 0.) + ds);
+		}
 	}
 
-	setInfo();
+	_top = topOfMap(_usageDist);
+}
 
-	redraw();
+void GearRatioGraphItem::makeTooltip(ToolTip& tt) const
+{
+	const Unit&  u = graph().yUnit();
+	tt.insert(tr("Minimum"),   min(), u, fmt);
+	tt.insert(tr("Maximum"),   max(), u, fmt);
+	tt.insert(tr("Most used"), top(), u, fmt);
 }

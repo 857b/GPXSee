@@ -1,4 +1,4 @@
-#include <QApplication>
+#include <QCoreApplication>
 #include "common/coordinates.h"
 #include "format.h"
 
@@ -28,60 +28,63 @@ static QString deg2DMM(double val)
 }
 
 
-QString Format::timeSpan(qreal time, bool full)
+QString Format::timeSpan(qreal time, bool full, bool units)
 {
-	unsigned h, m, s;
+	unsigned v[3];
+	v[0] = time / 3600;
+	v[1] = (time - (v[0] * 3600)) / 60;
+	v[2] = time - (v[0] * 3600) - (v[1] * 60);
 
-	h = time / 3600;
-	m = (time - (h * 3600)) / 60;
-	s = time - (h * 3600) - (m * 60);
-
-	if (full || h)
-		return QString("%1:%2:%3").arg(h, 2, 10, QChar('0'))
-		  .arg(m, 2, 10, QChar('0')).arg(s, 2, 10, QChar('0'));
+	if (units) {
+		unsigned n = full || v[0] ? 0 : v[1] ? 1 : 2;
+		QString rt = QCoreApplication::translate(
+						"Format", "%1%2%3", "time with units");
+		QString units[3] = {
+			QCoreApplication::translate("Format", "%1h"),
+			QCoreApplication::translate("Format", "%1m"),
+			QCoreApplication::translate("Format", "%1s")
+		};
+		for (unsigned i = 0; i < n; ++i)
+			rt = rt.arg(QString());
+		rt = rt.arg(units[n].arg(v[n]));
+		for (unsigned i = n + 1; i < 3; ++i)
+			rt = rt.arg(units[i].arg(v[i], 2, 10, QChar('0')));
+		return rt;
+	}
+	if (full || v[0])
+		return QString("%1:%2:%3")
+				.arg(v[0], 2, 10, QChar('0'))
+				.arg(v[1], 2, 10, QChar('0'))
+				.arg(v[2], 2, 10, QChar('0'));
 	else
-		return QString("%1:%2").arg(m, 2, 10, QChar('0'))
-		  .arg(s, 2, 10, QChar('0'));
+		return QString("%1:%2")
+			.arg(v[1], 2, 10, QChar('0'))
+			.arg(v[2], 2, 10, QChar('0'));
 }
 
 QString Format::distance(qreal value, Units units)
 {
-	QLocale l(QLocale::system());
-
-	if (units == Imperial) {
-		if (value < MIINM)
-			return l.toString(value * M2FT, 'f', 0) + UNIT_SPACE
-			  + qApp->translate("Format", "ft");
-		else
-			return l.toString(value * M2MI, 'f', 1) + UNIT_SPACE
-			  + qApp->translate("Format", "mi");
-	} else if (units == Nautical) {
-		if (value < NMIINM)
-			return l.toString(value * M2FT, 'f', 0) + UNIT_SPACE
-			  + qApp->translate("Format", "ft");
-		else
-			return l.toString(value * M2NMI, 'f', 1) + UNIT_SPACE
-			  + qApp->translate("Format", "nmi");
-	} else {
-		if (value < KMINM)
-			return l.toString(value, 'f', 0) + UNIT_SPACE
-			  + qApp->translate("Format", "m");
-		else
-			return l.toString(value * M2KM, 'f', 1) + UNIT_SPACE
-			  + qApp->translate("Format", "km");
+	switch (units) {
+		case Imperial:
+			return value < MIINM
+				? Unit::ft.format(value, 0)
+				: Unit::mi.format(value, 1);
+		case Nautical:
+			return value < NMIINM
+				? Unit::ft.format(value, 0)
+				: Unit::nmi.format(value, 1);
+		default:
+			return value < KMINM
+				? Unit::m.format(value, 0)
+				: Unit::km.format(value, 1);
 	}
 }
 
 QString Format::elevation(qreal value, Units units)
 {
-	QLocale l(QLocale::system());
-
-	if (units == Metric)
-		return l.toString(qRound(value)) + UNIT_SPACE
-		  + qApp->translate("Format", "m");
-	else
-		return l.toString(qRound(value * M2FT)) + UNIT_SPACE
-		  + qApp->translate("Format", "ft");
+	return units == Metric
+		? Unit::m.format(value, 0)
+		: Unit::ft.format(value, 0);
 }
 
 QString Format::coordinates(const Coordinates &value, CoordinatesFormat type)

@@ -12,8 +12,9 @@ class GraphItem : public QObject, public GraphicsItem
 	Q_OBJECT
 
 public:
-	GraphItem(const Graph &graph, GraphType type, int width,
-	  const QColor &color, Qt::PenStyle style, QGraphicsItem *parent = 0);
+	GraphItem(QObject* oParent, GraphType type,
+			int width, const QColor &color, Qt::PenStyle style,
+			QGraphicsItem *iParent = 0);
 	virtual ~GraphItem() {}
 
 	virtual QString info() const = 0;
@@ -24,22 +25,21 @@ public:
 	  QWidget *widget);
 
 	const QRectF &bounds() const {return _bounds;}
+	virtual bool hasTime() const = 0;
+	GraphType gType() const {return _type;}
 
-	qreal max() const;
-	qreal min() const;
-	qreal avg() const;
-
-	void setScale(qreal sx, qreal sy);
 	void setGraphType(GraphType type);
 	void setColor(const QColor &color);
 	void setWidth(int width);
 	void setUnits(Units units) {_units = units;}
 
-	GraphItem *secondaryGraph() const {return _secondaryGraph;}
-	void setSecondaryGraph(GraphItem *graph) {_secondaryGraph = graph;}
+	virtual GraphItem *secondaryGraph() const = 0;
 
-	qreal yAtX(qreal x);
-	qreal distanceAtTime(qreal time);
+	virtual qreal yAtX(qreal x) const = 0;
+	virtual qreal distanceAtTime(qreal time) const = 0;
+	
+	qreal min() const {return _bounds.top();}
+	qreal max() const {return _bounds.bottom();}
 
 	void redraw();
 
@@ -56,23 +56,48 @@ protected:
 	void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
 
-	Units _units;
+	void updateG();
+	virtual void updatePath()   = 0;
+	virtual void updateBounds() = 0;
+
+	Units        _units;
+	QPainterPath _path;
+	QRectF       _bounds;
+
+private:
+	void updateShape();
+
+	GraphType    _type;
+	QPainterPath _shape;
+	QPen         _pen;
+	qreal        _shpWidth;
+};
+
+class GraphItem0 : public GraphItem
+{
+public:
+	GraphItem0(const Graph &graph, GraphType type, int width,
+	  const QColor &color, Qt::PenStyle style, QGraphicsItem *parent = 0);
+
+	virtual bool hasTime() const;
+	
+	virtual GraphItem *secondaryGraph() const {return _secondaryGraph;}
+	void setSecondaryGraph(GraphItem *graph) {_secondaryGraph = graph;}
+
+	virtual qreal yAtX(qreal x) const;
+	virtual qreal distanceAtTime(qreal time) const;
+
+	qreal avg() const;
+
+protected:
+	virtual void updatePath();
+	virtual void updateBounds();
 
 private:
 	const GraphSegment *segment(qreal x, GraphType type) const;
-	void updatePath();
-	void updateShape();
-	void updateBounds();
 
-	Graph _graph;
-	GraphType _type;
-	QPainterPath _path;
-	QPainterPath _shape;
-	QRectF _bounds;
-	qreal _sx, _sy;
-	QPen _pen;
-	bool _time;
 
+	Graph      _graph;
 	GraphItem *_secondaryGraph;
 };
 

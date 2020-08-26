@@ -3,30 +3,30 @@
 
 #include "graphtab.h"
 
-class PowerGraphItem;
+class PowerGraphItem : public GraphItem2
+{
+	Q_OBJECT
 
-class PowerGraph : public GraphTab
+public:
+	PowerGraphItem(GraphSet* s, int c, GraphType t,
+						const Style& y, GraphTab1* g)
+		: GraphItem2(s, c, t, y, g) {}
+
+protected:
+	virtual void makeTooltip(ToolTip& tt) const;
+};
+
+class PowerGraph : public GraphTab2
 {
 	Q_OBJECT
 
 public:
 	PowerGraph(QWidget *parent = 0);
-	~PowerGraph();
 
-	QString label() const {return tr("Power");}
-	QList<GraphItem*> loadData(const Data &data);
-	void clear();
-	void showTracks(bool show);
-
-private:
-	qreal avg() const;
-	qreal max() const {return bounds().bottom();}
-	void setInfo();
-
-	QVector<QPointF> _avg;
-
-	bool _showTracks;
-	QList<PowerGraphItem*> _tracks;
+protected:
+	void updateTracksInfos();
+	GraphItem1* makeTrackItem(GraphSet* set, int chId,
+									const GraphItem1::Style& st);
 };
 
 #endif // POWERGRAPH_H

@@ -22,11 +22,9 @@
 
 GraphView::GraphView(QWidget *parent)
 	: QWidget(parent),
-	  _widgt(new GraphWidget()),
+	  _widgt(new GraphWidget(this)),
 	  _info(new QLabel())
 {
-	hide();
-
 	QVBoxLayout* vl = new QVBoxLayout;
 	vl->setContentsMargins(0,5,0,0);
 	vl->setSpacing(2);
@@ -40,10 +38,6 @@ GraphView::GraphView(QWidget *parent)
 	vl->addWidget(_widgt);
 	setLayout(vl);
 
-	_message = new QGraphicsSimpleTextItem(tr("Data not available"));
-	_message->setBrush(QPalette().brush(QPalette::Disabled,
-	  QPalette::WindowText));
-
 	_sliderPos = 0;
 	_width     = 1;
 
@@ -52,14 +46,15 @@ GraphView::GraphView(QWidget *parent)
 			this, SLOT(emitSliderPositionChanged(const QPointF&)));
 }
 
-GraphView::~GraphView()
-{
-	delete _message;
-}
-
 bool GraphView::isEmpty() const
 {
-	return _widgt->_graphs.isEmpty();
+	const QList<GraphItem*>& gs(_widgt->_graphs);
+	if (graphType() == Distance)
+		return gs.isEmpty();
+	for (int i = 0; i < gs.size(); ++i)
+		if (gs.at(i)->hasTime())
+			return false;
+	return true;
 }
 
 void GraphView::clear()
@@ -76,7 +71,6 @@ void GraphView::clear()
 	_sliderPos = 0;
 
 	_widgt->_content->_scene->setSceneRect(0, 0, 0, 0);
-	hide();
 }
 
 void GraphView::plot(QPainter *painter, const QRectF &target, qreal scale)
@@ -95,9 +89,10 @@ void GraphView::plot(QPainter *painter, const QRectF &target, qreal scale)
 
 
 const QString& GraphView::yLabel() const {return _widgt->_yLabel;}
-const QString& GraphView::yUnits() const {return _widgt->_yUnits;}
-qreal GraphView::yScale() const {return _widgt->_yScale;}
-qreal GraphView::yOffset() const {return _widgt->_yOffset;}
+const QString& GraphView::yUnits() const {return _widgt->_yUnit.name;}
+qreal GraphView::yScale() const {return _widgt->_yUnit.offset;}
+qreal GraphView::yOffset() const {return _widgt->_yUnit.offset;}
+const Unit& GraphView::yUnit() const {return _widgt->_yUnit;}
 
 void GraphView::setYLabel(const QString &label)
 {
@@ -105,27 +100,15 @@ void GraphView::setYLabel(const QString &label)
 	_widgt->createYLabel();
 }
 
-void GraphView::setYUnits(const QString &units)
+void GraphView::setYUnit(const Unit& unit)
 {
-	_widgt->_yUnits = units;
-	_widgt->createYLabel();
+	_widgt->_yUnit = unit;
+	_widgt->createYLabel();//updateLayout
 }
 
-void GraphView::setYScale(qreal scale)
+void GraphView::setSliderFmt(const Unit::Fmt& fmt)
 {
-	_widgt->_yScale = scale;
-	_widgt->updateLayout();
-}
-
-void GraphView::setYOffset(qreal offset)
-{
-	_widgt->_yOffset = offset;
-	_widgt->updateLayout();
-}
-
-void GraphView::setSliderPrecision(int precision)
-{
-	_widgt->_precision = precision;
+	_widgt->_slidderFmt = fmt;
 	_widgt->updateSliderInfo();
 }
 
@@ -183,7 +166,6 @@ void GraphView::addGraph(GraphItem *graph)
 	  SLOT(emitSliderPositionChanged(qreal)));
 	graph->setWidth(_width);
 	_widgt->addGraph(graph);
-	show();
 }
 
 void GraphView::removeGraph(GraphItem *graph)
@@ -192,8 +174,18 @@ void GraphView::removeGraph(GraphItem *graph)
 	  SLOT(emitSliderPositionChanged(qreal)));
 
 	_widgt->removeGraph(graph);
+}
 
-	if (isEmpty()) hide();
+std::pair<GraphItem*, GraphItem*> GraphView::mainGraphs()
+{
+	QList<GraphItem*>& gs(_widgt->_graphs);
+	GraphItem *g1, *g2;
+	if (gs.count() == 1)
+		return std::pair<GraphItem*, GraphItem*>(gs.first(), NULL);
+	else if (gs.count() == 2 && (g2 = (g1 = gs.first())->secondaryGraph()))
+		return std::pair<GraphItem*, GraphItem*>(g1, g2);
+	else
+		return std::pair<GraphItem*, GraphItem*>(NULL, NULL);
 }
 
 QRectF GraphView::bounds() const
@@ -316,13 +308,4 @@ void GraphView::setSliderColor(const QColor &color)
 {
 	_widgt->_content->_slider->setColor(color);
 	_widgt->_content->_sliderInfo->setColor(color);
-}
-
-void GraphView::changeEvent(QEvent *e)
-{
-	if (e->type() == QEvent::PaletteChange)
-		_message->setBrush(QPalette().brush(QPalette::Disabled,
-								QPalette::WindowText));
-
-	QWidget::changeEvent(e);
 }

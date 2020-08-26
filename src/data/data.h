@@ -1,6 +1,7 @@
 #ifndef DATA_H
 #define DATA_H
 
+#include <QObject>
 #include <QList>
 #include <QMap>
 #include <QString>
@@ -14,14 +15,14 @@
 class Data
 {
 public:
-	Data(const QString &fileName);
+	Data(QObject* parent, const QString &fileName);
 
 	bool isValid() const {return _valid;}
 	const QString &errorString() const {return _errorString;}
 	int errorLine() const {return _errorLine;}
 
-	const QList<Track> &tracks() const {return _tracks;}
-	const QList<Route> &routes() const {return _routes;}
+	const QList<Track*> &tracks() const {return _tracks;}
+	const QList<Route>  &routes() const {return _routes;}
 	const QVector<Waypoint> &waypoints() const {return _waypoints;}
 	const QList<Area> &areas() const {return _polygons;}
 
@@ -29,14 +30,20 @@ public:
 	static QStringList filter();
 
 private:
+	//delete
+	Data(const Data&);
+	Data& operator=(const Data&);
+
+
 	void processData(QList<TrackData> &trackData, QList<RouteData> &routeData);
 
 	bool _valid;
 	QString _errorString;
 	int _errorLine;
 
-	QList<Track> _tracks;
-	QList<Route> _routes;
+	QObject*      _parent;
+	QList<Track*> _tracks;
+	QList<Route>  _routes;
 	QList<Area> _polygons;
 	QVector<Waypoint> _waypoints;
 

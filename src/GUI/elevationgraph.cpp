@@ -1,212 +1,195 @@
-#include <cmath>
-#include <QLocale>
-#include "data/data.h"
-#include "tooltip.h"
-#include "elevationgraphitem.h"
 #include "elevationgraph.h"
 
+#include <QCoreApplication>
+#include "data/data.h"
 
-static qreal nMin(qreal a, qreal b)
+static const Unit::Fmt fmt = Unit::Fmt(0, false);
+
+ElevationGraphItem_data::ElevationGraphItem_data(const Graph& g)
 {
-	if (std::isnan(a))
-		return std::isnan(b) ? NAN : b;
-	else
-		return std::isnan(b) ? a : qMin(a, b);
+	_ascent = _descent = 0;
+	for (int i = 0; i < g.size(); i++) {
+		const GraphSegment &segment = g.at(i);
+
+		for (int j = 1; j < segment.size(); j++) {
+			qreal cur = segment.at(j).y();
+			qreal prev = segment.at(j-1).y();
+
+			if (cur > prev)
+				_ascent += cur - prev;
+			if (cur < prev)
+				_descent += prev - cur;
+		}
+	}
 }
 
-static qreal nMax(qreal a, qreal b)
+ElevationGraphItem_data::ElevationGraphItem_data(const Track& t, int chId)
 {
-	if (std::isnan(a))
-		return std::isnan(b) ? NAN : b;
-	else
-		return std::isnan(b) ? a : qMax(a, b);
+	_ascent = _descent = 0;
+	const QList<Track::Segment>& sgs(t.segments());
+	for (int i = 0; i < sgs.size(); ++i) {
+		const Track::Segment& sg(sgs.at(i));
+		const Track::Channel* ch(sg.findChannel(chId));
+		if (!ch) continue;
+
+		for (int j = 1; j < ch->size(); ++j) {
+			qreal cur  = ch->at(j);
+			qreal prev = ch->at(j-1);
+			if (cur > prev)
+				_ascent += cur - prev;
+			if (cur < prev)
+				_descent += prev - cur;
+		}
+	}
 }
 
-ElevationGraph::ElevationGraph(QWidget *parent) : GraphTab(parent)
+void ElevationGraphItem_data::makeTooltip(ToolTip& tt, Unit u,
+		                                  qreal min, qreal max) const
 {
-	_trackAscent = 0;
-	_routeAscent = 0;
-	_trackDescent = 0;
-	_routeDescent = 0;
-	_trackMin = NAN;
-	_trackMax = NAN;
-	_routeMin = NAN;
-	_routeMax = NAN;
+	tt.insert(tr("Ascent"),  ascent(),  u, fmt);
+	tt.insert(tr("Descent"), descent(), u, fmt);
+	tt.insert(tr("Maximum"), max,       u, fmt);
+	tt.insert(tr("Minimum"), min,       u, fmt);
+}
 
-	_showRoutes = true;
-	_showTracks = true;
 
-	setYUnits(Metric);
-	setYLabel(tr("Elevation"));
+QString ElevationGraphRItem::info() const
+{
+	ToolTip tt;
+	const Unit& u(_units == Metric ? Unit::m : Unit::ft);
+	ElevationGraphItem_data::makeTooltip(tt, u,
+			GraphItem0::min(), GraphItem0::max());
+	return tt.toString();
+}
+
+
+ElevationGraph::ElevationGraph(QWidget *parent)
+	: GraphTab1(CTelevation, parent),
+	  _routeAscent(0), _routeDescent(0),
+	  _showRoutes(true)
+{
+	setYUnits(units());
+	setSliderFmt(fmt);
 	setMinYRange(50.0);
 }
 
 ElevationGraph::~ElevationGraph()
 {
-	qDeleteAll(_tracks);
 	qDeleteAll(_routes);
 }
+	
+GraphItem1* ElevationGraph::makeTrackItem(GraphSet* set, int chId,
+									const GraphItem1::Style& st)
+{
+	return new ElevationGraphTItem(set, chId, graphType(), st, this);
+}
 
-void ElevationGraph::setInfo()
+void ElevationGraph::updateInfoKeys()
 {
 	if (std::isnan(max()) || std::isnan(min()))
 		clearInfo();
 	else {
-		QLocale l(QLocale::system());
-
-		GraphView::addInfo(tr("Ascent"), l.toString(ascent() * yScale(),
-		  'f', 0) + UNIT_SPACE + yUnits());
-		GraphView::addInfo(tr("Descent"), l.toString(descent() * yScale(),
-		  'f', 0) + UNIT_SPACE + yUnits());
-		GraphView::addInfo(tr("Maximum"), l.toString(max() * yScale(), 'f',
-		  0) + UNIT_SPACE + yUnits());
-		GraphView::addInfo(tr("Minimum"), l.toString(min() * yScale(), 'f',
-		  0) + UNIT_SPACE + yUnits());
+		Unit u(yUnit());
+		addInfo(tr("Ascent"),  ascent(),  u, fmt);
+		addInfo(tr("Descent"), descent(), u, fmt);
+		addInfo(tr("Maximum"), max(),     u, fmt);
+		addInfo(tr("Minimum"), min(),     u, fmt);
 	}
 }
 
-GraphItem *ElevationGraph::loadGraph(const Graph &graph, PathType type,
-  const QColor &color, bool primary)
+ElevationGraphRItem *ElevationGraph::loadRGraph(const Graph &graph,
+		const QColor &color, bool primary)
 {
 	if (!graph.isValid())
 		return 0;
 
-	ElevationGraphItem *gi = new ElevationGraphItem(graph, graphType(), _width,
-						color, primary ? Qt::SolidLine : Qt::DashLine);
+	ElevationGraphRItem *gi = new ElevationGraphRItem(
+							graph, graphType(), _width,
+							color, primary ? Qt::SolidLine : Qt::DashLine);
 	gi->setUnits(units());
 
-	if (type == TrackPath) {
-		_tracks.append(gi);
-		if (_showTracks)
-			addGraph(gi);
+	_routes.append(gi);
+	if (_showRoutes)
+		addGraph(gi);
 
-		if (primary) {
-			_trackAscent += gi->ascent();
-			_trackDescent += gi->descent();
-			_trackMax = nMax(_trackMax, gi->max());
-			_trackMin = nMin(_trackMin, gi->min());
-		}
-	} else {
-		_routes.append(gi);
-		if (_showRoutes)
-			addGraph(gi);
-
-		if (primary) {
-			_routeAscent += gi->ascent();
-			_routeDescent += gi->descent();
-			_routeMax = nMax(_routeMax, gi->max());
-			_routeMin = nMin(_routeMin, gi->min());
-		}
+	if (primary) {
+		_routeAscent  += gi->ascent();
+		_routeDescent += gi->descent();
 	}
 
 	return gi;
 }
 
-QList<GraphItem*> ElevationGraph::loadData(const Data &data)
+QList<QList<GraphItem*> > ElevationGraph::loadData(Data &data)
 {
-	QList<GraphItem*> graphs;
-	GraphItem *primary, *secondary;
+	QList<QList<GraphItem*> > graphs = GraphTab1::loadData(data);
 
-	for (int i = 0; i < data.tracks().count(); i++) {
-		QColor color(_palette.nextColor());
-		const GraphPair &gp = data.tracks().at(i).elevation();
-
-		primary = loadGraph(gp.primary(), TrackPath, color, true);
-		secondary = primary
-		  ? loadGraph(gp.secondary(), TrackPath, color, false) : 0;
-		if (primary && secondary)
-			primary->setSecondaryGraph(secondary);
-
-		graphs.append(primary);
-	}
 	for (int i = 0; i < data.routes().count(); i++) {
 		QColor color(_palette.nextColor());
 		const GraphPair &gp = data.routes().at(i).elevation();
 
-		primary = loadGraph(gp.primary(), RoutePath, color, true);
-		secondary = primary
-		  ? loadGraph(gp.secondary(), RoutePath, color, false) : 0;
-		if (primary && secondary)
+		ElevationGraphRItem *primary 
+					= loadRGraph(gp.primary(), color, true);
+		if (!primary) continue;
+		while (i >= graphs.size())
+			graphs.append(QList<GraphItem*>());
+		graphs[i].append(primary);
+		ElevationGraphRItem *secondary
+					= loadRGraph(gp.secondary(), color, false);
+		if (secondary)
 			primary->setSecondaryGraph(secondary);
-
-		graphs.append(primary);
 	}
-	for (int i = 0; i < data.areas().count(); i++)
-		_palette.nextColor();
 
-	setInfo();
-	redraw();
+	onGSetChange();
 
 	return graphs;
 }
 
 void ElevationGraph::clear()
 {
-	qDeleteAll(_tracks);
-	_tracks.clear();
 	qDeleteAll(_routes);
 	_routes.clear();
 
-	_trackAscent = 0;
 	_routeAscent = 0;
-	_trackDescent = 0;
 	_routeDescent = 0;
-	_trackMin = NAN;
-	_trackMax = NAN;
-	_routeMin = NAN;
-	_routeMax = NAN;
 
-	GraphTab::clear();
+	GraphTab1::clear();
 }
 
 void ElevationGraph::setYUnits(Units units)
 {
-	if (units == Metric) {
-		GraphView::setYUnits(tr("m"));
-		setYScale(1);
-	} else {
-		GraphView::setYUnits(tr("ft"));
-		setYScale(M2FT);
-	}
+	if (units == Metric)
+		setYUnit(Unit::m);
+	else
+		setYUnit(Unit::ft);
 }
 
 void ElevationGraph::setUnits(Units units)
 {
 	setYUnits(units);
-	setInfo();
-
-	GraphView::setUnits(units);
-}
-
-void ElevationGraph::showItems(const QList<ElevationGraphItem *> &list,
-  bool show)
-{
-	for (int i = 0; i < list.size(); i++) {
-		if (show)
-			addGraph(list.at(i));
-		else
-			removeGraph(list.at(i));
-	}
-}
-
-void ElevationGraph::showTracks(bool show)
-{
-	_showTracks = show;
-
-	showItems(_tracks, show);
-	setInfo();
-
-	redraw();
+	GraphTab1::setUnits(units);
 }
 
 void ElevationGraph::showRoutes(bool show)
 {
 	_showRoutes = show;
+	for (int i = 0; i < _routes.size(); i++) {
+		if (show)
+			addGraph(_routes.at(i));
+		else
+			removeGraph(_routes.at(i));
+	}
+	onGSetChange();
+}
 
-	showItems(_routes, show);
-	setInfo();
+qreal ElevationGraph::trackAscent() const
+{
+	return sumTrackItems<ElevationGraphTItem>(&ElevationGraphTItem::ascent);
+}
 
-	redraw();
+qreal ElevationGraph::trackDescent() const
+{
+	return sumTrackItems<ElevationGraphTItem>(&ElevationGraphTItem::descent);
 }
 
 qreal ElevationGraph::ascent() const
@@ -216,7 +199,7 @@ qreal ElevationGraph::ascent() const
 	if (_showRoutes)
 		val += _routeAscent;
 	if (_showTracks)
-		val += _trackAscent;
+		val += trackAscent();
 
 	return val;
 }
@@ -228,39 +211,7 @@ qreal ElevationGraph::descent() const
 	if (_showRoutes)
 		val += _routeDescent;
 	if (_showTracks)
-		val += _trackDescent;
-
-	return val;
-}
-
-qreal ElevationGraph::max() const
-{
-	qreal val;
-
-	if (_showRoutes && _showTracks)
-		val = nMax(_routeMax, _trackMax);
-	else if (_showTracks)
-		val = _trackMax;
-	else if (_showRoutes)
-		val = _routeMax;
-	else
-		val = NAN;
-
-	return val;
-}
-
-qreal ElevationGraph::min() const
-{
-	qreal val;
-
-	if (_showRoutes && _showTracks)
-		val = nMin(_routeMin, _trackMin);
-	else if (_showTracks)
-		val = _trackMin;
-	else if (_showRoutes)
-		val = _routeMin;
-	else
-		val = NAN;
+		val += trackDescent();
 
 	return val;
 }

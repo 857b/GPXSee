@@ -14,7 +14,7 @@ enum CoordinatesFormat {
 
 namespace Format
 {
-	QString timeSpan(qreal time, bool full = true);
+	QString timeSpan(qreal time, bool full = true, bool units = false);
 	QString distance(qreal value, Units units);
 	QString elevation(qreal value, Units units);
 	QString coordinates(const Coordinates &value, CoordinatesFormat type);

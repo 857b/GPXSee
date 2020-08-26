@@ -1,7 +1,9 @@
 #ifndef UNITS_H
 #define UNITS_H
 
-#include<QtGlobal>
+#include <QtGlobal>
+#include <QCoreApplication>
+#include <QLocale>
 
 enum Units
 {
@@ -45,5 +47,82 @@ template<typename T>
 inline T fromUnit(const T& x, qreal scale, qreal ofs = 0.) {
 	return (-ofs + x) / scale;
 }
+
+class Unit
+{
+	Q_DECLARE_TR_FUNCTIONS(Unit)
+
+public:
+	QString name;
+	qreal   scale, offset;
+
+	Unit() : scale(1.), offset(0.) {}
+
+	Unit(const QString& name, qreal scale = 1., qreal offset = 0.)
+		: name(name), scale(scale), offset(offset) {}
+
+	template<typename T>
+	T toUnit(const T& x) const {
+		return ::toUnit(x, scale, offset);	
+	}
+
+	template<typename T>
+	T fromUnit(const T& x) const {
+		return ::fromUnit(x, scale, offset);	
+	}
+
+	struct Fmt {
+		int  prec;
+		bool force_sign;
+		Fmt(int prec = 2, bool force_sign = false)
+			: prec(prec), force_sign(force_sign) {}
+	};
+	QString format(QString s) const;
+	QString format(qreal x, int prec = 2, bool force_sign = false) const;
+	QString format(qreal x, const Fmt& fmt) const;
+
+	// speed: m/s
+	static Unit mPs;
+	static Unit kn;
+	static Unit miPh;
+	static Unit kmPh;
+
+	// pace: s/m
+	static Unit sPnmi;
+	static Unit sPmi;
+	static Unit sPkm;
+
+	// distance: m
+	static Unit m;
+	static Unit km;
+	static Unit ft;
+	static Unit mi;
+	static Unit nmi;
+
+	// time: s
+	static Unit s;
+	static Unit min;
+	static Unit h;
+
+	// heart rate
+	static Unit bpm;
+
+	// temperature: Celsius
+	static Unit cls;
+	static Unit fhr;
+
+	// cadence: rpm
+	static Unit rpm;
+
+	// power: Watt
+	static Unit w;
+
+	static const Unit& distance(Units u, qreal span);
+	static const Unit& time(qreal span);
+
+	static void init();
+private:
+	static QLocale local;
+};
 
 #endif // UNITS_H

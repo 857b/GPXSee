@@ -53,6 +53,7 @@ App::App(int &argc, char **argv) : QApplication(argc, argv)
 	DEM::setDir(ProgramPaths::demDir());
 	OPENGL_SET_FORMAT(4, 8);
 
+	Unit::init();
 	loadDatums();
 	loadPCSs();
 

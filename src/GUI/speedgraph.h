@@ -1,43 +1,40 @@
 #ifndef SPEEDGRAPH_H
 #define SPEEDGRAPH_H
 
-#include <QList>
 #include "graphtab.h"
 
-class SpeedGraphItem;
-class Track;
+class SpeedGraphItem: public GraphItem2
+{
+	Q_OBJECT
 
-class SpeedGraph : public GraphTab
+public:
+	SpeedGraphItem(GraphSet* s, int c, GraphType t,
+						const Style& y, GraphTab1* g)
+		: GraphItem2(s, c, t, y, g) {}
+
+protected:
+	virtual void makeTooltip(ToolTip& tt) const;
+};
+
+class SpeedGraph : public GraphTab2
 {
 	Q_OBJECT
 
 public:
 	SpeedGraph(QWidget *parent = 0);
-	~SpeedGraph();
 
-	QString label() const {return tr("Speed");}
-	QList<GraphItem*> loadData(const Data &data);
-	void clear();
 	void setUnits(Units units);
-	void setTimeType(TimeType type);
-	void showTracks(bool show);
+	const Unit& paceUnit() const {return _paceUnit;};
+
+protected:
+	void updateTracksInfos();
+	GraphItem1* makeTrackItem(GraphSet* set, int chId,
+									const GraphItem1::Style& st);
 
 private:
-	GraphItem *loadGraph(const Graph &graph, const Track &track,
-	  const QColor &color, bool primary);
-	qreal avg() const;
-	qreal max() const {return bounds().bottom();}
-	void setYUnits();
-	void setInfo();
+	void setYUnits(Units units);
 
-	QVector<QPointF> _avg;
-	QVector<QPointF> _mavg;
-
-	Units _units;
-	TimeType _timeType;
-
-	bool _showTracks;
-	QList<SpeedGraphItem *> _tracks;
+	Unit _paceUnit;
 };
 
 #endif // SPEEDGRAPH_H

@@ -635,14 +635,14 @@ void GUI::createGraphTabs()
 	_graphTabWidget->setDocumentMode(true);
 #endif // Q_OS_WIN32
 
-	_tabs.append(new ElevationGraph(_graphTabWidget));
-	_tabs.append(new SpeedGraph(_graphTabWidget));
-	_tabs.append(new VSpeedGraph(_graphTabWidget));
-	_tabs.append(new HeartRateGraph(_graphTabWidget));
-	_tabs.append(new CadenceGraph(_graphTabWidget));
-	_tabs.append(new PowerGraph(_graphTabWidget));
-	_tabs.append(new TemperatureGraph(_graphTabWidget));
-	_tabs.append(new GearRatioGraph(_graphTabWidget));
+	_tabs.append(new ElevationGraph());
+	_tabs.append(new SpeedGraph());
+	_tabs.append(new VSpeedGraph());
+	_tabs.append(new HeartRateGraph());
+	_tabs.append(new CadenceGraph());
+	_tabs.append(new PowerGraph());
+	_tabs.append(new TemperatureGraph());
+	_tabs.append(new GearRatioGraph());
 
 	for (int i = 0; i < _tabs.count(); i++)
 		connect(_tabs.at(i), SIGNAL(sliderPositionChanged(qreal)), this,
@@ -783,13 +783,14 @@ bool GUI::openFile(const QString &fileName)
 
 bool GUI::loadFile(const QString &fileName)
 {
-	Data data(fileName);
-	QList<QList<GraphItem*> > graphs;
+	Data data(this, fileName);
+	QList<QList<QList<GraphItem*> > > graphs;
 	QList<PathItem*> paths;
 
 	if (data.isValid()) {
 		for (int i = 0; i < data.tracks().count(); i++) {
-			const Track &track = data.tracks().at(i);
+			const Track &track = *data.tracks().at(i);
+			_clearList.append(data.tracks()[i]);
 			_trackDistance += track.distance();
 			_time += track.time();
 			_movingTime += track.movingTime();
@@ -815,7 +816,7 @@ bool GUI::loadFile(const QString &fileName)
 
 		if (_pathName.isNull()) {
 			if (data.tracks().count() == 1 && !data.routes().count())
-				_pathName = data.tracks().first().name();
+				_pathName = data.tracks().first()->name();
 			else if (data.routes().count() == 1 && !data.tracks().count())
 				_pathName = data.routes().first().name();
 		} else
@@ -827,16 +828,18 @@ bool GUI::loadFile(const QString &fileName)
 			_splitter->refresh();
 		paths = _mapView->loadData(data);
 
+		// TODO: clean
 		for (int i = 0; i < paths.count(); i++) {
 			const PathItem *pi = paths.at(i);
 			for (int j = 0; j < graphs.count(); j++) {
-				const GraphItem *gi = graphs.at(j).at(i);
-				if (!gi)
-					continue;
-				connect(gi, SIGNAL(sliderPositionChanged(qreal)), pi,
-				  SLOT(moveMarker(qreal)));
-				connect(pi, SIGNAL(selected(bool)), gi, SLOT(hover(bool)));
-				connect(gi, SIGNAL(selected(bool)), pi, SLOT(hover(bool)));
+				if (i >= graphs.at(j).size()) continue;
+				for (int k = 0; k < graphs.at(j).at(i).size(); ++k) {
+					const GraphItem *gi = graphs.at(j).at(i).at(k);
+					connect(gi, SIGNAL(sliderPositionChanged(qreal)), pi,
+					  SLOT(moveMarker(qreal)));
+					connect(pi, SIGNAL(selected(bool)), gi, SLOT(hover(bool)));
+					connect(gi, SIGNAL(selected(bool)), pi, SLOT(hover(bool)));
+				}
 			}
 		}
 
@@ -1258,6 +1261,10 @@ void GUI::closeFiles()
 	_mapView->clear();
 
 	_files.clear();
+
+	for (int i = 0; i < _clearList.count(); ++i)
+		_clearList.at(i)->deleteLater();
+	_clearList.clear();
 }
 
 void GUI::closeAll()
@@ -1522,6 +1529,8 @@ bool GUI::updateGraphTabs()
 	GraphTab *tab;
 	bool hidden = _graphTabWidget->isHidden();
 
+	_graphTabWidget->setUpdatesEnabled(false);
+
 	for (int i = 0; i < _tabs.size(); i++) {
 		tab = _tabs.at(i);
 		if (tab->isEmpty() && (index = _graphTabWidget->indexOf(tab)) >= 0)
@@ -1544,6 +1553,9 @@ bool GUI::updateGraphTabs()
 		_graphTabWidget->setHidden(true);
 		_showGraphsAction->setEnabled(false);
 	}
+	
+	_graphTabWidget->setUpdatesEnabled(true);
+	_graphTabWidget->update();
 
 	return (hidden != _graphTabWidget->isHidden());
 }
@@ -1580,6 +1592,8 @@ void GUI::setGraphType(GraphType type)
 		_tabs.at(i)->setGraphType(type);
 		_tabs.at(i)->setSliderPosition(0);
 	}
+
+	updateGraphTabs();
 }
 
 void GUI::next()

@@ -18,7 +18,8 @@ POI::POI(QObject *parent) : QObject(parent)
 
 bool POI::loadFile(const QString &path)
 {
-	Data data(path);
+	QObject tmp_parent;
+	Data data(&tmp_parent, path);
 	FileIndex index;
 
 	index.enabled = true;

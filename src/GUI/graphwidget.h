@@ -28,7 +28,8 @@ class GraphWidget : public QWidget
 	friend GraphView;
 
 public:
-	GraphWidget(QWidget *parent = 0);
+
+	GraphWidget(GraphView* gview, QWidget *parent = 0);
 	~GraphWidget();
 	
 	class Ticks
@@ -84,16 +85,14 @@ private:
 
 	QList<GraphItem*> _graphs;
 
+	GraphView    *_gview;
 	GraphContent *_content;
 	AxisWidget   *_xAxis, *_yAxis;
 	
 	// datas bounds
 	QRectF _bounds;
 
-	qreal _xScale;
-	qreal _yScale, _yOffset;
-
-	QString _xUnits, _yUnits;
+	Unit    _xUnit,  _yUnit;
 	QString _xLabel, _yLabel;
 
 	Ticks         _xTicks,  _yTicks; // in unit
@@ -101,10 +100,11 @@ private:
 	
 	GraphType _graphType;
 	Units     _units;
-	int       _precision;
+	Unit::Fmt _slidderFmt;
 	qreal     _minYRange;
 	bool      _showGrid;
 	bool      _showZero;
+	int       _zeroPos;
 };
 
 

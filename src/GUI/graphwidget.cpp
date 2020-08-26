@@ -29,20 +29,17 @@ GraphWidget::Ticks::Ticks(RangeF values, int maxCount)
 	_sub = (int)floor((values.max() - _min) / _d);
 }
 
-GraphWidget::GraphWidget(QWidget *parent)
+GraphWidget::GraphWidget(GraphView *gview, QWidget *parent)
 	: QWidget(parent),
+	  _gview(gview),
 	  _content(new GraphContent(this)),
 	  _xAxis(new AxisWidget(AxisWidget::X, this)),
 	  _yAxis(new AxisWidget(AxisWidget::Y, this))
 {
 	connect(_content->horizontalScrollBar(), SIGNAL(valueChanged(int)),
 			this, SLOT(viewPosChange()));
-	
-	_xScale    = 1;
-	_yScale    = 1;
-	_yOffset   = 0;
 
-	_precision = 0;
+	_slidderFmt.prec = 0;
 	_minYRange = 0.01;
 
 	_showGrid  = true;
@@ -57,8 +54,6 @@ GraphWidget::~GraphWidget() {}
 
 void GraphWidget::addGraph(GraphItem *graph)
 {
-	graph->setScale(1., 1.);
-
 	_graphs.append(graph);
 	if (!graph->bounds().isNull())
 		_content->addItem(graph);
@@ -119,59 +114,23 @@ void GraphWidget::setUnits(Units units)
 void GraphWidget::setXUnits()
 {
 	qreal span = _bounds.width();
-	if (_graphType == Distance) {
-		if (_units == Imperial) {
-			if (span < MIINM) {
-				_xUnits = tr("ft");
-				_xScale = M2FT;
-			} else {
-				_xUnits = tr("mi");
-				_xScale = M2MI;
-			}
-		} else if (_units == Nautical) {
-			if (span < NMIINM) {
-				_xUnits = tr("ft");
-				_xScale = M2FT;
-			} else {
-				_xUnits = tr("nmi");
-				_xScale = M2NMI;
-			}
-		} else {
-			if (span < KMINM) {
-				_xUnits = tr("m");
-				_xScale = 1;
-			} else {
-				_xUnits = tr("km");
-				_xScale = M2KM;
-			}
-		}
-	} else {
-		    if (span < MININS) {
-				_xUnits = tr("s");
-				_xScale = 1;
-			} else if (span < HINS) {
-				_xUnits = tr("min");
-				_xScale = MIN2S;
-			} else {
-				_xUnits = tr("h");
-				_xScale = H2S;
-			}
-	}
-
+	_xUnit = _graphType == Distance
+		? Unit::distance(_units, span)
+		: Unit::time(span);
 	createXLabel();
 }
 
 void GraphWidget::createXLabel()
 {
 	_xAxis->setLabel(QString("%1 [%2]")
-		.arg(_xLabel, _xUnits.isEmpty() ? "-" : _xUnits));
+		.arg(_xLabel, _xUnit.name.isEmpty() ? "-" : _xUnit.name));
 	updateLayout();
 }
 
 void GraphWidget::createYLabel()
 {
 	_yAxis->setLabel(QString("%1 [%2]")
-		.arg(_yLabel, _yUnits.isEmpty() ? "-" : _yUnits));
+		.arg(_yLabel, _yUnit.name.isEmpty() ? "-" : _yUnit.name));
 	updateLayout();
 }
 
@@ -214,8 +173,9 @@ void GraphWidget::updateLayout()
 	int my = _xAxis->xBottomSpace();
 	crect.adjust(0, Y_PADDING, 0, -my-Y_PADDING);
 
-	RangeF uyr = toUnit(RangeF(br.top(), br.bottom()), _yScale, _yOffset);
+	RangeF uyr = _yUnit.toUnit(RangeF(br.top(), br.bottom()));
 	_yTicks  = Ticks(uyr, (int)floor(crect.height() / 10.));
+	_zeroPos = uyr.max() * crect.height() / uyr.size();
 	_vyTicks = vTicks(_yTicks, uyr, Range(0, crect.height()));
 	_yAxis->setLen(crect.height());
 	_yAxis->setTicks(&_vyTicks);
@@ -246,10 +206,10 @@ void GraphWidget::updateLayout()
 			- vr.left() * sx, vr.top()  * sy, 1.),
 		false);
 
-	RangeF uxr = toUnit(RangeF(br.left(), br.right()), _xScale);
+	RangeF uxr = _xUnit.toUnit(RangeF(br.left(), br.right()));
 	_xTicks = Ticks(uxr, (int)floor(br.width() * sx / 50.));
 
-	RangeF uvxr = toUnit(RangeF(vr.left(), vr.right()), _xScale);
+	RangeF uvxr = _xUnit.toUnit(RangeF(vr.left(), vr.right()));
 	_vxTicks = vTicks(_xTicks, uvxr, Range(0, crect.width()));
 	_xAxis->setLen(crect.width());
 	_xAxis->setTicks(&_vxTicks);
@@ -280,7 +240,7 @@ void GraphWidget::resizeEvent(QResizeEvent *e)
 
 void GraphWidget::viewPosChange() {
 	QRectF   vr = _content->visibleRect();
-	RangeF uvxr = toUnit(RangeF(vr.left(), vr.right()), _xScale);
+	RangeF uvxr = _xUnit.toUnit(RangeF(vr.left(), vr.right()));
 	_vxTicks    = vTicks(_xTicks, uvxr, Range(0, _content->width()));
 	_xAxis->setTicks(&_vxTicks);
 
@@ -309,12 +269,9 @@ void GraphWidget::updateSliderInfo()
 	QLocale l(QLocale::system());
 	qreal x = _content->_slider->x(),
 		  y = _bounds.center().y();
-	GraphItem *cardinal =
-		(_graphs.count() == 1 
-		 	|| (_graphs.count() == 2 && _graphs.first()->secondaryGraph()))
-		? _graphs.first() : 0;
 
-	if (cardinal) y = cardinal->yAtX(x);
+	std::pair<GraphItem*, GraphItem*> mainG(_gview->mainGraphs());
+	if (mainG.first) y = mainG.first->yAtX(x);
 
 	QPoint wpos = _content->mapFromScene(QPointF(x, y));
 	int right = wpos.x()
@@ -325,17 +282,18 @@ void GraphWidget::updateSliderInfo()
 
 	QString xText(_graphType == Time
 					? Format::timeSpan(x, _bounds.width() > 3600)
-					: l.toString(toUnit(x, _xScale), 'f', 1)
-						+ UNIT_SPACE + _xUnits);
-	QString yText(cardinal
-					? l.toString(toUnit(y, _yScale, _yOffset), 'f', _precision)
-						+ UNIT_SPACE + _yUnits
+					: _xUnit.format(x, 1));
+	QString yText(mainG.first
+					? _yUnit.format(y, _slidderFmt)
 					: QString());
-	if (cardinal && cardinal->secondaryGraph()) {
-		qreal delta = y - cardinal->secondaryGraph()->yAtX(x);
-		yText += " " + QChar(0x0394)
-		      + l.toString(toUnit(delta, _yScale, _yOffset), 'f', _precision)
-		      + UNIT_SPACE + _yUnits;
+	if (mainG.second) {
+		qreal delta = y - mainG.second->yAtX(x);
+		if (!std::isnan(delta)) {
+			Unit::Fmt dFmt(_slidderFmt);
+			dFmt.force_sign = true;
+			yText += " " + QChar(0x0394)//Delta
+				  + _yUnit.format(delta, dFmt);
+		}
 	}
 	s_i->setText(xText, yText);
 
@@ -350,14 +308,12 @@ void GraphWidget::updateSliderInfo()
 
 QPointF GraphWidget::pointToUnit(const QPointF& p)
 {
-	return QPointF(toUnit(p.x(), _xScale),
-				   toUnit(p.y(), _yScale, _yOffset));
+	return QPointF(_xUnit.toUnit(p.x()), _yUnit.toUnit(p.y()));
 }
 
 QPointF GraphWidget::pointFromUnit(const QPointF& p)
 {
-	return QPointF(fromUnit(p.x(), _xScale),
-				   fromUnit(p.y(), _yScale, _yOffset));
+	return QPointF(_xUnit.fromUnit(p.x()), _yUnit.fromUnit(p.y()));
 }
 
 
@@ -445,17 +401,16 @@ void GraphContent::drawBackground(QPainter *painter, const QRectF& r)
 {
 	QGraphicsView::drawBackground(painter, r);
 
-	// in scene coord
+	// in content widget coords
+	painter->resetTransform();
+
 	if (_widgt->_showZero) {
-		//BUG: 1 pixel shift from grid
 		painter->setRenderHint(QPainter::Antialiasing, false);
 		painter->setPen(Qt::gray);
-		
-		int v = fromUnit(0, _widgt->_yScale, _widgt->_yOffset);
-		painter->drawLine(r.left(), v, r.right(), v);
+		int v = _widgt->_zeroPos;
+		painter->drawLine(rect().left(), v, rect().right(), v);
 	}
 
-	painter->resetTransform();// in content widget coords
 	if (_widgt->_showGrid) {
 		QBrush brush(Qt::gray);
 		QPen pen = QPen(brush, 0, Qt::DotLine);

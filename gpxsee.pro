@@ -18,6 +18,7 @@ lessThan(QT_MAJOR_VERSION, 5) {QT += opengl}
 equals(QT_MAJOR_VERSION, 5) : lessThan(QT_MINOR_VERSION, 4) {QT += opengl}
 
 INCLUDEPATH += ./src
+DEPENDPATH  += ./src
 HEADERS += src/common/config.h \
     src/GUI/graphicsscene.h \
     src/GUI/mapaction.h \
@@ -74,14 +75,6 @@ HEADERS += src/common/config.h \
     src/GUI/opengl.h \
     src/GUI/timetype.h \
     src/GUI/percentslider.h \
-    src/GUI/elevationgraphitem.h \
-    src/GUI/speedgraphitem.h \
-    src/GUI/vspeedgraphitem.h \
-    src/GUI/heartrategraphitem.h \
-    src/GUI/temperaturegraphitem.h \
-    src/GUI/cadencegraphitem.h \
-    src/GUI/powergraphitem.h \
-    src/GUI/gearratiographitem.h \
     src/GUI/oddspinbox.h \
     src/GUI/settings.h \
     src/GUI/cpuarch.h \
@@ -214,11 +207,13 @@ SOURCES += src/main.cpp \
     src/GUI/slideritem.cpp \
     src/GUI/markeritem.cpp \
     src/GUI/infoitem.cpp \
+    src/GUI/graphtab.cpp \
     src/GUI/elevationgraph.cpp \
     src/GUI/speedgraph.cpp \
     src/GUI/vspeedgraph.cpp \
     src/GUI/sliderinfoitem.cpp \
     src/GUI/filebrowser.cpp \
+    src/GUI/units.cpp \
     src/GUI/scaleitem.cpp \
     src/GUI/graphview.cpp \
     src/GUI/graphwidget.cpp \
@@ -243,14 +238,6 @@ SOURCES += src/main.cpp \
     src/GUI/stylecombobox.cpp \
     src/GUI/oddspinbox.cpp \
     src/GUI/percentslider.cpp \
-    src/GUI/elevationgraphitem.cpp \
-    src/GUI/speedgraphitem.cpp \
-    src/GUI/vspeedgraphitem.cpp \
-    src/GUI/heartrategraphitem.cpp \
-    src/GUI/temperaturegraphitem.cpp \
-    src/GUI/cadencegraphitem.cpp \
-    src/GUI/powergraphitem.cpp \
-    src/GUI/gearratiographitem.cpp \
     src/GUI/mapview.cpp \
     src/GUI/areaitem.cpp \
     src/data/waypoint.cpp \

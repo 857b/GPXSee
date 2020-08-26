@@ -2,11 +2,40 @@
 
 #include <QCoreApplication>
 
+#include <cmath>
 #include <algorithm>
 #include <stdexcept>
 
 #include "trackpoint.h"
 #include "dem.h"
+
+QString chanTyName(ChanTy ty)
+{
+	switch(ty) {
+		case CTdistance:
+			return Track::tr("Distance");
+		case CTelevation:
+			return Track::tr("Elevation");
+		case CTspeed:
+			return Track::tr("Speed");
+		case CTaccel:
+			return Track::tr("Acceleration");
+		case CTvSpeed:
+			return Track::tr("Vertical Speed");
+		case CTheartRate:
+			return Track::tr("Heart rate");
+		case CTtemperature:
+			return Track::tr("Temperature");
+		case CTcadence:
+			return Track::tr("Cadence");
+		case CTpower:
+			return Track::tr("Power");
+		case CTratio:
+			return Track::tr("Gear ratio");
+	}
+	qWarning("unknown ty: %d", (int)ty);
+	return Track::tr("Unknown");
+}
 
 struct TrackpointFields {
 	ChanTy ty;
@@ -45,30 +74,6 @@ static void copyField(R (Trackpoint::*get)() const, const SegmentData& s,
 	d.reserve(s.size());
 	for (int i = 0; i < s.size(); ++i)
 		d.append((s[i].*get)());
-}
-
-static GraphSegment filter(const GraphSegment &g, int window)
-{ 
-	if (g.size() < window || window < 2)
-		return GraphSegment(g);
-
-	GraphSegment ret(g.size());
-
-	ret._sum = g._sum;
-
-	int w2 = window / 2;
-	qreal acc = 0;
-	int i1 = 0, i2 = 0;//[i1, i2[
-
-	for (int i = 0; i  < g.size(); ++i) {
-		for (; i2 - i <= w2 && i2 < g.size(); ++i2)
-			acc += g.at(i2).y();
-		for (; i - i1 > w2; ++i1)
-			acc -= g.at(i1).y();
-		ret[i] = GraphPoint(g.at(i).s(), g.at(i).t(), acc / (i2 - i1));
-	}
-
-	return ret;
 }
 
 static const qreal min_dt = 1e-3;//s
@@ -270,8 +275,8 @@ bool Track::_show2ndElevation = false;
 bool Track::_show2ndSpeed = false;
 
 
-Track::Track(const TrackData& data)
-	: TrackInfos(data)
+Track::Track(QObject* parent, const TrackData& data)
+	: QObject(parent), TrackInfos(data)
 {
 	_chanDist = newChannel(ChannelDescr(CTdistance, CSgpsDist));
 
@@ -394,6 +399,7 @@ Track::Track(const TrackData& data)
 
 	computeChannels();
 }
+
 void Track::computeChannels()
 {
 	// Vertical speed
@@ -461,97 +467,14 @@ int Track::findChannel(int ct, int cs) const
 	return ~0;
 }
 
-Graph Track::graphOfChannel(int cid, int filtrWindow) const
+QList<int> Track::findChannels(ChanTy ct) const
 {
-	Graph ret;
-
-	for (int i = 0; i < _segments.size(); i++) {
-		const Segment& sg(_segments[i]);
-		const Channel* ch;
-		if (sg.size() < 2 || !(ch = sg.findChannel(cid)))
-			continue;
-
-		const Channel &dist(sg[_chanDist]);
-		GraphSegment gs;
-		gs._sum = _chanDescr[cid].sum(*this, sg, cid, 0, sg.size());
-		if (sg.hasTime())
-			for (int j = 0; j < ch->size(); j++) {
-				if (std::isnan(ch->at(j)) || sg.outliers.contains(j))
-					continue;
-				gs.append(GraphPoint(
-							sg.dist0 + dist[j], sg.timeAt(j), ch->at(j)));
-			}
-		else //TODO
-			for (int j = 0; j < ch->size(); j++) {
-				if (std::isnan(ch->at(j)) || sg.outliers.contains(j))
-					continue;
-				gs.append(GraphPoint(sg.dist0 + dist[j], NAN, ch->at(j)));
-			}
-
-		ret.append(filter(gs, filtrWindow));
-	}
-
-	return ret;
+	QList<int> rt;
+	for (int i = 0; i < _chanDescr.size(); ++i)
+		if (_chanDescr[i]._ty == ct)
+			rt.append(i);
+	return rt;
 }
-
-Graph Track::graphOfType(ChanTy ty, int filtrWindow) const
-{
-	int ch = findChannel(ty);
-	return ~ch ? graphOfChannel(ch, filtrWindow) : Graph();
-}
-
-GraphPair Track::elevation() const
-{
-	int ch1 = findChannel(CTelevation, _useDEM ? CSdem : CSbase),
-	    ch2 = ~0;
-	if (!~ch1) ch1 = findChannel(CTelevation);
-	else if (_show2ndElevation)
-		ch2 = findChannel(CTelevation, _useDEM ? CSbase : CSdem);
-	return GraphPair(~ch1 ? graphOfChannel(ch1, _elevationWindow) : Graph(),
-	                 ~ch2 ? graphOfChannel(ch2, _elevationWindow) : Graph());
-}
-
-GraphPair Track::speed() const
-{
-	int ch1 = findChannel(CTspeed, _useReportedSpeed ? CSbase : CSderiv),
-	    ch2 = ~0;
-	if (!~ch1) ch1 = findChannel(CTspeed);
-	else if (_show2ndElevation)
-	    ch2 = findChannel(CTspeed, _useReportedSpeed ? CSderiv : CSbase);
-	return GraphPair(~ch1 ? graphOfChannel(ch1, _speedWindow) : Graph(),
-	                 ~ch2 ? graphOfChannel(ch2, _speedWindow) : Graph());
-}
-
-Graph Track::vspeed() const
-{
-	return graphOfType(CTvSpeed, _speedWindow);
-}
-
-Graph Track::heartRate() const
-{
-	return graphOfType(CTheartRate, _heartRateWindow);
-}
-
-Graph Track::temperature() const
-{
-	return graphOfType(CTtemperature);
-}
-
-Graph Track::cadence() const
-{
-	return graphOfType(CTcadence, _cadenceWindow);
-}
-
-Graph Track::power() const
-{
-	return graphOfType(CTpower, _powerWindow);
-}
-
-Graph Track::ratio() const
-{
-	return graphOfType(CTratio);
-}
-
 
 qreal Track::distance() const
 {
@@ -586,10 +509,108 @@ bool Track::isValid() const
 			return true;
 	return false;
 }
-	
-QString Track::tr(const char *s, const char *d)
+
+bool Track::hasTime() const
 {
-	return QCoreApplication::translate("Track", s, d);
+	for (int i = 0; i < _segments.size(); i++)
+		if (_segments[i].size() >= 2 && _segments[i].hasTime())
+			return true;
+	return false;
+}
+
+bool Track::hasData(int chanId) const
+{
+	for (int i = 0; i < _segments.size(); ++i) {
+		const Channel* c = _segments.at(i).findChannel(chanId);
+		if (c && c->hasData())
+			return true;
+	}
+	return false;
+}
+
+int Track::filterWindow(ChanTy ct)
+{
+	switch(ct) {
+		case CTelevation:
+			return _elevationWindow;
+		case CTspeed: case CTvSpeed:
+			return _speedWindow;
+		case CTheartRate:
+			return _heartRateWindow;
+		case CTcadence:
+			return _cadenceWindow;
+		case CTpower:
+			return _powerWindow;
+		default:
+			return 1;
+	}
+}
+
+
+template<typename F>
+Track::ChannelPoint pointAt(const F& f, int i_s,
+		const Track::Segment& s, qreal x)
+{
+	Track::ChannelPoint p(i_s, s.firstValid(), s.lastValid());
+	if (!~p.pt0 || !~p.pt1 || f(p.pt0) > x || f(p.pt1) < x)
+		return Track::ChannelPoint(~0);
+	// f(p.pt0) <= x <= f(p.pt1)
+	while (p.pt1 > p.pt0 + 1) {
+		int pt = (p.pt0 + p.pt1) / 2;
+		qreal px = f(pt);
+		if (px > x)
+			p.pt1 = pt;
+		else
+			p.pt0 = pt;
+	}
+	// end because firstValid & lastValid are not outliers
+	while (s.outliers.contains(p.pt0)) --p.pt0;
+	while (s.outliers.contains(p.pt1)) ++p.pt1;
+
+	qreal x0 = f(p.pt0), x1 = f(p.pt1);
+	p.t = x1 > x0
+		? (x - x0) / (x1 - x0)
+		: 0;
+	return p;
+}
+
+struct TimeGetter {
+	const Track::Segment& sg;
+	TimeGetter(const Track::Segment& sg) : sg(sg) {}
+	qreal operator()(int i) const {return sg.timeAt(i);}
+};
+Track::ChannelPoint Track::pointAtTime(qreal t) const
+{
+	for (int i_s = 0; i_s < _segments.count(); ++i_s) {
+		const Segment& s(_segments.at(i_s));
+		if (!s.hasTime()) continue;
+		ChannelPoint p(pointAt(TimeGetter(s), i_s, s, t));
+		if (p) return p;
+	}
+	return ChannelPoint(~0);
+}
+
+struct DistGetter {
+	const Track::Channel& ch;
+	DistGetter(const Track::Channel& ch) : ch(ch) {}
+	qreal operator()(int i) const {return ch.at(i);}
+};
+Track::ChannelPoint Track::pointAtDistance(qreal d) const
+{
+	for (int i_s = 0; i_s < _segments.count(); ++i_s) {
+		const Segment& s(_segments.at(i_s));
+		ChannelPoint p(pointAt(DistGetter(s[_chanDist]),
+						i_s, s, d - s.dist0));
+		if (p) return p;
+	}
+	return ChannelPoint(~0);
+}
+
+qreal Track::distanceAtTime(qreal t) const
+{
+	ChannelPoint p(pointAtTime(t));
+	return p ? p.interpol(_segments[p.seg_num][_chanDist])
+	         : distance();
 }
 
 // Channel
@@ -605,6 +626,36 @@ qreal Track::Channel::sum(int a, int b) const
 qreal Track::Channel::avg(int a, int b) const
 {
 	return sum(a, b) / (qreal)size();
+}
+
+Track::Channel Track::Channel::filter(int window) const
+{ 
+	if (size() < window || window < 2)
+		return *this;
+
+	Channel ret(_id, size());
+
+	int w2 = window / 2;
+	qreal acc = 0;
+	int i1 = 0, i2 = 0;//[i1, i2[
+
+	for (int i = 0; i  < size(); ++i) {
+		for (; i2 - i <= w2 && i2 < size(); ++i2)
+			acc += at(i2);
+		for (; i - i1 > w2; ++i1)
+			acc -= at(i1);
+		ret[i] = acc / (i2 - i1);
+	}
+
+	return ret;
+}
+
+bool Track::Channel::hasData() const
+{
+	for (int i = 0; i < size(); ++i)
+		if (std::isfinite(at(i)))
+			return true;
+	return false;
 }
 
 // ChannelDescr
@@ -628,6 +679,30 @@ qreal Track::ChannelDescr::sum(const Track& t, const Segment& s, int id,
 		default:
 			return s[id].sum(a, b);
 	}
+}
+
+qreal Track::ChannelDescr::sum(const Track& t, int id) const
+{
+	qreal s = 0;
+	const QList<Segment>& sgs(t.segments());
+	for (int i = 0; i < sgs.count(); ++i) {
+		const Segment& sg(sgs.at(i));
+		if (sg.findChannel(id))
+			s += sum(t, sg, id, 0, sg.size());
+	}
+	return s;
+}
+
+qreal Track::ChannelDescr::tsum(const Track& t, int id) const
+{
+	qreal s = 0;
+	const QList<Segment>& sgs(t.segments());
+	for (int i = 0; i < sgs.count(); ++i) {
+		const Segment& sg(sgs.at(i));
+		if (sg.hasTime() && sg.findChannel(id))
+			s += sum(t, sg, id, 0, sg.size());
+	}
+	return s;
 }
 
 // Segment
@@ -670,10 +745,10 @@ Track::Channel& Track::Segment::append(const Channel& ch)
 
 Track::Channel& Track::Segment::append(const Channel& ch0, int id)
 {
-	Channel ch(ch0);
+	chan.append(ch0);
+	Channel& ch(chan.last());
 	ch._id = id;
-	chan.append(ch);
-	return chan.last();
+	return ch;
 }
 
 Track::Channel& Track::Segment::channel(int id)
@@ -718,9 +793,21 @@ int Track::Segment::lastValid() const
 bool Track::Segment::hasTime() const
 {
 	return timePres;
-}
+} 
 
 qreal Track::Segment::timeAt(int i) const
 {
 	return time0 + tms0.msecsTo(time[i]) / 1000.;
+}
+
+qreal Track::Segment::totalTime() const
+{
+	int lv = lastValid();
+	if (!~lv) return 0;
+	return tms0.msecsTo(time[lv]) / 1000.;
+}
+
+qreal Track::Segment::movingTime() const
+{
+	return totalTime() - pauseTime;
 }
