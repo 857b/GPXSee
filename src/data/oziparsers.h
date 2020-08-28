@@ -3,49 +3,25 @@
 
 #include "parser.h"
 
-class PLTParser : public Parser
+class PLTParser : public Parser1
 {
-public:
-	PLTParser() : _errorLine(0) {}
-
+protected:
 	bool parse(QFile *file, QList<TrackData> &tracks, QList<RouteData> &routes,
 	  QList<Area> &polygons, QVector<Waypoint> &waypoints);
-	QString errorString() const {return _errorString;}
-	int errorLine() const {return _errorLine;}
-
-private:
-	QString _errorString;
-	int _errorLine;
 };
 
-class RTEParser : public Parser
+class RTEParser : public Parser1
 {
-public:
-	RTEParser() : _errorLine(0) {}
-
+protected:
 	bool parse(QFile *file, QList<TrackData> &tracks, QList<RouteData> &routes,
 	  QList<Area> &polygons, QVector<Waypoint> &waypoints);
-	QString errorString() const {return _errorString;}
-	int errorLine() const {return _errorLine;}
-
-private:
-	QString _errorString;
-	int _errorLine;
 };
 
-class WPTParser : public Parser
+class WPTParser : public Parser1
 {
-public:
-	WPTParser() : _errorLine(0) {}
-
+protected:
 	bool parse(QFile *file, QList<TrackData> &tracks, QList<RouteData> &routes,
 	  QList<Area> &polygons, QVector<Waypoint> &waypoints);
-	QString errorString() const {return _errorString;}
-	int errorLine() const {return _errorLine;}
-
-private:
-	QString _errorString;
-	int _errorLine;
 };
 
 #endif // OZIPARSERS_H

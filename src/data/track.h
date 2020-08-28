@@ -40,9 +40,12 @@ enum ChanSrc
 	CSderiv
 };
 
+class TrackBuilder; // parser.h
+
 class Track : public QObject, public TrackInfos {
 	Q_OBJECT
 
+	friend TrackBuilder;
 public:
 
 	class Channel : public QVector<qreal> 
@@ -78,7 +81,7 @@ public:
 		ChannelDescr(ChanTy ty, ChanSrc src, QString name)
 			: _ty(ty), _src(src), _name(name) {}
 
-		QString fullName() const;
+		QString name(const Track& t, bool full = false) const;
 
 		// s must have an id-channel
 		qreal sum(const Track& t, const Segment& s, int id,
@@ -92,7 +95,9 @@ public:
 		QVector<Coordinates> coord;
 		// may be empty if !hasTime()
 		QVector<QDateTime>   time;
+		bool                 timePres;
 		QVector<Channel>     chan;
+
 		QSet<int>            outliers;
 		QSet<int>            stop;
 
@@ -101,16 +106,18 @@ public:
 		QDateTime            tms0;
 		qreal                time0;
 
-		bool                 timePres;
 		qreal                pauseTime;
 
 
 		Segment();
 
+
 		void           computeStopPoints(const Channel& speed,
 								qreal pauseInterval, qreal pauseSpeed);
 		bool           discardStopPoint(int i) const;
-		
+
+		// return index
+		int            addChannel(int chanId);
 		// adding channels invalidates references
 		Channel&       append(const Channel& ch);
 		Channel&       append(const Channel& ch, int id);
@@ -143,7 +150,11 @@ public:
 		qreal interpol(qreal v0, qreal v1) const {
 			return (1 - t) * v0 + t * v1;
 		}
-		qreal interpol(const Channel& ch) const {
+		QDateTime interpol(const QDateTime& v0, const QDateTime& v1) const {
+			return v0.addMSecs(t * v0.msecsTo(v1));
+		}
+		template<typename T>
+		T interpol(const QVector<T>& ch) const {
 			return interpol(ch.at(pt0), ch.at(pt1));
 		}
 	};
@@ -151,11 +162,9 @@ public:
 
 	Track(QObject* parent, const TrackData &data);
 
-	void computeChannels();
-
 	Path path() const;
 
-	const QList<Segment>& segments() const {return _segments;}
+	const QList<Segment>& segments()  const {return _segments;}
 	QVector<ChannelDescr> chanDescr() const {return _chanDescr;}
 	int          distChan() const {return _chanDist;}
 
@@ -195,8 +204,14 @@ public:
 	  {_show2ndSpeed = show;}
 
 private:
+	Track(QObject* parent);
+
 	int newChannel(const ChannelDescr& ch);
 	int findChannel(int ct, int cs = -1) const;
+
+	void finalize();
+	void computeVSpeed();
+	void computeDEMelevation();
 
 
 	QVector<ChannelDescr>  _chanDescr;

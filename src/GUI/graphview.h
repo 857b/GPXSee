@@ -80,6 +80,7 @@ protected:
 	void addInfo(const QString &key, const QString &value);
 	void clearInfo();
 	void updateInfo();
+	virtual void onMainGraphChanged();
 
 protected:
 	Palette _palette;

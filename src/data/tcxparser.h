@@ -8,10 +8,12 @@
 class TCXParser : public Parser
 {
 public:
-	bool parse(QFile *file, QList<TrackData> &tracks, QList<RouteData> &routes,
-	  QList<Area> &polygons, QVector<Waypoint> &waypoints);
 	QString errorString() const {return _reader.errorString();}
 	int errorLine() const {return _reader.lineNumber();}
+
+protected:
+	bool parse(QFile *file, QList<TrackData> &tracks, QList<RouteData> &routes,
+	  QList<Area> &polygons, QVector<Waypoint> &waypoints);
 
 private:
 	void tcx(QList<TrackData> &tracks, QVector<Waypoint> &waypoints);

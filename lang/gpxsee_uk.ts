@@ -30,87 +30,87 @@
 <context>
     <name>Data</name>
     <message>
-        <location filename="../src/data/data.cpp" line="136"/>
+        <location filename="../src/data/data.cpp" line="123"/>
         <source>Supported files</source>
         <translation>Всі підтримувані формати</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="137"/>
+        <location filename="../src/data/data.cpp" line="124"/>
         <source>CSV files</source>
         <translation>CSV файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="138"/>
+        <location filename="../src/data/data.cpp" line="125"/>
         <source>CUP files</source>
         <translation>CUP файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="139"/>
+        <location filename="../src/data/data.cpp" line="126"/>
         <source>FIT files</source>
         <translation>FIT файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="141"/>
+        <location filename="../src/data/data.cpp" line="128"/>
         <source>GeoJSON files</source>
         <translation>GeoJSON файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="143"/>
+        <location filename="../src/data/data.cpp" line="130"/>
         <source>GPI files</source>
         <translation>GPI файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="144"/>
+        <location filename="../src/data/data.cpp" line="131"/>
         <source>GPX files</source>
         <translation>GPX файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="145"/>
+        <location filename="../src/data/data.cpp" line="132"/>
         <source>IGC files</source>
         <translation>IGC файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="146"/>
+        <location filename="../src/data/data.cpp" line="133"/>
         <source>JPEG images</source>
         <translation>JPEG зображення</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="147"/>
+        <location filename="../src/data/data.cpp" line="134"/>
         <source>KML files</source>
         <translation>KML файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="148"/>
+        <location filename="../src/data/data.cpp" line="135"/>
         <source>LOC files</source>
         <translation>LOC файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="149"/>
+        <location filename="../src/data/data.cpp" line="136"/>
         <source>NMEA files</source>
         <translation>NMEA файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="150"/>
+        <location filename="../src/data/data.cpp" line="137"/>
         <source>OziExplorer files</source>
         <translation>OziExplorer файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="151"/>
+        <location filename="../src/data/data.cpp" line="138"/>
         <source>SLF files</source>
         <translation>SLF файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="152"/>
+        <location filename="../src/data/data.cpp" line="139"/>
         <source>SML files</source>
         <translation>SML файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="153"/>
+        <location filename="../src/data/data.cpp" line="140"/>
         <source>TCX files</source>
         <translation>TCX файли</translation>
     </message>
     <message>
-        <location filename="../src/data/data.cpp" line="154"/>
+        <location filename="../src/data/data.cpp" line="141"/>
         <source>All files</source>
         <translation>Всі файли</translation>
     </message>
@@ -856,6 +856,19 @@
     </message>
 </context>
 <context>
+    <name>GraphItem1</name>
+    <message>
+        <location filename="../src/GUI/graphtab.cpp" line="237"/>
+        <source>Main graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphtab.cpp" line="237"/>
+        <source>Secondary graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>GraphWidget</name>
     <message>
         <location filename="../src/GUI/graphwidget.cpp" line="50"/>
@@ -893,6 +906,19 @@
         <location filename="../src/GUI/heartrategraph.cpp" line="9"/>
         <source>Average</source>
         <translation>Середнє</translation>
+    </message>
+</context>
+<context>
+    <name>IGCParser</name>
+    <message>
+        <location filename="../src/data/igcparser.cpp" line="273"/>
+        <source>GPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/data/igcparser.cpp" line="275"/>
+        <source>pressure</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1689,6 +1715,26 @@
     <message>
         <location filename="../src/data/track.cpp" line="258"/>
         <source>computed from %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="675"/>
+        <source>GPS distance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="677"/>
+        <source>GPS speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="679"/>
+        <source>GPS acceleration</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/data/track.cpp" line="681"/>
+        <source>DEM</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

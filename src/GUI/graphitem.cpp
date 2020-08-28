@@ -9,7 +9,7 @@ GraphItem::GraphItem(QObject* oParent, GraphType type,
 			QGraphicsItem *iParent)
 	: QObject(oParent), GraphicsItem(iParent),
 	  _type(type),
-	  _shpWidth(4)
+	  _shpWidth(8)
 {
 	_units = Metric;
 	_pen = QPen(color, width, style);
@@ -77,6 +77,12 @@ void GraphItem::setWidth(int width)
 
 	_pen.setWidth(width);
 
+	updateShape();
+}
+
+void GraphItem::setShapeWidth(qreal shpWidth)
+{
+	_shpWidth = shpWidth;
 	updateShape();
 }
 

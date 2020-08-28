@@ -3,6 +3,7 @@
 
 #include <QGraphicsObject>
 #include <QPen>
+#include <QDateTime>
 #include "data/graph.h"
 #include "units.h"
 #include "graphicsscene.h"
@@ -31,12 +32,15 @@ public:
 	void setGraphType(GraphType type);
 	void setColor(const QColor &color);
 	void setWidth(int width);
+	void setShapeWidth(qreal shpWidth);
 	void setUnits(Units units) {_units = units;}
 
 	virtual GraphItem *secondaryGraph() const = 0;
 
-	virtual qreal yAtX(qreal x) const = 0;
-	virtual qreal distanceAtTime(qreal time) const = 0;
+	virtual qreal     yAtX(qreal x) const = 0;
+	virtual qreal     distanceAtTime(qreal time) const = 0;
+	virtual QDateTime dateAtX(qreal x) const
+		{Q_UNUSED(x); return QDateTime();}
 	
 	qreal min() const {return _bounds.top();}
 	qreal max() const {return _bounds.bottom();}

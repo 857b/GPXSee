@@ -14,7 +14,8 @@ public:
 	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	  QWidget *widget);
 
-	void setText(const QString &x, const QString &y);
+	void setText(const QString &x, const QString &y,
+			     const QString &d = QString());
 	void setSide(Side side);
 	void setColor(const QColor &color);
 	void setTop(int top);
@@ -23,7 +24,7 @@ private:
 	void updateBoundingRect();
 
 	Side _side;
-	QString _x, _y;
+	QString _x, _y, _d;
 	QRectF _boundingRect;
 	QColor _color;
 	QFont _font;

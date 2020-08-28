@@ -8,10 +8,13 @@ class QDateTime;
 
 class SLFParser : public Parser
 {
-	bool parse(QFile *file, QList<TrackData> &tracks, QList<RouteData> &routes,
-	  QList<Area> &polygons, QVector<Waypoint> &waypoints);
+public:
 	QString errorString() const {return _reader.errorString();}
 	int errorLine() const {return _reader.lineNumber();}
+
+protected:
+	bool parse(QFile *file, QList<TrackData> &tracks, QList<RouteData> &routes,
+	  QList<Area> &polygons, QVector<Waypoint> &waypoints);
 
 private:
 	void generalInformation(QDateTime &date, TrackData &track);

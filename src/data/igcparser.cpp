@@ -45,33 +45,41 @@ static bool readLon(const char *data, qreal &lon)
 	return true;
 }
 
-static bool readAltitude(const char *data, qreal &ele)
+static inline bool readAltitude1(const char *data, int& a)
 {
-	int ga;
+	if (data[0] == '-') {
+		if ((a = str2int(data + 1, 4)) < 0)
+			return false;
+		a = -a;
+	} else {
+		if ((a = str2int(data, 5)) < 0)
+			return false;
+	}
+	return true;
+}
+
+static bool readAltitude(const char *data,
+				qreal& prs_alt, qreal& gps_alt)
+{
+	int pa, ga;
 
 	if (!(data[0] == 'A' || data[0] == 'V'))
 		return false;
+	if (!readAltitude1(data + 1, pa))
+		return false;
+	if (!readAltitude1(data + 6, ga))
+		return false;
 
-	if (data[6] == '-') {
-		if ((ga = str2int(data + 7, 4)) < 0)
-			return false;
-		ga = -ga;
-	} else {
-		if ((ga = str2int(data + 6, 5)) < 0)
-			return false;
-	}
-
-	if (data[0] == 'A')
-		ele = (qreal)ga;
-	else
-		ele = NAN;
+	prs_alt = pa;
+	gps_alt = data[0] == 'A' ? (qreal)ga : NAN;
 
 	return true;
 }
 
-static bool readTimestamp(const char *data, QTime &time)
+static bool readTimestamp(const IGCParser::CTX& ctx,
+						  const char *data, QTime &time)
 {
-	int h = str2int(data, 2);
+	int h = str2int(data, 2) - ctx.tz_offset;
 	int m = str2int(data + 2, 2);
 	int s = str2int(data + 4, 2);
 
@@ -100,34 +108,44 @@ static bool readARecord(const char *line, qint64 len)
 
 bool IGCParser::readHRecord(CTX &ctx, const char *line, int len)
 {
-	if (len < 11 || ::strncmp(line, "HFDTE", 5))
-		return true;
+	if (!::strncmp(line, "HFTZNTIMEZONE", 13)) {
+		if (len < 16) {
+			_errorString = "Missing timezone";
+			return false;
+		}
+		if (!str2sint(line + 14, len - 16, ctx.tz_offset)) {
+			_errorString = "Invalid timezone";
+			return false;
+		}
 
-	int offset = (len < 16 || ::strncmp(line + 5, "DATE:", 5)) ? 5 : 10;
+	} else if (!::strncmp(line, "HFDTE", 5)) {
+		if (len < 11) return true;
 
-	int d = str2int(line + offset, 2);
-	int m = str2int(line + offset + 2, 2);
-	int y = str2int(line + offset + 4, 2);
+		int offset = len < 16 || ::strncmp(line + 5, "DATE:", 5)
+			       ? 5 : 10;
 
-	if (y < 0 || m < 0 || d < 0) {
-		_errorString = "Invalid date header format";
-		return false;
+		int d = str2int(line + offset, 2);
+		int m = str2int(line + offset + 2, 2);
+		int y = str2int(line + offset + 4, 2);
+
+		if (y < 0 || m < 0 || d < 0) {
+			_errorString = "Invalid date header format";
+			return false;
+		}
+
+		ctx.date = QDate(y + 2000 <= QDate::currentDate().year()
+		  ? 2000 + y : 1900 + y, m, d);
+		if (!ctx.date.isValid()) {
+			_errorString = "Invalid date";
+			return false;
+		}
 	}
-
-	ctx.date = QDate(y + 2000 <= QDate::currentDate().year()
-	  ? 2000 + y : 1900 + y, m, d);
-	if (!ctx.date.isValid()) {
-		_errorString = "Invalid date";
-		return false;
-	}
-
 	return true;
 }
 
-bool IGCParser::readBRecord(CTX &ctx, const char *line, int len,
-  SegmentData &segment)
+bool IGCParser::readBRecord(CTX &ctx, const char *line, int len)
 {
-	qreal lat, lon, ele;
+	qreal lat, lon, prs_alt, gps_alt;
 	QTime time;
 
 	if (len < 35)
@@ -135,7 +153,7 @@ bool IGCParser::readBRecord(CTX &ctx, const char *line, int len,
 	if (line[24] != 'A')
 		return true;
 
-	if (!readTimestamp(line + 1, time)) {
+	if (!readTimestamp(ctx, line + 1, time)) {
 		_errorString = "Invalid timestamp";
 		return false;
 	}
@@ -149,20 +167,20 @@ bool IGCParser::readBRecord(CTX &ctx, const char *line, int len,
 		return false;
 	}
 
-	if (!readAltitude(line + 24, ele)) {
+	if (!readAltitude(line + 24, prs_alt, gps_alt)) {
 		_errorString = "Invalid altitude";
 		return false;
 	}
 
-	if (time < ctx.time && !segment.isEmpty()
-	  && ctx.date == segment.last().timestamp().date())
+	if (time < ctx.time && !ctx.sg->time.isEmpty()
+			&& ctx.date == ctx.sg->time.last().date())
 		ctx.date = ctx.date.addDays(1);
 	ctx.time = time;
 
-	Trackpoint t(Coordinates(lon, lat));
-	t.setTimestamp(QDateTime(ctx.date, ctx.time, Qt::UTC));
-	t.setElevation(ele);
-	segment.append(t);
+	ctx.sg->coord.append(Coordinates(lon, lat));
+	ctx.sg->time.append(QDateTime(ctx.date, ctx.time, Qt::UTC));
+	ctx.prsAlt->append(prs_alt);
+	ctx.gpsAlt->append(gps_alt);
 
 	return true;
 }
@@ -170,7 +188,6 @@ bool IGCParser::readBRecord(CTX &ctx, const char *line, int len,
 bool IGCParser::readCRecord(const char *line, int len, RouteData &route)
 {
 	qreal lat, lon;
-
 
 	if (len < 18)
 		return false;
@@ -195,16 +212,27 @@ bool IGCParser::readCRecord(const char *line, int len, RouteData &route)
 	return true;
 }
 
-bool IGCParser::parse(QFile *file, QList<TrackData> &tracks,
-  QList<RouteData> &routes, QList<Area> &polygons,
-  QVector<Waypoint> &waypoints)
+IGCParser::CTX::CTX()
+	: tz_offset(0) {}
+
+static const unsigned max_line_len = 76;
+
+bool IGCParser::parse(QObject* parent, QFile *file,
+		QList<Track*>     &tracks,
+		QList<Route>      &routes,
+		QList<Area>       &polygons,
+		QVector<Waypoint> &waypoints)
 {
 	Q_UNUSED(waypoints);
 	Q_UNUSED(polygons);
+
 	qint64 len;
-	char line[76 + 2 + 1 + 1];
-	bool route = false, track = false;
+	// limit len + CRLF + \0 + 1 to check limit
+	char line[max_line_len + 2 + 1 + 1];
+	bool route = false;
+	RouteData rdt;
 	CTX ctx;
+	TrackBuilder bld;
 
 
 	_errorLine = 1;
@@ -216,7 +244,7 @@ bool IGCParser::parse(QFile *file, QList<TrackData> &tracks,
 		if (len < 0) {
 			_errorString = "I/O error";
 			return false;
-		} else if (len > (qint64)sizeof(line) - 1) {
+		} else if (len >= (qint64)sizeof(line) - 1) {
 			_errorString = "Line limit exceeded";
 			return false;
 		}
@@ -231,31 +259,43 @@ bool IGCParser::parse(QFile *file, QList<TrackData> &tracks,
 				if (!readHRecord(ctx, line, len))
 					return false;
 			} else if (line[0] == 'C') {
-				if (route) {
-					if (!readCRecord(line, len, routes.last()))
-						return false;
-				} else {
-					route = true;
-					routes.append(RouteData());
-				}
+				route = true;
+				if (!readCRecord(line, len, rdt))
+					return false;
 			} else if (line[0] == 'B') {
 				if (ctx.date.isNull()) {
 					_errorString = "Missing date header";
 					return false;
 				}
-				if (!track) {
-					tracks.append(TrackData());
-					tracks.last().append(SegmentData());
+				if (!bld.started()) {
+					bld.begin(parent);
+					int gpsAltId = bld.newChannel(Track::ChannelDescr(
+							CTelevation, CSbase, tr("GPS"))),
+					    prsAltId = bld.newChannel(Track::ChannelDescr(
+							CTelevation, CSbase, tr("pressure")));
+
+					ctx.sg = &bld.beginSegment(true);
+					int gpsAltIdx = ctx.sg->addChannel(gpsAltId),
+					    prsAltIdx = ctx.sg->addChannel(prsAltId);
+					ctx.prsAlt = &ctx.sg->chan[prsAltIdx];
+					ctx.gpsAlt = &ctx.sg->chan[gpsAltIdx];
+
 					ctx.time = QTime(0, 0);
-					track = true;
 				}
-				if (!readBRecord(ctx, line, len, tracks.last().last()))
+				if (!readBRecord(ctx, line, len))
 					return false;
 			}
 		}
 
 		_errorLine++;
 	}
+
+	if (bld.started()) {
+		bld.infos().setName(*file);
+		tracks.append(bld.finalize());
+	}
+	if (route)
+		routes.append(Route(rdt));
 
 	return true;
 }

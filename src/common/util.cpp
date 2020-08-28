@@ -17,6 +17,19 @@ int str2int(const char *str, int len)
 	return res;
 }
 
+bool str2sint(const char *str, int len, int& rt)
+{
+	if (len <= 0) return false;
+	if (str[0] == '-') {
+		rt = str2int(str + 1, len - 1);
+		if (rt < 0) return false;
+		rt = -rt;
+		return true;
+	}
+	rt = str2int(str, len);
+	return rt >= 0;
+}
+
 double niceNum(double x, bool round)
 {
 	int expv;

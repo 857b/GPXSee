@@ -4,6 +4,8 @@
 #include <QList>
 #include <QVector>
 #include <QString>
+#include <QFile>
+#include <QFileInfo>
 #include "trackpoint.h"
 #include "link.h"
 
@@ -18,6 +20,8 @@ public:
 	const QVector<Link> &links() const {return _links;}
 
 	void setName(const QString &name) {_name = name;}
+	void setName(const QFile &file)
+		{_name = QFileInfo(file.fileName()).fileName();}
 	void setDescription(const QString &desc) {_desc = desc;}
 	void setComment(const QString &comment) {_comment = comment;}
 	void addLink(const Link &link) {_links.append(link);}

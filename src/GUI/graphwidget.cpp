@@ -227,6 +227,11 @@ void GraphWidget::updateLayout()
 
 	_content->setSceneRect(br);
 	setSliderPosition(_content->_slider->x());
+
+	qreal shpWidth = 4 * br.height() / height();
+	for (int i = 0; i < _graphs.size(); ++i)
+		_graphs[i]->setShapeWidth(shpWidth);
+
 	update();
 	show();
 }
@@ -273,13 +278,6 @@ void GraphWidget::updateSliderInfo()
 	std::pair<GraphItem*, GraphItem*> mainG(_gview->mainGraphs());
 	if (mainG.first) y = mainG.first->yAtX(x);
 
-	QPoint wpos = _content->mapFromScene(QPointF(x, y));
-	int right = wpos.x()
-	          + (int)ceil(_content->_sliderInfo->boundingRect().width());
-	s_i->setSide(right > _content->width()
-	                   ? SliderInfoItem::Left : SliderInfoItem::Right);
-	s_i->setPos(QPointF(0, y - _content->_slider->y()));
-
 	QString xText(_graphType == Time
 					? Format::timeSpan(x, _bounds.width() > 3600)
 					: _xUnit.format(x, 1));
@@ -295,7 +293,20 @@ void GraphWidget::updateSliderInfo()
 				  + _yUnit.format(delta, dFmt);
 		}
 	}
-	s_i->setText(xText, yText);
+	QString dText;
+	if (mainG.first) {
+		QDateTime dt = mainG.first->dateAtX(x);
+		if (!dt.time().isNull())
+			dText = dt.time().toString(Qt::TextDate);
+	}
+	s_i->setText(xText, yText, dText);
+
+	QPoint wpos = _content->mapFromScene(QPointF(x, y));
+	int right = wpos.x()
+	          + (int)ceil(_content->_sliderInfo->boundingRect().width());
+	s_i->setSide(right > _content->width()
+	                   ? SliderInfoItem::Left : SliderInfoItem::Right);
+	s_i->setPos(QPointF(0, y - _content->_slider->y()));
 
 	int height = s_i->boundingRect().height();
 	int top    = -height / 2;

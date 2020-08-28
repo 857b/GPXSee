@@ -74,21 +74,10 @@ static QMap<QString, Parser*> parsers()
 
 QMap<QString, Parser*> Data::_parsers = parsers();
 
-void Data::processData(QList<TrackData> &trackData, QList<RouteData> &routeData)
-{
-	for (int i = 0; i < trackData.count(); i++)
-		_tracks.append(new Track(_parent, trackData.at(i)));
-	for (int i = 0; i < routeData.count(); i++)
-		_routes.append(Route(routeData.at(i)));
-}
-
 Data::Data(QObject* parent, const QString &fileName)
-	: _parent(parent)
 {
 	QFile file(fileName);
 	QFileInfo fi(fileName);
-	QList<TrackData> trackData;
-	QList<RouteData> routeData;
 
 	_valid = false;
 	_errorLine = 0;
@@ -100,9 +89,8 @@ Data::Data(QObject* parent, const QString &fileName)
 
 	QMap<QString, Parser*>::iterator it;
 	if ((it = _parsers.find(fi.suffix().toLower())) != _parsers.end()) {
-		if (it.value()->parse(&file, trackData, routeData, _polygons,
-		  _waypoints)) {
-			processData(trackData, routeData);
+		if (it.value()->parse(parent, &file, _tracks, _routes, _polygons,
+					_waypoints)) {
 			_valid = true;
 			return;
 		} else {
@@ -111,9 +99,8 @@ Data::Data(QObject* parent, const QString &fileName)
 		}
 	} else {
 		for (it = _parsers.begin(); it != _parsers.end(); it++) {
-			if (it.value()->parse(&file, trackData, routeData, _polygons,
-			  _waypoints)) {
-				processData(trackData, routeData);
+			if (it.value()->parse(parent, &file, _tracks, _routes,
+						_polygons, _waypoints)) {
 				_valid = true;
 				return;
 			}

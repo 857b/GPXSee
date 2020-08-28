@@ -1,33 +1,37 @@
 #ifndef IGCPARSER_H
 #define IGCPARSER_H
 
+#include <QCoreApplication>
 #include <QDate>
 #include <QTime>
 #include "parser.h"
 
 
-class IGCParser : public Parser
+class IGCParser : public Parser1
 {
+	Q_DECLARE_TR_FUNCTIONS(IGCParser)
+
 public:
-	IGCParser() : _errorLine(0) {}
+	bool parse(QObject* parent, QFile *file,
+			QList<Track*>     &tracks,
+			QList<Route>      &routes,
+			QList<Area>       &polygons,
+			QVector<Waypoint> &waypoints);
 
-	bool parse(QFile *file, QList<TrackData> &tracks, QList<RouteData> &routes,
-	  QList<Area> &polygons, QVector<Waypoint> &waypoints);
-	QString errorString() const {return _errorString;}
-	int errorLine() const {return _errorLine;}
-
-private:
 	struct CTX {
 		QDate date;
 		QTime time;
+		int   tz_offset;
+
+		Track::Segment* sg;
+		Track::Channel *prsAlt, *gpsAlt;
+
+		CTX();
 	};
 
 	bool readHRecord(CTX &ctx, const char *line, int len);
-	bool readBRecord(CTX &ctx, const char *line, int len, SegmentData &segment);
+	bool readBRecord(CTX &ctx, const char *line, int len);
 	bool readCRecord(const char *line, int len, RouteData &route);
-
-	int _errorLine;
-	QString _errorString;
 };
 
 #endif // IGCPARSER_H

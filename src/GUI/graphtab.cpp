@@ -1,6 +1,11 @@
 #include "graphtab.h"
 
-#include <QLocale>
+#include <QGraphicsSceneContextMenuEvent>
+#include <QMenu>
+#include <QAction>
+#include <QActionGroup>
+#include <QWidgetAction>
+#include <QTextDocument>
 #include <limits>
 #include <cmath>
 
@@ -32,17 +37,23 @@ void GraphItem1::finalize()
 	updateG();
 }
 
-QString GraphItem1::info() const
+QString GraphItem1::name(bool full) const
 {
-	ToolTip tt;
-	
 	QString name(track().name());
 	if (name.isEmpty())
 		name = graph().label();
-	tt.setTitle(name);
 
+	QString cName(chanDescr().name(track(), full));
+	if (!cName.isEmpty())
+		name += QString(" - ") + cName;
+	return name;
+}
+
+QString GraphItem1::info() const
+{
+	ToolTip tt;
+	tt.setTitle(name());
 	makeTooltip(tt);
-
 	return tt.toString();
 }
 
@@ -70,6 +81,17 @@ qreal GraphItem1::yAtX(qreal x) const
 qreal GraphItem1::distanceAtTime(qreal time) const
 {
 	return track().distanceAtTime(time);
+}
+
+QDateTime GraphItem1::dateAtX(qreal x) const
+{
+	const Track& tk(track());
+	Track::ChannelPoint p = gType() == Time ? tk.pointAtTime(x)
+	                                        : tk.pointAtDistance(x);
+	if (!p) return QDateTime();
+	const Track::Segment& s(tk.segments().at(p.seg_num));
+	if (!s.hasTime()) return QDateTime();
+	return p.interpol(s.time);
 }
 	
 template<typename F>
@@ -194,6 +216,47 @@ qreal GraphItem1::trackTime() const
 	return rt;
 }
 
+void GraphItem1::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+	event->accept();
+	QMenu *menu = new QMenu;
+
+	QLabel* title = new QLabel("<i>" + Qt::escape(name()) + "</i>");
+	title->setTextFormat(Qt::RichText);
+	title->setMargin(4);
+	title->setAlignment(Qt::AlignLeft);
+	QWidgetAction* title_act = new QWidgetAction(menu);
+	title_act->setDefaultWidget(title);
+	menu->addAction(title_act);
+	menu->addSeparator();
+
+	QActionGroup* mainGmenu = new QActionGroup(menu);
+	// TODO Qt5:
+	// setExclusionPolicy(QActionGroup::ExclusionPolicy::ExclusiveOptional)
+	mainGmenu->setExclusive(false);
+	QString act_name[2] = {tr("Main graph"), tr("Secondary graph")};
+	for (int i = 0; i < 2; ++i) {
+		bool sec = i;
+		QAction *act = menu->addAction(act_name[i]);
+		bool   isCur = graph().getMainGraph(sec) == this;
+		act->setData((int)((sec ? 0b10 : 0) | (isCur ? 1 : 0)));
+		act->setCheckable(true);
+		act->setChecked(isCur);
+		mainGmenu->addAction(act);
+	}
+	connect(mainGmenu, SIGNAL(triggered(QAction*)),
+			this, SLOT(mainGraphAction(QAction*)));
+
+	menu->popup(event->screenPos());
+}
+
+void GraphItem1::mainGraphAction(QAction* action)
+{
+	int  dt = action->data().toInt();
+	bool set = !(dt & 0b1), secondary = dt & 0b10;
+	graph().setMainGraph(this, set, secondary);
+}
+
 // GraphTab1
 
 GraphTab1::GraphTab1(ChanTy ty, QWidget* parent)
@@ -236,16 +299,22 @@ GraphItem1* GraphTab1::makeTrackItem(GraphSet* set, int chId,
 	return new GraphItem1(set, chId, graphType(), st, this);
 }
 
+static const unsigned graphStylesCount = 3;
+static const Qt::PenStyle graphStyles[3] = {
+		Qt::SolidLine, Qt::DashLine, Qt::DotLine
+	};
 QList<GraphItem*> GraphTab1::loadGraphSet(Track& t, const QColor &color)
 {
 	QList<GraphItem*> rt;
 	GraphSet* set = new GraphSet(&t);
 	const QList<int> chan(channelsOfTrack(t));
+	unsigned styleIdx = 0;
 
 	for (int i = 0; i < chan.size(); ++i) {
 		if (!t.hasData(chan.at(i))) continue;
 		GraphItem1 *gi = makeTrackItem(set, chan.at(i),
-						GraphItem1::Style(_width, color, Qt::SolidLine));
+						GraphItem1::Style(_width, color,
+							graphStyles[styleIdx++ % graphStylesCount]));
 		gi->setUnits(units());
 		gi->finalize();
 		
@@ -269,6 +338,9 @@ void GraphTab1::setDestroyed()
 		removeGraph(g);
 	}
 	_sets.remove(set);
+	for (int i = 0; i < 2; ++i)
+		if (!_mainGraphs[i].isNull() && &_mainGraphs[i]->set() == set)
+			_mainGraphs[i] = NULL;
 
 	onGSetChange();
 }
@@ -295,6 +367,7 @@ QString GraphTab1::label() const
 
 void GraphTab1::onGSetChange()
 {
+	onMainGraphChanged();
 	updateInfoKeys();
 	redraw();
 }
@@ -309,6 +382,7 @@ void GraphTab1::clear()
 		set->deleteLater();
 	}
 	_sets.clear();
+	_mainGraphs[0] = _mainGraphs[1] = NULL;
 	onGSetChange();
 }
 
@@ -317,6 +391,12 @@ void GraphTab1::setUnits(Units units)
 	GraphView::setUnits(units);
 	
 	updateInfoKeys();
+}
+
+void GraphTab1::setGraphType(GraphType type)
+{
+	GraphTab::setGraphType(type);
+	onGSetChange();
 }
 
 void GraphTab1::setTimeType(enum TimeType type)
@@ -352,6 +432,34 @@ void GraphTab1::showTracks(bool show)
 qreal GraphTab1::tracksTime() const
 {
 	return sumTrackItems(&GraphItem1::trackTime);
+}
+
+std::pair<GraphItem*, GraphItem*> GraphTab1::mainGraphs()
+{
+	if (_mainGraphs[0].isNull())
+		return std::pair<GraphItem*, GraphItem*>(NULL, NULL);
+	return std::pair<GraphItem*, GraphItem*>
+					(_mainGraphs[0], _mainGraphs[1]);
+}
+
+void GraphTab1::setMainGraph(GraphItem1* item, bool set, bool secondary)
+{
+	if (set) {
+		int i = secondary ? 1 : 0;
+		if (_mainGraphs[i^1] == item)
+			std::swap(_mainGraphs[0], _mainGraphs[1]);
+		else
+			_mainGraphs[i] = item;
+	} else
+		for (int i = 0; i < 2; ++i)
+			if (_mainGraphs[i] == item)
+				_mainGraphs[i] = NULL;
+	onMainGraphChanged();
+}
+
+GraphItem1* GraphTab1::getMainGraph(bool secondary)
+{
+	return _mainGraphs[secondary ? 1 : 0];
 }
 
 // GraphTab2

@@ -298,6 +298,7 @@ SOURCES += src/main.cpp \
     src/map/polarstereographic.cpp \
     src/map/rectd.cpp \
     src/data/data.cpp \
+    src/data/parser.cpp \
     src/data/poi.cpp \
     src/data/track.cpp \
     src/data/route.cpp \

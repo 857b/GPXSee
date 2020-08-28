@@ -5,15 +5,11 @@
 #include "parser.h"
 
 
-class NMEAParser : public Parser
+class NMEAParser : public Parser1
 {
-public:
-	NMEAParser() : _errorLine(0) {}
-
+protected:
 	bool parse(QFile *file, QList<TrackData> &tracks, QList<RouteData> &routes,
 	  QList<Area> &polygons, QVector<Waypoint> &waypoints);
-	QString errorString() const {return _errorString;}
-	int errorLine() const {return _errorLine;}
 
 private:
 	struct CTX {
@@ -37,9 +33,6 @@ private:
 	bool readGGA(CTX &ctx, const char *line, int len, SegmentData &segment);
 	bool readWPL(const char *line, int len, QVector<Waypoint> &waypoints);
 	bool readZDA(CTX &ctx, const char *line, int len);
-
-	int _errorLine;
-	QString _errorString;
 };
 
 #endif // NMEAPARSER_H

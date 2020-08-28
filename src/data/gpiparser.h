@@ -9,10 +9,12 @@ class QTextCodec;
 class GPIParser : public Parser
 {
 public:
-	bool parse(QFile *file, QList<TrackData> &tracks, QList<RouteData> &routes,
-	  QList<Area> &polygons, QVector<Waypoint> &waypoints);
 	QString errorString() const {return _errorString;}
 	int errorLine() const {return 0;}
+
+protected:
+	bool parse(QFile *file, QList<TrackData> &tracks, QList<RouteData> &routes,
+	  QList<Area> &polygons, QVector<Waypoint> &waypoints);
 
 private:
 	bool readFileHeader(QDataStream &stream, quint32 &ebs);

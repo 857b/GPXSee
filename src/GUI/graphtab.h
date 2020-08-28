@@ -2,6 +2,8 @@
 #define GRAPHTAB_H
 
 #include <QList>
+#include <QPointer>
+#include <QAction>
 #include "graphview.h"
 #include "units.h"
 #include "timetype.h"
@@ -74,17 +76,24 @@ public:
 
 	GraphSet&     set()   const {return (GraphSet&)*parent();}
 	Track&        track() const {return set().track();}
+	const Track::ChannelDescr& chanDescr() const 
+		{return track().chanDescr().at(_chId);}
 	GraphTab1&    graph() const {return *_graph;}
-	
-	virtual QString info() const;
-	virtual bool hasTime() const;
-	virtual qreal yAtX(qreal x) const;
-	virtual qreal distanceAtTime(qreal time) const;
+
+	virtual QString   name(bool full = false) const;
+	virtual QString   info() const;
+	virtual bool      hasTime() const;
+	virtual qreal     yAtX(qreal x) const;
+	virtual qreal     distanceAtTime(qreal time) const;
+	virtual QDateTime dateAtX(qreal x) const;
 
 	virtual GraphItem *secondaryGraph() const {return NULL;}
 
 	qreal trackTime() const;
 	int chanId() const {return _chId;}
+
+private slots:
+	void mainGraphAction(QAction* action);
 
 protected:
 	virtual void updatePath();
@@ -92,6 +101,7 @@ protected:
 
 	virtual void makeTooltip(ToolTip& tt) const;
 
+	void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 private:
 	int        _chId;
 	GraphTab1* _graph;
@@ -111,10 +121,16 @@ public:
 	QList<QList<GraphItem*> > loadData(Data &data);
 	void clear();
 	void setUnits(Units units);
+	void setGraphType(GraphType type);
 	TimeType timeType() const {return _timeType;}
 	void setTimeType(TimeType type);
 	void showTracks(bool show);
 	ChanTy chanTy() const {return _ty;}
+
+	std::pair<GraphItem*, GraphItem*> mainGraphs();
+	void setMainGraph(GraphItem1* item, bool set = true,
+			bool secondary = false);
+	GraphItem1* getMainGraph(bool secondary = false);
 
 	template<typename F>
 	void iterTrackItems(F& f) const {
@@ -172,6 +188,7 @@ protected:
 
 	bool     _showTracks;
 	QSet<GraphSet*> _sets;
+	QPointer<GraphItem1> _mainGraphs[2];
 };
 
 // 2

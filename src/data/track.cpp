@@ -274,36 +274,58 @@ bool Track::_useDEM = false;
 bool Track::_show2ndElevation = false;
 bool Track::_show2ndSpeed = false;
 
+Track::Track(QObject* parent) : QObject(parent) {}
 
 Track::Track(QObject* parent, const TrackData& data)
 	: QObject(parent), TrackInfos(data)
 {
-	_chanDist = newChannel(ChannelDescr(CTdistance, CSgpsDist));
-
-	int speedChan = ~0,
-		accelChan = ~0;
-
 	int fieldChan[NbTrackpointFields];
 	std::fill(fieldChan, fieldChan + NbTrackpointFields, ~0);
-
-	timeLength = 0;
-	distLength = 0;
 
 	for (int i_s = 0; i_s < data.size(); ++i_s) {
 		_segments.append(Segment());
 		Segment& sg(_segments.last());
 		const SegmentData& sd(data[i_s]);
 
-		sg.time0 = timeLength;
-		sg.dist0 = distLength;
-
 		// Coord
 		copyField(&Trackpoint::coordinates, sd, sg.coord);
 
-		if (segmentHas(&Trackpoint::hasTimestamp, sd)) {
-			// Time
+		// Time
+		if ((sg.timePres = segmentHas(&Trackpoint::hasTimestamp, sd)))
 			copyField(&Trackpoint::timestamp, sd, sg.time);
-			sg.timePres = true;
+
+		// trackpoint fields
+		for (unsigned f = 0; f < NbTrackpointFields; ++f)
+			if (segmentHas(TrackpointFields[f].has, sd)) {
+				if (!~fieldChan[f])
+					fieldChan[f] = newChannel(
+							ChannelDescr(TrackpointFields[f].ty, CSbase));
+				Channel& ch(sg.append(Channel(fieldChan[f])));
+				copyField(TrackpointFields[f].get, sd, ch);
+			}
+	}
+
+	finalize();
+}
+
+void Track::finalize()
+{
+	_chanDist = newChannel(ChannelDescr(CTdistance, CSgpsDist));
+
+	int speedChan = ~0,
+		accelChan = ~0;
+
+	timeLength = 0;
+	distLength = 0;
+
+	for (int i_s = 0; i_s < _segments.size(); ++i_s) {
+		Segment& sg(_segments[i_s]);
+		
+		sg.time0 = timeLength;
+		sg.dist0 = distLength;
+
+		if (sg.hasTime()) {
+			
 			QDateTime tMin = sg.time.first(),
 					  tMax = sg.time.first();
 
@@ -312,7 +334,7 @@ Track::Track(QObject* parent, const TrackData& data)
 					sg.timePres = false;
 					qWarning("%s segment %d / %d: missing timestamp(s)",
 							  qPrintable(name()),
-							  i_s + 1, data.size());
+							  i_s + 1, _segments.size());
 				} else if (sg.time[i] < tMax) {
 					qWarning("%s: %s: time skew detected",
 						qPrintable(name()),
@@ -325,47 +347,43 @@ Track::Track(QObject* parent, const TrackData& data)
 			sg.tms0 = tMin;
 			timeLength  += sg.tms0.msecsTo(tMax) / 1000.;
 
-			if (sg.hasTime()) {
-				// Acceleration
-				if (~accelChan)
-					accelChan = newChannel(ChannelDescr(CTaccel, CSgpsAcc));
-				Channel& acc_chan = sg.append(
-						computeAcceleration(sg.time, sg.coord), accelChan);
+			// Acceleration
+			if (~accelChan)
+				accelChan = newChannel(ChannelDescr(CTaccel, CSgpsAcc));
+			Channel& acc_chan = sg.append(
+					computeAcceleration(sg.time, sg.coord), accelChan);
 
-				// Outliers
-				if (_outlierEliminate)
-					sg.outliers = eliminate(acc_chan);
+			// Outliers
+			if (_outlierEliminate)
+				sg.outliers = eliminate(acc_chan);
 
-				// Speed
-				if (!~speedChan)
-					speedChan = newChannel(ChannelDescr(CTspeed, CSgpsVit));
-				Channel& spd_chan = sg.append(
-						derivateCoord(sg.coord, sg.time, sg.outliers),
-						speedChan);
+			// Speed
+			if (!~speedChan)
+				speedChan = newChannel(ChannelDescr(CTspeed, CSgpsVit));
+			Channel& spd_chan = sg.append(
+					derivateCoord(sg.coord, sg.time, sg.outliers),
+					speedChan);
 
-				// Stop-points
-				int pauseInterval;
-				qreal pauseSpeed;
+			// Stop-points
+			int pauseInterval;
+			qreal pauseSpeed;
 
-				if (_automaticPause) {
-					pauseSpeed    = (spd_chan.avg(0, spd_chan.size()) > 2.8) 
-					              ? 0.40 : 0.15;
-					pauseInterval = 10;
-				} else {
-					pauseSpeed    = _pauseSpeed;
-					pauseInterval = _pauseInterval;
-				}
-
-				sg.computeStopPoints(spd_chan, pauseInterval, pauseSpeed);
+			if (_automaticPause) {
+				pauseSpeed    = (spd_chan.avg(0, spd_chan.size()) > 2.8) 
+							  ? 0.40 : 0.15;
+				pauseInterval = 10;
+			} else {
+				pauseSpeed    = _pauseSpeed;
+				pauseInterval = _pauseInterval;
 			}
-			
-		} else
-			sg.timePres = false;
 
+			sg.computeStopPoints(spd_chan, pauseInterval, pauseSpeed);
+
+		}
+		
 		// Distance
 		{
-			sg.append(Channel(_chanDist));
-			Channel& ch(sg.chan.last());
+			Channel& ch(sg.append(Channel(_chanDist)));
 			qreal d = 0.;
 			int i0 = 0;
 			for (; i0 < sg.size() && sg.outliers.contains(i0); ++i0)
@@ -381,33 +399,18 @@ Track::Track(QObject* parent, const TrackData& data)
 			distLength += d;
 		}
 
-		// trackpoint fields
-		for (unsigned f = 0; f < NbTrackpointFields; ++f)
-			if (segmentHas(TrackpointFields[f].has, sd)) {
-				if (!~fieldChan[f])
-					fieldChan[f] = newChannel(
-							ChannelDescr(TrackpointFields[f].ty, CSbase));
-				sg.chan.append(Channel(fieldChan[f]));
-				Channel& ch(sg.chan.last());
-				copyField(TrackpointFields[f].get, sd, ch);
-			}
 	}
 
-	bool hasTime = false;
-	for (int i = 0; i < _segments.size(); ++i)
-		hasTime |= _segments[i].hasTime();
-
-	computeChannels();
+	if (hasTime()) computeVSpeed();
+	computeDEMelevation();
 }
 
-void Track::computeChannels()
+void Track::computeVSpeed()
 {
-	// Vertical speed
 	for (int cid = 0; cid < _chanDescr.size(); ++cid)
 		if (_chanDescr[cid]._ty == CTelevation) {
 			int vs_cid = newChannel(ChannelDescr(
-						CTvSpeed, CSderiv, cid,
-						nameComputedFrom(_chanDescr[cid]._name)));
+						CTvSpeed, CSderiv, cid));
 
 			for (int i_s = 0; i_s < _segments.size(); ++i_s) {
 				Segment& sg(_segments[i_s]);
@@ -417,7 +420,10 @@ void Track::computeChannels()
 				sg.append(derivateChannel(*elv, sg.time, sg.outliers), vs_cid);
 			}
 		}
-	// DEM
+}
+
+void Track::computeDEMelevation()
+{
 	int dem_cid = newChannel(ChannelDescr(CTelevation, CSdem));
 	for (int i_s = 0; i_s < _segments.size(); ++i_s) {
 		Segment& sg(_segments[i_s]);
@@ -453,9 +459,8 @@ Path Track::path() const
 
 int Track::newChannel(const ChannelDescr& ch)
 {
-	int id = _chanDescr.size();
 	_chanDescr.append(ch);
-	return id;
+	return _chanDescr.size() - 1;
 }
 
 int Track::findChannel(int ct, int cs) const
@@ -660,9 +665,26 @@ bool Track::Channel::hasData() const
 
 // ChannelDescr
 
-QString Track::ChannelDescr::fullName() const
+QString Track::ChannelDescr::name(const Track& t, bool full) const
 {
-	return _name;
+	if (!_name.isEmpty()) return _name;
+	switch (_src) { 
+		case CSbase:
+			return QString();
+		case CSgpsDist:
+			return Track::tr("GPS distance");
+		case CSgpsVit:
+			return Track::tr("GPS speed");
+		case CSgpsAcc:
+			return Track::tr("GPS acceleration");
+		case CSdem:
+			return Track::tr("DEM");
+		case CSderiv: {
+			const QString& pn = t.chanDescr()[_srcArg].name(t, false);
+			return full ? nameComputedFrom(pn) : pn;
+		}
+	}
+	return QString();
 }
 
 qreal Track::ChannelDescr::sum(const Track& t, const Segment& s, int id,
@@ -735,6 +757,12 @@ bool Track::Segment::discardStopPoint(int i) const
 {
 	return (stop.contains(i) && stop.contains(i-1)
 	  && stop.contains(i+1) && i > 0 && i < size() - 1);
+}
+
+int Track::Segment::addChannel(int chanId)
+{
+	chan.append(Channel(chanId));
+	return chan.size() - 1;
 }
 
 Track::Channel& Track::Segment::append(const Channel& ch)

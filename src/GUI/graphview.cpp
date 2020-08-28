@@ -255,6 +255,11 @@ void GraphView::updateInfo()
 	_info->setTextFormat(Qt::PlainText);
 }
 
+void GraphView::onMainGraphChanged()
+{
+	_widgt->updateSliderInfo();
+}
+
 void GraphView::setPalette(const Palette &palette)
 {
 	_palette = palette;

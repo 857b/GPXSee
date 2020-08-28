@@ -35,16 +35,13 @@ private:
 	Data& operator=(const Data&);
 
 
-	void processData(QList<TrackData> &trackData, QList<RouteData> &routeData);
-
-	bool _valid;
+	bool    _valid;
 	QString _errorString;
-	int _errorLine;
+	int     _errorLine;
 
-	QObject*      _parent;
-	QList<Track*> _tracks;
-	QList<Route>  _routes;
-	QList<Area> _polygons;
+	QList<Track*>     _tracks;
+	QList<Route>      _routes;
+	QList<Area>       _polygons;
 	QVector<Waypoint> _waypoints;
 
 	static QMap<QString, Parser*> _parsers;
