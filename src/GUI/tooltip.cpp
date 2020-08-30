@@ -1,8 +1,8 @@
 #include "tooltip.h"
 
-#include <QTextDocument>
 #include <cmath>
 
+#include "common/util.h"
 #include "popup.h"
 
 
@@ -44,7 +44,7 @@ QString ToolTip::toString() const
 	QString html;
 
 	if (!_title.isEmpty())
-		html = "<i>" + Qt::escape(_title) +"</i>";
+		html = "<i>" + qstring_toHtmlEscaped(_title) +"</i>";
 
 	if (_images.size()) {
 		html += "<div align=\"center\">";

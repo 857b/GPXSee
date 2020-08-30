@@ -2,12 +2,8 @@
 #define OPTIONSDIALOG_H
 
 #include <QDialog>
-#include "common/config.h"
-#include "palette.h"
-#include "units.h"
-#ifdef ENABLE_TIMEZONES
-#include "timezoneinfo.h"
-#endif // ENABLE_TIMEZONES
+
+#include "options.h"
 
 class ColorBox;
 class StyleComboBox;
@@ -19,71 +15,6 @@ class QCheckBox;
 class QRadioButton;
 class PercentSlider;
 class LimitedComboBox;
-
-
-struct Options {
-	// Appearance
-	Palette palette;
-	int trackWidth;
-	int routeWidth;
-	int areaWidth;
-	Qt::PenStyle trackStyle;
-	Qt::PenStyle routeStyle;
-	Qt::PenStyle areaStyle;
-	int areaOpacity;
-	QColor waypointColor;
-	QColor poiColor;
-	int waypointSize;
-	int poiSize;
-	int graphWidth;
-	QColor sliderColor;
-	bool pathAntiAliasing;
-	bool graphAntiAliasing;
-	int mapOpacity;
-	QColor backgroundColor;
-	// Map
-	int projection;
-#ifdef ENABLE_HIDPI
-	bool hidpiMap;
-#endif // ENABLE_HIDPI
-	// Data
-	int elevationFilter;
-	int speedFilter;
-	int heartRateFilter;
-	int cadenceFilter;
-	int powerFilter;
-	bool outlierEliminate;
-	bool automaticPause;
-	qreal pauseSpeed;
-	int pauseInterval;
-	bool useReportedSpeed;
-	bool dataUseDEM;
-	bool showSecondaryElevation;
-	bool showSecondarySpeed;
-#ifdef ENABLE_TIMEZONES
-	TimeZoneInfo timeZone;
-#endif // ENABLE_TIMEZONES
-	// POI
-	int poiRadius;
-	// System
-	bool useOpenGL;
-#ifdef ENABLE_HTTP2
-	bool enableHTTP2;
-#endif // ENABLE_HTTP2
-	int pixmapCache;
-	int connectionTimeout;
-	// Print/Export
-	bool hiresPrint;
-	bool printName;
-	bool printDate;
-	bool printDistance;
-	bool printTime;
-	bool printMovingTime;
-	bool printItemCount;
-	bool separateGraphPage;
-
-	Units units;
-};
 
 class OptionsDialog : public QDialog
 {
@@ -135,22 +66,18 @@ private:
 	QRadioButton *_lodpi;
 #endif // ENABLE_HIDPI
 	// Data
-	OddSpinBox *_elevationFilter;
-	OddSpinBox *_speedFilter;
-	OddSpinBox *_heartRateFilter;
-	OddSpinBox *_cadenceFilter;
-	OddSpinBox *_powerFilter;
-	QCheckBox *_outlierEliminate;
-	QRadioButton *_automaticPause;
-	QRadioButton *_manualPause;
+	OddSpinBox     *_elevationFilter;
+	OddSpinBox     *_speedFilter;
+	OddSpinBox     *_heartRateFilter;
+	OddSpinBox     *_cadenceFilter;
+	OddSpinBox     *_powerFilter;
+	QCheckBox      *_outlierEliminate;
+	QRadioButton   *_automaticPause;
+	QRadioButton   *_manualPause;
 	QDoubleSpinBox *_pauseSpeed;
-	QSpinBox *_pauseInterval;
-	QRadioButton *_computedSpeed;
-	QRadioButton *_reportedSpeed;
-	QRadioButton *_dataGPSElevation;
-	QRadioButton *_dataDEMElevation;
-	QCheckBox *_showSecondaryElevation;
-	QCheckBox *_showSecondarySpeed;
+	QSpinBox       *_pauseInterval;
+	QDoubleSpinBox *_derivDeltas[3];//min, max, opt
+	QCheckBox      *_speedDirection;
 #ifdef ENABLE_TIMEZONES
 	QRadioButton *_utcZone;
 	QRadioButton *_systemZone;

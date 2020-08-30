@@ -5,11 +5,12 @@
 #include <QAction>
 #include <QActionGroup>
 #include <QWidgetAction>
-#include <QTextDocument>
 #include <limits>
 #include <cmath>
 
 #include "data/data.h"
+#include "data/compute.h"
+#include "common/util.h"
 #include "tooltip.h"
 #include "format.h"
 
@@ -105,7 +106,8 @@ static inline void iterGraph(F& f, GraphType gt,
 				if (!s.hasTime()) continue;
 				const Track::Channel* c0(s.findChannel(cid));
 				if (!c0) continue;
-				const Track::Channel c(c0->filter(fltrWindow));
+				const Track::Channel c(
+						Compute::filter(*c0, fltrWindow, s.outliers));
 
 				bool beginSeg = true;
 				for (int i_p = 0; i_p < c.size(); ++i_p) {
@@ -125,7 +127,8 @@ static inline void iterGraph(F& f, GraphType gt,
 				const Track::Channel* c0(s.findChannel(cid));
 				if (!c0) continue;
 				const Track::Channel& c_d(s[dChan]);
-				const Track::Channel  c(c0->filter(fltrWindow));
+				const Track::Channel  c(
+						Compute::filter(*c0, fltrWindow, s.outliers));
 		
 				bool beginSeg = true;
 				for (int i_p = 0; i_p < c.size(); ++i_p) {
@@ -157,7 +160,7 @@ void GraphItem1::updatePath()
 	_path = QPainterPath();
 	PathMaker mk(_path);
 	iterGraph(mk, gType(), track(), _chId,
-				Track::filterWindow(graph().chanTy()));
+				Compute::filterWindow(track().chanDescr().at(_chId)));
 }
 
 struct BoundComputer
@@ -221,7 +224,7 @@ void GraphItem1::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	event->accept();
 	QMenu *menu = new QMenu;
 
-	QLabel* title = new QLabel("<i>" + Qt::escape(name()) + "</i>");
+	QLabel* title = new QLabel("<i>" + qstring_toHtmlEscaped(name()) + "</i>");
 	title->setTextFormat(Qt::RichText);
 	title->setMargin(4);
 	title->setAlignment(Qt::AlignLeft);

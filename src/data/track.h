@@ -60,7 +60,6 @@ public:
 			// [a, b[
 			qreal sum(int a, int b) const;
 			qreal avg(int a, int b) const;
-			Channel filter(int window) const;
 			bool  hasData() const;
 	};
 
@@ -112,8 +111,6 @@ public:
 		Segment();
 
 
-		void           computeStopPoints(const Channel& speed,
-								qreal pauseInterval, qreal pauseSpeed);
 		bool           discardStopPoint(int i) const;
 
 		// return index
@@ -184,25 +181,6 @@ public:
 	bool hasTime() const;
 	bool hasData(int chanId) const;
 
-	static int  filterWindow(ChanTy ct);
-	static void setElevationFilter(int window) {_elevationWindow = window;}
-	static void setSpeedFilter(int window) {_speedWindow = window;}
-	static void setHeartRateFilter(int window) {_heartRateWindow = window;}
-	static void setCadenceFilter(int window) {_cadenceWindow = window;}
-	static void setPowerFilter(int window) {_powerWindow = window;}
-
-	static void setAutomaticPause(bool set) {_automaticPause = set;}
-	static void setPauseSpeed(qreal speed) {_pauseSpeed = speed;}
-	static void setPauseInterval(int interval) {_pauseInterval = interval;}
-	static void setOutlierElimination(bool eliminate)
-	  {_outlierEliminate = eliminate;}
-	static void useReportedSpeed(bool use) {_useReportedSpeed = use;}
-	static void useDEM(bool use) {_useDEM = use;}
-	static void showSecondaryElevation(bool show)
-	  {_show2ndElevation = show;}
-	static void showSecondarySpeed(bool show)
-	  {_show2ndSpeed = show;}
-
 private:
 	Track(QObject* parent);
 
@@ -220,20 +198,6 @@ private:
 	int _chanDist; // distance since the beginning of the segment
 
 	qreal timeLength, distLength;
-
-	static bool  _outlierEliminate;
-	static int   _elevationWindow;
-	static int   _speedWindow;
-	static int   _heartRateWindow;
-	static int   _cadenceWindow;
-	static int   _powerWindow;
-	static bool  _automaticPause;
-	static qreal _pauseSpeed;
-	static int   _pauseInterval;
-	static bool  _useReportedSpeed;
-	static bool  _useDEM;
-	static bool  _show2ndElevation;
-	static bool  _show2ndSpeed;
 };
 
 #endif

@@ -13,6 +13,9 @@
 #include <QLabel>
 #include <QSysInfo>
 #include <QButtonGroup>
+#include <cmath>
+#include <limits>
+
 #include "map/pcs.h"
 #include "icons.h"
 #include "colorbox.h"
@@ -21,6 +24,7 @@
 #include "percentslider.h"
 #include "limitedcombobox.h"
 #include "optionsdialog.h"
+#include "units.h"
 
 
 #define MENU_MARGIN 20
@@ -333,6 +337,8 @@ QWidget *OptionsDialog::createDataPage()
 	QFormLayout *outlierLayout = new QFormLayout();
 	outlierLayout->addWidget(_outlierEliminate);
 
+
+	// --Filter Tab--
 	QWidget *filterTab = new QWidget();
 	QVBoxLayout *filterTabLayout = new QVBoxLayout();
 #ifdef Q_OS_MAC
@@ -397,25 +403,6 @@ QWidget *OptionsDialog::createDataPage()
 	QWidget *pauseTab = new QWidget();
 	pauseTab->setLayout(pauseLayout);
 
-
-	_computedSpeed = new QRadioButton(tr("Computed from distance/time"));
-	_reportedSpeed = new QRadioButton(tr("Recorded by device"));
-	if (_options->useReportedSpeed)
-		_reportedSpeed->setChecked(true);
-	else
-		_computedSpeed->setChecked(true);
-	_showSecondarySpeed = new QCheckBox(tr("Show secondary speed"));
-	_showSecondarySpeed->setChecked(_options->showSecondarySpeed);
-
-	_dataGPSElevation = new QRadioButton(tr("GPS data"));
-	_dataDEMElevation = new QRadioButton(tr("DEM data"));
-	if (_options->dataUseDEM)
-		_dataDEMElevation->setChecked(true);
-	else
-		_dataGPSElevation->setChecked(true);
-	_showSecondaryElevation = new QCheckBox(tr("Show secondary elevation"));
-	_showSecondaryElevation->setChecked(_options->showSecondaryElevation);
-
 #ifdef ENABLE_TIMEZONES
 	_utcZone = new QRadioButton(tr("UTC"));
 	_systemZone = new QRadioButton(tr("System"));
@@ -437,28 +424,16 @@ QWidget *OptionsDialog::createDataPage()
 	QHBoxLayout *customZoneLayout = new QHBoxLayout();
 	customZoneLayout->addSpacing(20);
 	customZoneLayout->addWidget(_timeZone);
+#define SOURCE_TAB
 #endif // ENABLE_TIMEZONES
 
+	// --Source Tab--
+#ifdef SOURCE_TAB
 	QWidget *sourceTab = new QWidget();
 	QVBoxLayout *sourceTabLayout = new QVBoxLayout();
+#endif // SOURCE_TAB
 
 #ifdef Q_OS_MAC
-	QButtonGroup *speedGroup = new QButtonGroup(this);
-	speedGroup->addButton(_computedSpeed);
-	speedGroup->addButton(_reportedSpeed);
-	QVBoxLayout *speedOptions = new QVBoxLayout();
-	speedOptions->addWidget(_computedSpeed);
-	speedOptions->addWidget(_reportedSpeed);
-	speedOptions->addWidget(_showSecondarySpeed);
-
-	QButtonGroup *elevationGroup = new QButtonGroup(this);
-	elevationGroup->addButton(_dataGPSElevation);
-	elevationGroup->addButton(_dataDEMElevation);
-	QVBoxLayout *elevationOptions = new QVBoxLayout();
-	elevationOptions->addWidget(_dataGPSElevation);
-	elevationOptions->addWidget(_dataDEMElevation);
-	elevationOptions->addWidget(_showSecondaryElevation);
-
 #ifdef ENABLE_TIMEZONES
 	QButtonGroup *timeZoneGroup = new QButtonGroup(this);
 	timeZoneGroup->addButton(_utcZone);
@@ -472,33 +447,15 @@ QWidget *OptionsDialog::createDataPage()
 #endif // ENABLE_TIMEZONES
 
 	QFormLayout *formLayout = new QFormLayout();
-	formLayout->addRow(tr("Speed:"), speedOptions);
-	formLayout->addRow(tr("Elevation:"), elevationOptions);
 #ifdef ENABLE_TIMEZONES
 	formLayout->addRow(tr("Time zone:"), zoneOptions);
 #endif // ENABLE_TIMEZONES
 
 	sourceTabLayout->addLayout(formLayout);
 #else // Q_OS_MAC
-	QFormLayout *speedLayout = new QFormLayout();
-	QFormLayout *elevationLayout = new QFormLayout();
 #ifdef ENABLE_TIMEZONES
 	QFormLayout *timeZoneLayout = new QFormLayout();
 #endif // ENABLE_TIMEZONES
-
-	speedLayout->addWidget(_computedSpeed);
-	speedLayout->addWidget(_reportedSpeed);
-	speedLayout->addWidget(_showSecondarySpeed);
-
-	QGroupBox *speedBox = new QGroupBox(tr("Speed"));
-	speedBox->setLayout(speedLayout);
-
-	elevationLayout->addWidget(_dataGPSElevation);
-	elevationLayout->addWidget(_dataDEMElevation);
-	elevationLayout->addWidget(_showSecondaryElevation);
-
-	QGroupBox *elevationBox = new QGroupBox(tr("Elevation"));
-	elevationBox->setLayout(elevationLayout);
 
 #ifdef ENABLE_TIMEZONES
 	timeZoneLayout->addWidget(_utcZone);
@@ -510,20 +467,64 @@ QWidget *OptionsDialog::createDataPage()
 	timeZoneBox->setLayout(timeZoneLayout);
 #endif // ENABLE_TIMEZONES
 
-	sourceTabLayout->addWidget(speedBox);
-	sourceTabLayout->addWidget(elevationBox);
 #ifdef ENABLE_TIMEZONES
 	sourceTabLayout->addWidget(timeZoneBox);
 #endif // ENABLE_TIMEZONES
 #endif // Q_OS_MAC
+#ifdef SOURCE_TAB
 	sourceTabLayout->addStretch();
 	sourceTab->setLayout(sourceTabLayout);
+#endif // SOURCE_TAB
+
+	// --Compute Tab--
+	QWidget     *computeTab = new QWidget();
+	QVBoxLayout *computeTabLayout = new QVBoxLayout();
+
+	for (int i = 0; i < 3; ++i) {
+		_derivDeltas[i] = new QDoubleSpinBox();
+		_derivDeltas[i]->setDecimals(2);
+		_derivDeltas[i]->setSingleStep(0.5);
+		_derivDeltas[i]->setMinimum(0);
+		_derivDeltas[i]->setSuffix(Unit::s.suffix());
+	}
+	_derivDeltas[0]->setValue(_options->deriv.min / 1000.);
+	_derivDeltas[1]->setSpecialValueText(tr("None"));
+	_derivDeltas[1]->setValue(std::isfinite(_options->deriv.max)
+			? _options->deriv.max / 1000. : 0);
+	_derivDeltas[2]->setValue(_options->deriv.opt / 1000.);
+
+	QFormLayout *derivLayout = new QFormLayout();
+	derivLayout->addRow(tr("Minimal delta t:"), _derivDeltas[0]);
+	derivLayout->addRow(tr("Maximal delta t:"), _derivDeltas[1]);
+	derivLayout->addRow(tr("Optimal delta t:"), _derivDeltas[2]);
+
+	QString derivName = tr("Differentiation");
+#ifdef Q_OS_MAC
+	computeTabLayout->addWidget(new QLabel(derivName + ":"));
+	computeTabLayout->addLayout(derivLayout);
+	computeTabLayout->addWidget(line());
+#else  // Q_OS_MAC
+	QGroupBox *derivBox = new QGroupBox(derivName);
+	derivBox->setLayout(derivLayout);
+	computeTabLayout->addWidget(derivBox);
+#endif // Q_OS_MAC
+
+	_speedDirection = new QCheckBox(tr(
+				"Take into account direction when computing speed"));
+	_speedDirection->setChecked(_options->speedDirection);
+	computeTabLayout->addWidget(_speedDirection);
+
+	computeTabLayout->addStretch();
+	computeTab->setLayout(computeTabLayout);
 
 
 	QTabWidget *filterPage = new QTabWidget();
 	filterPage->addTab(filterTab, tr("Filtering"));
+#ifdef SOURCE_TAB
 	filterPage->addTab(sourceTab, tr("Sources"));
+#endif //SOURCE_TAB
 	filterPage->addTab(pauseTab, tr("Pause detection"));
+	filterPage->addTab(computeTab, tr("Computed channels"));
 
 	return filterPage;
 }
@@ -769,10 +770,12 @@ void OptionsDialog::accept()
 	if (qAbs(pauseSpeed - _options->pauseSpeed) > 0.01)
 		_options->pauseSpeed = pauseSpeed;
 	_options->pauseInterval = _pauseInterval->value();
-	_options->useReportedSpeed = _reportedSpeed->isChecked();
-	_options->dataUseDEM = _dataDEMElevation->isChecked();
-	_options->showSecondaryElevation = _showSecondaryElevation->isChecked();
-	_options->showSecondarySpeed = _showSecondarySpeed->isChecked();
+	_options->deriv.min = _derivDeltas[0]->value() * 1000.;
+	_options->deriv.max = _derivDeltas[1]->value()
+							   ? _derivDeltas[1]->value() * 1000.
+							   : std::numeric_limits<qreal>::infinity();
+	_options->deriv.opt = _derivDeltas[2]->value() * 1000.;
+	_options->speedDirection = _speedDirection->isChecked();
 #ifdef ENABLE_TIMEZONES
 	_options->timeZone.setType(_utcZone->isChecked()
 	  ? TimeZoneInfo::UTC : _systemZone->isChecked()

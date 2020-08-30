@@ -141,14 +141,14 @@
 #define PAUSE_SPEED_DEFAULT               0.5 /* m/s */
 #define PAUSE_INTERVAL_SETTING            "pauseInterval"
 #define PAUSE_INTERVAL_DEFAULT            10 /* s */
-#define USE_REPORTED_SPEED_SETTING        "useReportedSpeed"
-#define USE_REPORTED_SPEED_DEFAULT        false
-#define DATA_USE_DEM_SETTING              "dataUseDEM"
-#define DATA_USE_DEM_DEFAULT              false
-#define SHOW_SECONDARY_ELEVATION_SETTING  "showSecondaryElevation"
-#define SHOW_SECONDARY_ELEVATION_DEFAULT  false
-#define SHOW_SECONDARY_SPEED_SETTING      "showSecondarySpeed"
-#define SHOW_SECONDARY_SPEED_DEFAULT      false
+#define DERIV_DMIN_SETTING                "derivDMin"
+#define DERIV_DMIN_DEFAULT                10. /* ms */
+#define DERIV_DMAX_SETTING                "derivDMax"
+#define DERIV_DMAX_DEFAULT                30000. /* ms */
+#define DERIV_DOPT_SETTING                "derivDOpt"
+#define DERIV_DOPT_DEFAULT                0. /* ms */
+#define SPEED_DIR_SETTING                 "speedDir"
+#define SPEED_DIR_DEFAULT                 false
 #define TIME_ZONE_SETTING                 "timeZone"
 #define POI_RADIUS_SETTING                "poiRadius"
 #define POI_RADIUS_DEFAULT                (int)(IMPERIAL_UNITS() ? MIINM : KMINM)

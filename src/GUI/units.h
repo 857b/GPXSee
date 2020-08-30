@@ -71,6 +71,8 @@ public:
 		return ::fromUnit(x, scale, offset);	
 	}
 
+	QString suffix() const;
+
 	struct Fmt {
 		int  prec;
 		bool force_sign;

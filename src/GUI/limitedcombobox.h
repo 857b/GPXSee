@@ -3,6 +3,7 @@
 
 #include <QComboBox>
 #include <QEvent>
+#include <QListView>
 
 class LimitedComboBox : public QComboBox
 {
@@ -10,6 +11,13 @@ public:
 	LimitedComboBox(int limit, QWidget *parent = 0)
 	  : QComboBox(parent), _limit(limit)
 	{
+		// accelerate
+		setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+		QListView* view = new QListView();
+		view->setUniformItemSizes(true);
+		view->setLayoutMode(QListView::Batched);
+		setView(view);
+
 		setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 		setStyleSheet("combobox-popup: 0;");
 	}

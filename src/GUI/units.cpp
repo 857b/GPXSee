@@ -58,6 +58,11 @@ void Unit::init()
 	w     = Unit(tr("W"));
 } 
 
+QString Unit::suffix() const
+{
+	return UNIT_SPACE + name;
+}
+
 QString Unit::format(QString s) const
 {
 	return s + UNIT_SPACE + name;

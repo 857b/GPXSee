@@ -1,11 +1,10 @@
 #include "track.h"
 
-#include <QCoreApplication>
-
 #include <cmath>
 #include <algorithm>
 #include <stdexcept>
 
+#include "compute.h"
 #include "trackpoint.h"
 #include "dem.h"
 
@@ -36,6 +35,7 @@ QString chanTyName(ChanTy ty)
 	qWarning("unknown ty: %d", (int)ty);
 	return Track::tr("Unknown");
 }
+
 
 struct TrackpointFields {
 	ChanTy ty;
@@ -76,180 +76,6 @@ static void copyField(R (Trackpoint::*get)() const, const SegmentData& s,
 		d.append((s[i].*get)());
 }
 
-static const qreal min_dt = 1e-3;//s
-static const qreal min_dt_ms = 1e-3 * 1000.;//ms
-
-static inline qreal deriv3pt(qreal dx1, qreal dy1, qreal dx2, qreal dy2)
-{
-	qreal r1 = dy1 / dx1,
-		  r2 = dy2 / dx2;
-	return r1 + (r2 - r1) * (-dx1) / (dx2 - dx1);
-}
-
-static inline qreal accel3pt(qreal dx1, qreal dy1, qreal dx2, qreal dy2)
-{
-	qreal r1 = dy1 / dx1,
-		  r2 = dy2 / dx2;
-	return (r2 - r1) / (2 * (dx2 - dx1));
-}
-
-
-// eliminate outliers
-/*
-   Modified Z-score (Iglewicz and Hoaglin)
-   The acceleration data distribution has usualy a (much) higher kurtosis than
-   the normal distribution thus a higher comparsion value than the usual 3.5 is
-   required.
-*/
-static qreal median(QVector<qreal> &v)
-{
-	qSort(v.begin(), v.end());
-	return v.at(v.size() / 2);
-}
-static qreal MAD(QVector<qreal> &v, qreal m)
-{
-	for (int i = 0; i < v.size(); i++)
-		v[i] = qAbs(v.at(i) - m);
-	return median(v);
-}
-static QSet<int> eliminate(const QVector<qreal> &v)
-{
-	QSet<int> rm;
-
-	QVector<qreal> w(v);
-	qreal m = median(w);
-	qreal M = MAD(w, m);
-
-	for (int i = 0; i < v.size(); i++)
-		if (qAbs((0.6745 * (v.at(i) - m)) / M) > 5.0)
-			rm.insert(i);
-
-	return rm;
-}
-
-
-// df / dt
-static inline int succ(int sz, const QSet<int>& outliers, int i)
-{
-	int j = i + 1;
-	while (j < sz && outliers.contains(j)) ++j;
-	return j;
-}
-template<typename F>
-static Track::Channel derivatePoints(F& f,
-		const QVector<QDateTime>& t, const QSet<int>& outliers)
-{
-	Track::Channel rt;
-	rt.reserve(t.size());
-	int i1 = 0, i2 = 0;//[i1, i2]
-	int i1s = succ(t.size(), outliers, 0), i2s = i1s;
-
-	for (int i = 0; i < t.size(); ++i) {
-		while (i1s < i && t[i1s].msecsTo(t[i]) >= min_dt_ms)
-			i1s = succ(t.size(), outliers, i1 = i1s);
-		while (i2s < t.size() && t[i].msecsTo(t[i2]) < min_dt_ms)
-			i2s = succ(t.size(), outliers, i2 = i2s);
-
-		qreal dt1 = t[i].msecsTo(t[i1]),
-			  dt2 = t[i].msecsTo(t[i2]);
-		bool  i1v = dt1 <= -min_dt_ms,
-			  i2v = dt2 >=  min_dt_ms;
-
-		if (i1v && i2v)
-			rt.append(f(i, dt1, i1, dt2, i2));
-		else if (i1v)
-			rt.append(f(i, dt1, i1));
-		else if (i2v)
-			rt.append(f(i, dt2, i2));
-		else
-			rt.append(NAN);
-	}
-
-	return rt;
-}
-
-struct derivateChannelF {
-	const Track::Channel& f;
-	derivateChannelF(const Track::Channel& f): f(f) {}
-
-	qreal operator()(int i, qreal dt1, int i1) {
-		return 1000. * (f[i1] - f[i]) / dt1;
-	}
-	
-	qreal operator()(int i, qreal dt1, int i1, qreal dt2, int i2) {
-		return 1000. * deriv3pt(dt1, f[i1] - f[i], dt2, f[i2] - f[i]);
-	}
-};
-
-static Track::Channel derivateChannel(
-		const Track::Channel& f, const QVector<QDateTime>& t,
-		const QSet<int>& outliers)
-{
-	derivateChannelF d(f);
-	return derivatePoints(d, t, outliers);
-}
-
-struct derivateCoordF {
-	const QVector<Coordinates>& f;
-	derivateCoordF(const QVector<Coordinates>& f): f(f) {}
-
-	qreal operator()(int i, qreal dt1, int i1) {
-		return 1000. * (f[i].distanceTo(f[i1])) / dt1;
-	}
-	
-	qreal operator()(int i, qreal dt1, int i1, qreal dt2, int i2) {
-		Coordinates::delta d1 = f[i].deltaTo(f[i1]),
-		                   d2 = f[i].deltaTo(f[i2]);
-		Coordinates::delta d(
-				1000. * deriv3pt(dt1, d1.dLon, dt2, d2.dLon),
-				1000. * deriv3pt(dt1, d1.dLat, dt2, d2.dLat));
-		return f[i].deltaDistance(d);
-	}
-};
-
-static Track::Channel derivateCoord(
-		const QVector<Coordinates>& f, const QVector<QDateTime>& t,
-		const QSet<int>& outliers)
-{
-	derivateCoordF d(f);
-	return derivatePoints(d, t, outliers);
-}
-
-// d²f / dt²
-static Track::Channel computeAcceleration(
-		const QVector<QDateTime>& t, QVector<Coordinates>& c)
-{
-	Track::Channel rt;
-	rt.reserve(t.size());
-	int i1 = 0, i2 = 0;//[i1, i2]
-	for (int i = 0; i < t.size(); ++i) {
-		while (i1 < i && t[i1 + 1].msecsTo(t[i]) >= min_dt_ms)
-			++i1;
-		while (i2 < t.size()-1 && t[i].msecsTo(t[i2]) < min_dt_ms)
-			++i2;
-
-		qreal dt1 = t[i].msecsTo(t[i1]),
-			  dt2 = t[i].msecsTo(t[i2]);
-
-		if (dt1 <= -min_dt_ms && dt2 >= min_dt_ms) {
-			Coordinates::delta d1 = c[i].deltaTo(c[i1]),
-							   d2 = c[i].deltaTo(c[i2]);
-			Coordinates::delta d(
-					1000. * accel3pt(dt1, d1.dLon, dt2, d2.dLon),
-					1000. * accel3pt(dt1, d1.dLat, dt2, d2.dLat));
-			qreal a = c[i].deltaDistance(d);
-
-			if (rt.isEmpty())
-				for (int j = 0; j <= i; ++j)
-					rt.append(a);
-			else
-				rt.append(a);
-
-		} else if (!rt.isEmpty())
-			rt.append(rt.last());
-	}
-	return rt;
-}
 
 
 static QString nameComputedFrom(QString src) {
@@ -257,22 +83,6 @@ static QString nameComputedFrom(QString src) {
 		? Track::tr("computed")
 		: Track::tr("computed from %1").arg(src);
 }
-
-int Track::_elevationWindow = 3;
-int Track::_speedWindow = 5;
-int Track::_heartRateWindow = 3;
-int Track::_cadenceWindow = 3;
-int Track::_powerWindow = 3;
-
-bool Track::_automaticPause = true;
-qreal Track::_pauseSpeed = 0.5;
-int Track::_pauseInterval = 10;
-
-bool Track::_outlierEliminate = true;
-bool Track::_useReportedSpeed = false;
-bool Track::_useDEM = false;
-bool Track::_show2ndElevation = false;
-bool Track::_show2ndSpeed = false;
 
 Track::Track(QObject* parent) : QObject(parent) {}
 
@@ -351,54 +161,48 @@ void Track::finalize()
 			if (~accelChan)
 				accelChan = newChannel(ChannelDescr(CTaccel, CSgpsAcc));
 			Channel& acc_chan = sg.append(
-					computeAcceleration(sg.time, sg.coord), accelChan);
+					Compute::acceleration(sg.time, sg.coord,
+						Compute::derivOptions, Compute::useSpeedDirection),
+					accelChan);
 
 			// Outliers
-			if (_outlierEliminate)
-				sg.outliers = eliminate(acc_chan);
-
+			if (Compute::outlierEliminate)
+				sg.outliers = Compute::eliminate(acc_chan);
+		}
+		
+		// Distance
+		Channel& dist_chan(sg.append(Channel(_chanDist)));
+		{
+			qreal d = 0.;
+			int i0 = 0;
+			for (; i0 < sg.size() && sg.outliers.contains(i0); ++i0)
+				dist_chan.append(NAN);
+			for (int i1 = i0; i1 < sg.coord.size(); ) {
+				d += sg.coord[i0].distanceTo(sg.coord[i1]);
+				dist_chan.append(d);
+				i0 = i1;
+				for (++i1;
+					i1 < sg.coord.size() && sg.outliers.contains(i1); ++i1)
+					dist_chan.append(NAN);
+			}
+			distLength += d;
+		}
+		
+		if (sg.hasTime()) {
 			// Speed
 			if (!~speedChan)
 				speedChan = newChannel(ChannelDescr(CTspeed, CSgpsVit));
 			Channel& spd_chan = sg.append(
-					derivateCoord(sg.coord, sg.time, sg.outliers),
+					Compute::useSpeedDirection
+					? Compute::speed(sg.coord, sg.time,
+						sg.outliers, Compute::derivOptions)
+					: Compute::derivateChannel(dist_chan, sg.time,
+						sg.outliers, Compute::derivOptions),
 					speedChan);
 
 			// Stop-points
-			int pauseInterval;
-			qreal pauseSpeed;
-
-			if (_automaticPause) {
-				pauseSpeed    = (spd_chan.avg(0, spd_chan.size()) > 2.8) 
-							  ? 0.40 : 0.15;
-				pauseInterval = 10;
-			} else {
-				pauseSpeed    = _pauseSpeed;
-				pauseInterval = _pauseInterval;
-			}
-
-			sg.computeStopPoints(spd_chan, pauseInterval, pauseSpeed);
-
+			Compute::stopPoints(sg, spd_chan);
 		}
-		
-		// Distance
-		{
-			Channel& ch(sg.append(Channel(_chanDist)));
-			qreal d = 0.;
-			int i0 = 0;
-			for (; i0 < sg.size() && sg.outliers.contains(i0); ++i0)
-				ch.append(NAN);
-			for (int i1 = i0; i1 < sg.coord.size(); ) {
-				d += sg.coord[i0].distanceTo(sg.coord[i1]);
-				ch.append(d);
-				i0 = i1;
-				for (++i1;
-					i1 < sg.coord.size() && sg.outliers.contains(i1); ++i1)
-					ch.append(NAN);
-			}
-			distLength += d;
-		}
-
 	}
 
 	if (hasTime()) computeVSpeed();
@@ -415,9 +219,10 @@ void Track::computeVSpeed()
 			for (int i_s = 0; i_s < _segments.size(); ++i_s) {
 				Segment& sg(_segments[i_s]);
 				const Channel* elv;
-				if (!sg.hasTime() || !(elv = sg.findChannel(cid)))
-					continue;
-				sg.append(derivateChannel(*elv, sg.time, sg.outliers), vs_cid);
+				if (sg.hasTime() && (elv = sg.findChannel(cid)))
+					sg.append(Compute::derivateChannel(*elv, sg.time,
+								sg.outliers, Compute::derivOptions),
+							vs_cid);
 			}
 		}
 }
@@ -533,25 +338,6 @@ bool Track::hasData(int chanId) const
 	return false;
 }
 
-int Track::filterWindow(ChanTy ct)
-{
-	switch(ct) {
-		case CTelevation:
-			return _elevationWindow;
-		case CTspeed: case CTvSpeed:
-			return _speedWindow;
-		case CTheartRate:
-			return _heartRateWindow;
-		case CTcadence:
-			return _cadenceWindow;
-		case CTpower:
-			return _powerWindow;
-		default:
-			return 1;
-	}
-}
-
-
 template<typename F>
 Track::ChannelPoint pointAt(const F& f, int i_s,
 		const Track::Segment& s, qreal x)
@@ -633,28 +419,6 @@ qreal Track::Channel::avg(int a, int b) const
 	return sum(a, b) / (qreal)size();
 }
 
-Track::Channel Track::Channel::filter(int window) const
-{ 
-	if (size() < window || window < 2)
-		return *this;
-
-	Channel ret(_id, size());
-
-	int w2 = window / 2;
-	qreal acc = 0;
-	int i1 = 0, i2 = 0;//[i1, i2[
-
-	for (int i = 0; i  < size(); ++i) {
-		for (; i2 - i <= w2 && i2 < size(); ++i2)
-			acc += at(i2);
-		for (; i - i1 > w2; ++i1)
-			acc -= at(i1);
-		ret[i] = acc / (i2 - i1);
-	}
-
-	return ret;
-}
-
 bool Track::Channel::hasData() const
 {
 	for (int i = 0; i < size(); ++i)
@@ -730,28 +494,6 @@ qreal Track::ChannelDescr::tsum(const Track& t, int id) const
 // Segment
 
 Track::Segment::Segment(): timePres(false), pauseTime(0) {}
-
-void Track::Segment::computeStopPoints(const Channel& speed,
-								qreal pauseInterval, qreal pauseSpeed)
-{
-	qreal pauseTimeMs = 0;
-	int ss = 0, la = 0;
-	for (int j = 1; j < size(); ++j) {
-		if (speed[j] > pauseSpeed)
-			ss = -1;
-		else if (ss < 0)
-			ss = j-1;
-
-		if (ss >= 0 && time[ss].msecsTo(time[j]) > 1000. * pauseInterval) {
-			int l = qMax(ss, la);
-			pauseTimeMs += time[l].msecsTo(time[j]);
-			for (int k = l; k <= j; k++)
-				stop.insert(k);
-			la = j;
-		}
-	}
-	pauseTime += pauseTimeMs / 1000.;
-}
 
 bool Track::Segment::discardStopPoint(int i) const
 {

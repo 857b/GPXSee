@@ -70,6 +70,7 @@ HEADERS += src/common/config.h \
     src/GUI/powergraph.h \
     src/GUI/gearratiograph.h \
     src/GUI/optionsdialog.h \
+    src/GUI/options.h \
     src/GUI/colorbox.h \
     src/GUI/stylecombobox.h \
     src/GUI/opengl.h \
@@ -154,6 +155,7 @@ HEADERS += src/common/config.h \
     src/data/trackdata.h \
     src/data/routedata.h \
     src/data/path.h \
+    src/data/compute.h \
     src/data/gpxparser.h \
     src/data/tcxparser.h \
     src/data/csvparser.h \
@@ -303,6 +305,7 @@ SOURCES += src/main.cpp \
     src/data/track.cpp \
     src/data/route.cpp \
     src/data/path.cpp \
+    src/data/compute.cpp \
     src/data/gpxparser.cpp \
     src/data/tcxparser.cpp \
     src/data/csvparser.cpp \

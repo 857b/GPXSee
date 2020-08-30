@@ -31,6 +31,7 @@
 #include "common/programpaths.h"
 #include "data/data.h"
 #include "data/poi.h"
+#include "data/compute.h"
 #include "map/maplist.h"
 #include "map/emptymap.h"
 #include "map/downloader.h"
@@ -914,19 +915,9 @@ void GUI::openOptions()
 	if (options.option != _options.option) \
 		for (int i = 0; i < _tabs.count(); i++) \
 			_tabs.at(i)->action(options.option)
-#define SET_TRACK_OPTION(option, action) \
+#define SET_COMPUTE_OPTION(option, action) \
 	if (options.option != _options.option) { \
-		Track::action(options.option); \
-		reload = true; \
-	}
-#define SET_ROUTE_OPTION(option, action) \
-	if (options.option != _options.option) { \
-		Route::action(options.option); \
-		reload = true; \
-	}
-#define SET_WAYPOINT_OPTION(option, action) \
-	if (options.option != _options.option) { \
-		Waypoint::action(options.option); \
+		Compute::action(options.option); \
 		reload = true; \
 	}
 
@@ -937,50 +928,42 @@ void GUI::openOptions()
 	if (dialog.exec() != QDialog::Accepted)
 		return;
 
-	SET_VIEW_OPTION(palette, setPalette);
-	SET_VIEW_OPTION(mapOpacity, setMapOpacity);
-	SET_VIEW_OPTION(backgroundColor, setBackgroundColor);
-	SET_VIEW_OPTION(trackWidth, setTrackWidth);
-	SET_VIEW_OPTION(routeWidth, setRouteWidth);
-	SET_VIEW_OPTION(areaWidth, setAreaWidth);
-	SET_VIEW_OPTION(trackStyle, setTrackStyle);
-	SET_VIEW_OPTION(routeStyle, setRouteStyle);
-	SET_VIEW_OPTION(areaStyle, setAreaStyle);
-	SET_VIEW_OPTION(areaOpacity, setAreaOpacity);
-	SET_VIEW_OPTION(waypointSize, setWaypointSize);
-	SET_VIEW_OPTION(waypointColor, setWaypointColor);
-	SET_VIEW_OPTION(poiSize, setPOISize);
-	SET_VIEW_OPTION(poiColor, setPOIColor);
-	SET_VIEW_OPTION(pathAntiAliasing, useAntiAliasing);
-	SET_VIEW_OPTION(useOpenGL, useOpenGL);
-	SET_VIEW_OPTION(sliderColor, setMarkerColor);
-	SET_VIEW_OPTION(projection, setProjection);
+	SET_VIEW_OPTION(palette,             setPalette);
+	SET_VIEW_OPTION(mapOpacity,          setMapOpacity);
+	SET_VIEW_OPTION(backgroundColor,     setBackgroundColor);
+	SET_VIEW_OPTION(trackWidth,          setTrackWidth);
+	SET_VIEW_OPTION(routeWidth,          setRouteWidth);
+	SET_VIEW_OPTION(areaWidth,           setAreaWidth);
+	SET_VIEW_OPTION(trackStyle,          setTrackStyle);
+	SET_VIEW_OPTION(routeStyle,          setRouteStyle);
+	SET_VIEW_OPTION(areaStyle,           setAreaStyle);
+	SET_VIEW_OPTION(areaOpacity,         setAreaOpacity);
+	SET_VIEW_OPTION(waypointSize,        setWaypointSize);
+	SET_VIEW_OPTION(waypointColor,       setWaypointColor);
+	SET_VIEW_OPTION(poiSize,             setPOISize);
+	SET_VIEW_OPTION(poiColor,            setPOIColor);
+	SET_VIEW_OPTION(pathAntiAliasing,    useAntiAliasing);
+	SET_VIEW_OPTION(useOpenGL,           useOpenGL);
+	SET_VIEW_OPTION(sliderColor,         setMarkerColor);
+	SET_VIEW_OPTION(projection,          setProjection);
 
-	SET_TAB_OPTION(palette, setPalette);
-	SET_TAB_OPTION(graphWidth, setGraphWidth);
-	SET_TAB_OPTION(graphAntiAliasing, useAntiAliasing);
-	SET_TAB_OPTION(useOpenGL, useOpenGL);
-	SET_TAB_OPTION(sliderColor, setSliderColor);
+	SET_TAB_OPTION(palette,              setPalette);
+	SET_TAB_OPTION(graphWidth,           setGraphWidth);
+	SET_TAB_OPTION(graphAntiAliasing,    useAntiAliasing);
+	SET_TAB_OPTION(useOpenGL,            useOpenGL);
+	SET_TAB_OPTION(sliderColor,          setSliderColor);
 
-	SET_TRACK_OPTION(elevationFilter, setElevationFilter);
-	SET_TRACK_OPTION(speedFilter, setSpeedFilter);
-	SET_TRACK_OPTION(heartRateFilter, setHeartRateFilter);
-	SET_TRACK_OPTION(cadenceFilter, setCadenceFilter);
-	SET_TRACK_OPTION(powerFilter, setPowerFilter);
-	SET_TRACK_OPTION(outlierEliminate, setOutlierElimination);
-	SET_TRACK_OPTION(automaticPause, setAutomaticPause);
-	SET_TRACK_OPTION(pauseSpeed, setPauseSpeed);
-	SET_TRACK_OPTION(pauseInterval, setPauseInterval);
-	SET_TRACK_OPTION(useReportedSpeed, useReportedSpeed);
-	SET_TRACK_OPTION(dataUseDEM, useDEM);
-	SET_TRACK_OPTION(showSecondaryElevation, showSecondaryElevation);
-	SET_TRACK_OPTION(showSecondarySpeed, showSecondarySpeed);
-
-	SET_ROUTE_OPTION(dataUseDEM, useDEM);
-	SET_ROUTE_OPTION(showSecondaryElevation, showSecondaryElevation);
-
-	SET_WAYPOINT_OPTION(dataUseDEM, useDEM);
-	SET_WAYPOINT_OPTION(showSecondaryElevation, showSecondaryElevation);
+	SET_COMPUTE_OPTION(elevationFilter,  setElevationFilter);
+	SET_COMPUTE_OPTION(speedFilter,      setSpeedFilter);
+	SET_COMPUTE_OPTION(heartRateFilter,  setHeartRateFilter);
+	SET_COMPUTE_OPTION(cadenceFilter,    setCadenceFilter);
+	SET_COMPUTE_OPTION(powerFilter,      setPowerFilter);
+	SET_COMPUTE_OPTION(outlierEliminate, setOutlierElimination);
+	SET_COMPUTE_OPTION(automaticPause,   setAutomaticPause);
+	SET_COMPUTE_OPTION(pauseSpeed,       setPauseSpeed);
+	SET_COMPUTE_OPTION(pauseInterval,    setPauseInterval);
+	SET_COMPUTE_OPTION(deriv,            setDerivOptions);
+	SET_COMPUTE_OPTION(speedDirection,   setUseSpeedDirection);
 
 	if (options.poiRadius != _options.poiRadius)
 		_poi->setRadius(options.poiRadius);
@@ -1890,16 +1873,14 @@ void GUI::writeSettings()
 		settings.setValue(PAUSE_SPEED_SETTING, _options.pauseSpeed);
 	if (_options.pauseInterval != PAUSE_INTERVAL_DEFAULT)
 		settings.setValue(PAUSE_INTERVAL_SETTING, _options.pauseInterval);
-	if (_options.useReportedSpeed != USE_REPORTED_SPEED_DEFAULT)
-		settings.setValue(USE_REPORTED_SPEED_SETTING, _options.useReportedSpeed);
-	if (_options.dataUseDEM != DATA_USE_DEM_DEFAULT)
-		settings.setValue(DATA_USE_DEM_SETTING, _options.dataUseDEM);
-	if (_options.showSecondaryElevation != SHOW_SECONDARY_ELEVATION_DEFAULT)
-		settings.setValue(SHOW_SECONDARY_ELEVATION_SETTING,
-		  _options.showSecondaryElevation);
-	if (_options.showSecondarySpeed != SHOW_SECONDARY_SPEED_DEFAULT)
-		settings.setValue(SHOW_SECONDARY_SPEED_SETTING,
-		  _options.showSecondarySpeed);
+	if (_options.deriv.min != DERIV_DMIN_DEFAULT)
+		settings.setValue(DERIV_DMIN_SETTING, _options.deriv.min);
+	if (_options.deriv.max != DERIV_DMAX_DEFAULT)
+		settings.setValue(DERIV_DMAX_SETTING, _options.deriv.max);
+	if (_options.deriv.opt != DERIV_DOPT_DEFAULT)
+		settings.setValue(DERIV_DOPT_SETTING, _options.deriv.opt);
+	if (_options.speedDirection != SPEED_DIR_DEFAULT)
+		settings.setValue(SPEED_DIR_SETTING, _options.speedDirection);
 #ifdef ENABLE_TIMEZONES
 	if (_options.timeZone != TimeZoneInfo())
 		settings.setValue(TIME_ZONE_SETTING, QVariant::fromValue(
@@ -2167,16 +2148,14 @@ void GUI::readSettings()
 	  OUTLIER_ELIMINATE_DEFAULT).toBool();
 	_options.pauseSpeed = settings.value(PAUSE_SPEED_SETTING,
 	  PAUSE_SPEED_DEFAULT).toFloat();
-	_options.useReportedSpeed = settings.value(USE_REPORTED_SPEED_SETTING,
-	  USE_REPORTED_SPEED_DEFAULT).toBool();
-	_options.dataUseDEM = settings.value(DATA_USE_DEM_SETTING,
-	  DATA_USE_DEM_DEFAULT).toBool();
-	_options.showSecondaryElevation = settings.value(
-	  SHOW_SECONDARY_ELEVATION_SETTING,
-	  SHOW_SECONDARY_ELEVATION_DEFAULT).toBool();
-	_options.showSecondarySpeed = settings.value(
-	  SHOW_SECONDARY_SPEED_SETTING,
-	  SHOW_SECONDARY_SPEED_DEFAULT).toBool();
+	_options.deriv.min = settings.value(DERIV_DMIN_SETTING,
+	  DERIV_DMIN_DEFAULT).toFloat();
+	_options.deriv.max = settings.value(DERIV_DMAX_SETTING,
+	  DERIV_DMAX_DEFAULT).toFloat();
+	_options.deriv.opt = settings.value(DERIV_DOPT_SETTING,
+	  DERIV_DOPT_DEFAULT).toFloat();
+	_options.speedDirection = settings.value(SPEED_DIR_SETTING,
+	  SPEED_DIR_DEFAULT).toBool();
 #ifdef ENABLE_TIMEZONES
 	_options.timeZone = settings.value(TIME_ZONE_SETTING).value<TimeZoneInfo>();
 #endif // ENABLE_TIMEZONES
@@ -2258,23 +2237,17 @@ void GUI::readSettings()
 			_tabs.at(i)->useOpenGL(true);
 	}
 
-	Track::setElevationFilter(_options.elevationFilter);
-	Track::setSpeedFilter(_options.speedFilter);
-	Track::setHeartRateFilter(_options.heartRateFilter);
-	Track::setCadenceFilter(_options.cadenceFilter);
-	Track::setPowerFilter(_options.powerFilter);
-	Track::setOutlierElimination(_options.outlierEliminate);
-	Track::setAutomaticPause(_options.automaticPause);
-	Track::setPauseSpeed(_options.pauseSpeed);
-	Track::setPauseInterval(_options.pauseInterval);
-	Track::useReportedSpeed(_options.useReportedSpeed);
-	Track::useDEM(_options.dataUseDEM);
-	Track::showSecondaryElevation(_options.showSecondaryElevation);
-	Track::showSecondarySpeed(_options.showSecondarySpeed);
-	Route::useDEM(_options.dataUseDEM);
-	Route::showSecondaryElevation(_options.showSecondaryElevation);
-	Waypoint::useDEM(_options.dataUseDEM);
-	Waypoint::showSecondaryElevation(_options.showSecondaryElevation);
+	Compute::setElevationFilter(_options.elevationFilter);
+	Compute::setSpeedFilter(_options.speedFilter);
+	Compute::setHeartRateFilter(_options.heartRateFilter);
+	Compute::setCadenceFilter(_options.cadenceFilter);
+	Compute::setPowerFilter(_options.powerFilter);
+	Compute::setOutlierElimination(_options.outlierEliminate);
+	Compute::setAutomaticPause(_options.automaticPause);
+	Compute::setPauseSpeed(_options.pauseSpeed);
+	Compute::setPauseInterval(_options.pauseInterval);
+	Compute::setDerivOptions(_options.deriv);
+	Compute::setUseSpeedDirection(_options.speedDirection);
 
 	_poi->setRadius(_options.poiRadius);
 
