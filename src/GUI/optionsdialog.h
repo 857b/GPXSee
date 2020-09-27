@@ -5,6 +5,8 @@
 
 #include "options.h"
 
+//TODO #define CONTROL_SEGMENTS
+
 class ColorBox;
 class StyleComboBox;
 class OddSpinBox;
@@ -24,7 +26,7 @@ public slots:
 	void accept();
 
 public:
-	OptionsDialog(Options *options, QWidget *parent = 0);
+	OptionsDialog(Options &options, Units units, QWidget *parent = 0);
 
 private slots:
 	void automaticPauseDetectionSet(bool set);
@@ -37,8 +39,9 @@ private:
 	QWidget *createSystemPage();
 	QWidget *createExportPage();
 
-	Options *_options;
+	Options &_options;
 
+	Units _units;
 	// Appearance
 	ColorBox *_baseColor;
 	PercentSlider *_colorOffset;
@@ -84,6 +87,9 @@ private:
 	QRadioButton *_customZone;
 	QComboBox *_timeZone;
 #endif // ENABLE_TIMEZONES
+#ifdef CONTROL_SEGMENTS
+	QCheckBox *_useSegments;
+#endif
 	// POI
 	QDoubleSpinBox *_poiRadius;
 	// System

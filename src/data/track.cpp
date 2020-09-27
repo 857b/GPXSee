@@ -8,6 +8,8 @@
 #include "trackpoint.h"
 #include "dem.h"
 
+bool Track::_useSegments = true;
+
 QString chanTyName(ChanTy ty)
 {
 	switch(ty) {

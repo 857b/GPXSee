@@ -181,6 +181,8 @@ public:
 	bool hasTime() const;
 	bool hasData(int chanId) const;
 
+	static void useSegments(bool use) {_useSegments = use;}
+
 private:
 	Track();
 
@@ -198,6 +200,8 @@ private:
 	int _chanDist; // distance since the beginning of the segment
 
 	qreal timeLength, distLength;
+
+	static bool _useSegments; //TODO
 };
 
 #endif

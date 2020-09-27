@@ -28,6 +28,7 @@ private:
 	void trackpointData(Trackpoint &trackpoint);
 	void waypointData(Waypoint &waypoint);
 	void extensions(Trackpoint &trackpoint);
+	void TPX(Trackpoint &trackpoint);
 	void heartRateBpm(Trackpoint &trackpoint);
 	Coordinates position();
 	qreal number();
