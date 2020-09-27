@@ -283,6 +283,18 @@ Track::Channel acceleration(const QVector<QDateTime>& t,
 	return rt;
 }
 
+struct f_bounds{ RangeF b; f_bounds() : b(RangeF::bottom()) {}
+	void operator()(qreal v, bool bgS) { Q_UNUSED(bgS)
+		b |= v;
+	}
+};
+RangeF bounds(const Track& tk, int cid, int filterWindow)
+{
+	f_bounds f;
+	iterate_y(f, tk, cid, filterWindow);
+	return f.b;
+}
+
 int filterWindow(const Track::ChannelDescr& d)
 {
 	switch (d._src) {

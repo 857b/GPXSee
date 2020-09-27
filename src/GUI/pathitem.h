@@ -20,7 +20,9 @@ class PathItem : public QObject, public GraphicsItem
 	Q_OBJECT
 
 public:
-	PathItem(const Path &path, Map *map, QGraphicsItem *parent = 0);
+	PathItem(const Path &path, Map *map,
+			QObject* oparent = 0,
+			QGraphicsItem *gparent = 0);
 	virtual ~PathItem() {}
 
 	QPainterPath shape() const {return _shape;}
@@ -47,6 +49,17 @@ public:
 	static void setTimeZone(const QTimeZone &zone) {_timeZone = zone;}
 #endif // ENABLE_TIMEZONES
 
+	static const qreal GEOGRAPHICAL_MILE;
+
+	static inline unsigned segments(qreal distance);
+	template <typename D>
+	static inline void drawSegment1(D& d, Map& map,
+			const Coordinates &c1, const Coordinates &c2,
+			int n1, int n2, qreal t1, qreal t2);
+	template <typename D>
+	static inline void drawSegment(D& d, Map& map,
+			const PathSegment &segment);
+
 public slots:
 	void moveMarker(qreal distance);
 	void hover(bool hover);
@@ -64,23 +77,22 @@ protected:
 	static QTimeZone _timeZone;
 #endif // ENABLE_TIMEZONES
 
+	Path _path;
+	Map *_map;
+	qreal _width;
+	QPen _pen;
 private:
 	const PathSegment *segment(qreal x) const;
 	QPointF position(qreal distance) const;
 	void updatePainterPath();
 	void updateShape();
-	void addSegment(const Coordinates &c1, const Coordinates &c2);
 
 	qreal xInM() const;
 	unsigned tickSize() const;
 
-	Path _path;
-	Map *_map;
 	qreal _markerDistance;
 	int _digitalZoom;
 
-	qreal _width;
-	QPen _pen;
 	QPainterPath _shape;
 	QPainterPath _painterPath;
 	bool _showMarker;
@@ -89,5 +101,80 @@ private:
 	MarkerItem *_marker;
 	QVector<PathTickItem*> _ticks;
 };
+
+// ---
+#include "common/greatcircle.h"
+#include "map/map.h"
+
+inline unsigned PathItem::segments(qreal distance)
+{
+	return ceil(distance / GEOGRAPHICAL_MILE);
+}
+
+template <typename D>
+inline void PathItem::drawSegment1(D& d, Map& map,
+		const Coordinates &c1, const Coordinates &c2,
+		int n1, int n2, qreal t1, qreal t2)
+{
+	if (fabs(c1.lon() - c2.lon()) > 180.0) {
+		// Split segment on date line crossing
+		QPointF p;
+
+		if (c2.lon() < 0) {
+			QLineF l(QPointF(c1.lon(), c1.lat()), QPointF(c2.lon() + 360,
+			  c2.lat()));
+			QLineF dl(QPointF(180, -90), QPointF(180, 90));
+			l.intersect(dl, &p);
+			qreal ti = t1 + (180 - c1.lon())
+				            * (t2 - t1) / (c2.lon() + 360 - c1.lon());
+			d.line(map.ll2xy(Coordinates(+180, p.y())), n1, n2, ti);
+			d.move(map.ll2xy(Coordinates(-180, p.y())), n1, n2, ti);
+
+		} else {
+			QLineF l(QPointF(c1.lon(), c1.lat()), QPointF(c2.lon() - 360,
+			  c2.lat()));
+			QLineF dl(QPointF(-180, -90), QPointF(-180, 90));
+			l.intersect(dl, &p);
+			qreal ti = t1 + (-180 - c1.lon())
+				            * (t2 - t1) / (c2.lon() - 360 - c1.lon());
+			d.line(map.ll2xy(Coordinates(-180, p.y())), n1, n2, ti);
+			d.move(map.ll2xy(Coordinates(+180, p.y())), n1, n2, ti);
+ 		}
+ 	}
+
+	d.line(map.ll2xy(c2), n1, n2, t2);
+}
+
+template <typename D>
+inline void PathItem::drawSegment(D& d, Map& map, const PathSegment &segment)
+{
+	if (segment.isEmpty()) return;
+
+	d.move(map.ll2xy(segment.first().coordinates()),
+			segment.first().num(), segment.first().num(), 0.);
+
+	for (int j = 1; j < segment.size(); j++) {
+		const PathPoint &p1 = segment.at(j-1);
+		const PathPoint &p2 = segment.at(j);
+		unsigned n = segments(p2.distance() - p1.distance());
+
+		if (n > 1) {
+			GreatCircle gc(p1.coordinates(), p2.coordinates());
+			qreal last_t = 0.;
+			Coordinates last = p1.coordinates();
+
+			for (unsigned k = 1; k <= n; k++) {
+				qreal t = k / (double)n;
+				Coordinates c(gc.pointAt(t));
+				drawSegment1(d, map, last, c,
+						p1.num(), p2.num(), last_t, t);
+				last_t = t;
+				last   = c;
+			}
+		} else
+			drawSegment1(d, map, p1.coordinates(), p2.coordinates(),
+					p1.num(), p2.num(), 0., 1.);
+	}
+}
 
 #endif // PATHITEM_H

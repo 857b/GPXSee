@@ -12,8 +12,8 @@ class IGCParser : public Parser1
 	Q_DECLARE_TR_FUNCTIONS(IGCParser)
 
 public:
-	bool parse(QObject* parent, QFile *file,
-			QList<Track*>     &tracks,
+	bool parse(QFile *file,
+			QList<Track>      &tracks,
 			QList<Route>      &routes,
 			QList<Area>       &polygons,
 			QVector<Waypoint> &waypoints);

@@ -38,7 +38,9 @@ HEADERS += src/common/config.h \
     src/GUI/app.h \
     src/GUI/icons.h \
     src/GUI/gui.h \
+    src/GUI/gdata.h \
     src/GUI/keys.h \
+	src/GUI/slider.h \
     src/GUI/slideritem.h \
     src/GUI/markeritem.h \
     src/GUI/infoitem.h \
@@ -61,6 +63,7 @@ HEADERS += src/common/config.h \
     src/GUI/temperaturegraph.h \
     src/GUI/graphtab.h \
     src/GUI/trackitem.h \
+	src/GUI/colorscales.h \
     src/GUI/tooltip.h \
     src/GUI/routeitem.h \
     src/GUI/graphitem.h \
@@ -206,6 +209,7 @@ SOURCES += src/main.cpp \
     src/common/tifffile.cpp \
     src/GUI/app.cpp \
     src/GUI/gui.cpp \
+	src/GUI/gdata.cpp \
     src/GUI/slideritem.cpp \
     src/GUI/markeritem.cpp \
     src/GUI/infoitem.cpp \
@@ -227,6 +231,7 @@ SOURCES += src/main.cpp \
     src/GUI/fileselectwidget.cpp \
     src/GUI/temperaturegraph.cpp \
     src/GUI/trackitem.cpp \
+	src/GUI/colorscales.cpp \
     src/GUI/tooltip.cpp \
     src/GUI/routeitem.cpp \
     src/GUI/graphitem.cpp \

@@ -1,11 +1,11 @@
 #include "parser.h"
 
-bool Parser::parse(QObject* parent, QFile *file,
-		QList<Track*>     &tracks,
+bool Parser::parse(QFile *file,
+		QList<Track>      &tracks,
 		QList<Route>      &routes,
 		QList<Area>       &polygons,
 		QVector<Waypoint> &waypoints)
-{
+{ 
 	QList<TrackData> td;
 	QList<RouteData> rd;
 
@@ -13,7 +13,7 @@ bool Parser::parse(QObject* parent, QFile *file,
 		return false;
 
 	for (int i = 0; i < td.count(); ++i)
-		tracks.append(new Track(parent, td.at(i)));
+		tracks.append(Track(td.at(i)));
 	for (int i = 0; i < rd.count(); ++i)
 		routes.append(Route(rd.at(i)));
 
@@ -21,39 +21,26 @@ bool Parser::parse(QObject* parent, QFile *file,
 }
 	
 
-void TrackBuilder::begin(QObject* parent)
-{
-	_track = new Track(parent);
-}
-
 TrackInfos& TrackBuilder::infos()
 {
-	return *_track;
+	return _track;
 }
 
 int TrackBuilder::newChannel(const Track::ChannelDescr& ch)
 {
-	return _track->newChannel(ch);
+	return _track.newChannel(ch);
 }
 
 Track::Segment& TrackBuilder::beginSegment(bool timePres)
 {
-	_track->_segments.append(Track::Segment());
-	Track::Segment& rt(_track->_segments.last());
+	_track._segments.append(Track::Segment());
+	Track::Segment& rt(_track._segments.last());
 	rt.timePres = timePres;
 	return rt;
 }
 
-Track* TrackBuilder::finalize()
+const Track& TrackBuilder::finalize()
 {
-	_track->finalize();
-	Track* rt = _track;
-	_track = NULL;
-	return rt;
-}
-
-void TrackBuilder::abort()
-{
-	delete _track;
-	_track = NULL;
+	_track.finalize();
+	return _track;
 }

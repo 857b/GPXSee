@@ -4,6 +4,7 @@
 #include <QSet>
 #include "track.h"
 #include "GUI/optionsdialog.h"
+#include "common/range.h"
 
 namespace Compute {
 
@@ -28,6 +29,29 @@ Track::Channel speed(const QVector<Coordinates>& f,
 Track::Channel acceleration(const QVector<QDateTime>& t,
 		const QVector<Coordinates>& c, const DerivOptions& opt,
 		bool accDir);
+
+template <typename F>
+void iterate_y(F& f, const Track& tk, int cid, int filtrWindow = 1)
+{
+	for (int i_s = 0; i_s < tk.segments().count(); ++i_s) {
+		const Track::Segment& s(tk.segments().at(i_s));
+		const Track::Channel* c0(s.findChannel(cid));
+		if (!c0) continue;
+		const Track::Channel c(
+				Compute::filter(*c0, filtrWindow, s.outliers));
+
+		bool beginSeg = true;
+		for (int i_p = 0; i_p < c.size(); ++i_p) {
+			if (s.outliers.contains(i_p)) continue;
+			qreal v(c.at(i_p));
+			if (std::isnan(v)) continue;
+			f(v, beginSeg);
+			beginSeg = false;
+		}
+	}
+}
+
+RangeF bounds(const Track& tk, int cid, int filterWindow = 1);
 
 // options
 extern bool  outlierEliminate;

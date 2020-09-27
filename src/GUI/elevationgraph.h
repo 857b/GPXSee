@@ -59,7 +59,7 @@ public:
 	ElevationGraph(QWidget *parent = 0);
 	~ElevationGraph();
 
-	QList<QList<GraphItem*> > loadData(Data &data);
+	QList<GraphItem*> loadData(GData &data);
 	void clear();
 	void setUnits(enum Units units);
 	void showRoutes(bool show);

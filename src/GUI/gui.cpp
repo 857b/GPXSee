@@ -55,6 +55,7 @@
 #include "pathitem.h"
 #include "mapaction.h"
 #include "gui.h"
+#include "gdata.h"
 
 
 #define TOOLBAR_ICON_SIZE 22
@@ -784,14 +785,15 @@ bool GUI::openFile(const QString &fileName)
 
 bool GUI::loadFile(const QString &fileName)
 {
-	Data data(this, fileName);
-	QList<QList<QList<GraphItem*> > > graphs;
+	Data data0(fileName);
+	QList<QList<GraphItem*> > graphs;
 	QList<PathItem*> paths;
 
-	if (data.isValid()) {
+	if (data0.isValid()) {
+		GData& data = *new GData(data0, this);
+		_clearList.append(&data);
 		for (int i = 0; i < data.tracks().count(); i++) {
-			const Track &track = *data.tracks().at(i);
-			_clearList.append(data.tracks()[i]);
+			const GTrack &track = *data.tracks().at(i);
 			_trackDistance += track.distance();
 			_time += track.time();
 			_movingTime += track.movingTime();
@@ -829,18 +831,16 @@ bool GUI::loadFile(const QString &fileName)
 			_splitter->refresh();
 		paths = _mapView->loadData(data);
 
-		// TODO: clean
 		for (int i = 0; i < paths.count(); i++) {
 			const PathItem *pi = paths.at(i);
 			for (int j = 0; j < graphs.count(); j++) {
-				if (i >= graphs.at(j).size()) continue;
-				for (int k = 0; k < graphs.at(j).at(i).size(); ++k) {
-					const GraphItem *gi = graphs.at(j).at(i).at(k);
-					connect(gi, SIGNAL(sliderPositionChanged(qreal)), pi,
-					  SLOT(moveMarker(qreal)));
-					connect(pi, SIGNAL(selected(bool)), gi, SLOT(hover(bool)));
-					connect(gi, SIGNAL(selected(bool)), pi, SLOT(hover(bool)));
-				}
+				const GraphItem *gi = graphs.at(j).at(i);
+				connect(gi, SIGNAL(sliderPositionChanged(qreal)),
+						pi, SLOT(moveMarker(qreal)));
+				connect(pi, SIGNAL(selected(bool)),
+						gi, SLOT(hover(bool)));
+				connect(gi, SIGNAL(selected(bool)),
+						pi, SLOT(hover(bool)));
 			}
 		}
 
@@ -852,9 +852,9 @@ bool GUI::loadFile(const QString &fileName)
 		updateGraphTabs();
 
 		QString error = tr("Error loading data file:") + "\n\n"
-		  + fileName + "\n\n" + data.errorString();
-		if (data.errorLine())
-			error.append("\n" + tr("Line: %1").arg(data.errorLine()));
+		  + fileName + "\n\n" + data0.errorString();
+		if (data0.errorLine())
+			error.append("\n" + tr("Line: %1").arg(data0.errorLine()));
 		QMessageBox::critical(this, APP_NAME, error);
 		return false;
 	}

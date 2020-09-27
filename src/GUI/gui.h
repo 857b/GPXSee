@@ -12,6 +12,7 @@
 #include "format.h"
 #include "exportdialog.h"
 #include "optionsdialog.h"
+#include "colorscales.h"
 
 class QMenu;
 class QToolBar;
@@ -30,7 +31,7 @@ class POI;
 class QScreen;
 class MapAction;
 
-class GUI : public QMainWindow
+class GUI : public QMainWindow, public ColorScales
 {
 	Q_OBJECT
 

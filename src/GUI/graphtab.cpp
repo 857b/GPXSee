@@ -16,7 +16,7 @@
 
 // GraphSet
 
-GraphSet::GraphSet(Track* parent)
+GraphSet::GraphSet(GTrack* parent)
 	: QObject(parent) {}
 
 bool GraphSet::isValid(GraphType ty) const
@@ -232,6 +232,14 @@ void GraphItem1::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	title_act->setDefaultWidget(title);
 	menu->addAction(title_act);
 	menu->addSeparator();
+	{
+		QAction* copAct = menu->addAction(tr("Display on path"));
+		copAct->setCheckable(true);
+		copAct->setChecked(track().displayedChannel() == chanId());
+		connect(copAct, SIGNAL(triggered(bool)),
+				this,   SLOT(channelOnPathAction(bool)));
+	}
+	menu->addSeparator();
 
 	QActionGroup* mainGmenu = new QActionGroup(menu);
 	// TODO Qt5:
@@ -248,7 +256,7 @@ void GraphItem1::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 		mainGmenu->addAction(act);
 	}
 	connect(mainGmenu, SIGNAL(triggered(QAction*)),
-			this, SLOT(mainGraphAction(QAction*)));
+			this,      SLOT(mainGraphAction(QAction*)));
 
 	menu->popup(event->screenPos());
 }
@@ -258,6 +266,11 @@ void GraphItem1::mainGraphAction(QAction* action)
 	int  dt = action->data().toInt();
 	bool set = !(dt & 0b1), secondary = dt & 0b10;
 	graph().setMainGraph(this, set, secondary);
+}
+
+void GraphItem1::channelOnPathAction(bool display)
+{
+	track().setDispChannel(display ? chanId() : ~0);
 }
 
 // GraphTab1
@@ -291,7 +304,7 @@ void GraphTab1::addInfo(const QString &key, qreal val,
 		GraphView::addInfo(key, u.format(val, fmt));
 }
 
-QList<int> GraphTab1::channelsOfTrack(const Track& t)
+QList<int> GraphTab1::channelsOfTrack(const GTrack& t)
 {
 	return t.findChannels(_ty);
 }
@@ -306,9 +319,8 @@ static const unsigned graphStylesCount = 3;
 static const Qt::PenStyle graphStyles[3] = {
 		Qt::SolidLine, Qt::DashLine, Qt::DotLine
 	};
-QList<GraphItem*> GraphTab1::loadGraphSet(Track& t, const QColor &color)
+void GraphTab1::loadGraphSet(GTrack& t, const QColor &color)
 {
-	QList<GraphItem*> rt;
 	GraphSet* set = new GraphSet(&t);
 	const QList<int> chan(channelsOfTrack(t));
 	unsigned styleIdx = 0;
@@ -322,14 +334,11 @@ QList<GraphItem*> GraphTab1::loadGraphSet(Track& t, const QColor &color)
 		gi->finalize();
 		
 		if (_showTracks) addGraph(gi);
-
-		rt.append(gi);
 	}
 
+	t.addGraphSet(set);
 	_sets.insert(set);
 	connect(set, SIGNAL(destroyed()), this, SLOT(setDestroyed()));
-
-	return rt;
 }
 
 void GraphTab1::setDestroyed()
@@ -348,19 +357,21 @@ void GraphTab1::setDestroyed()
 	onGSetChange();
 }
 
-QList<QList<GraphItem*> > GraphTab1::loadData(Data &data)
+QList<GraphItem*> GraphTab1::loadData(GData &data)
 {
-	QList<QList<GraphItem*> > graphs;
-
 	for (int i = 0; i < data.tracks().count(); i++) {
-		Track& track(*data.tracks().at(i));
+		GTrack& track(*data.tracks().at(i));
 		QColor color(_palette.nextColor());
-		graphs.append(loadGraphSet(track, color));
+		loadGraphSet(track, color);
 	}
 
 	onGSetChange();
 
-	return graphs;
+	QList<GraphItem*> ret;
+	ret.reserve(data.routes().size());
+	for (int i = 0; i < data.routes().size(); ++i)
+		ret.append(NULL);
+	return ret;
 }
 
 QString GraphTab1::label() const

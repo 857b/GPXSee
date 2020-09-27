@@ -2,23 +2,17 @@
 #include <QCursor>
 #include <QPainter>
 #include <QGraphicsSceneMouseEvent>
-#include "common/greatcircle.h"
 #include "map/map.h"
 #include "pathtickitem.h"
 #include "popup.h"
 #include "pathitem.h"
 
 
-#define GEOGRAPHICAL_MILE 1855.3248
+const qreal PathItem::GEOGRAPHICAL_MILE = 1855.3248;
 
 static inline bool isValid(const QPointF &p)
 {
 	return (!std::isnan(p.x()) && !std::isnan(p.y()));
-}
-
-static inline unsigned segments(qreal distance)
-{
-	return ceil(distance / GEOGRAPHICAL_MILE);
 }
 
 Units PathItem::_units = Metric;
@@ -26,8 +20,9 @@ Units PathItem::_units = Metric;
 QTimeZone PathItem::_timeZone = QTimeZone::utc();
 #endif // ENABLE_TIMEZONES
 
-PathItem::PathItem(const Path &path, Map *map, QGraphicsItem *parent)
-  : GraphicsItem(parent), _path(path), _map(map)
+PathItem::PathItem(const Path &path, Map *map,
+		QObject* oparent, QGraphicsItem *gparent)
+  : QObject(oparent), GraphicsItem(gparent), _path(path), _map(map)
 {
 	Q_ASSERT(_path.isValid());
 
@@ -58,58 +53,25 @@ void PathItem::updateShape()
 	_shape = s.createStroke(_painterPath);
 }
 
-void PathItem::addSegment(const Coordinates &c1, const Coordinates &c2)
-{
-	if (fabs(c1.lon() - c2.lon()) > 180.0) {
-		// Split segment on date line crossing
-		QPointF p;
-
-		if (c2.lon() < 0) {
-			QLineF l(QPointF(c1.lon(), c1.lat()), QPointF(c2.lon() + 360,
-			  c2.lat()));
-			QLineF dl(QPointF(180, -90), QPointF(180, 90));
-			l.intersect(dl, &p);
-			_painterPath.lineTo(_map->ll2xy(Coordinates(180, p.y())));
-			_painterPath.moveTo(_map->ll2xy(Coordinates(-180, p.y())));
-		} else {
-			QLineF l(QPointF(c1.lon(), c1.lat()), QPointF(c2.lon() - 360,
-			  c2.lat()));
-			QLineF dl(QPointF(-180, -90), QPointF(-180, 90));
-			l.intersect(dl, &p);
-			_painterPath.lineTo(_map->ll2xy(Coordinates(-180, p.y())));
-			_painterPath.moveTo(_map->ll2xy(Coordinates(180, p.y())));
-		}
-		_painterPath.lineTo(_map->ll2xy(c2));
-	} else
-		_painterPath.lineTo(_map->ll2xy(c2));
-}
-
+struct painterpath_d {
+	QPainterPath ppath;
+	void move(const QPointF& p, int n1, int n2, qreal t) {
+		Q_UNUSED(n1) Q_UNUSED(n2) Q_UNUSED(t)
+		ppath.moveTo(p);
+	}
+	void line(const QPointF& p, int n1, int n2, qreal t) {
+		Q_UNUSED(n1) Q_UNUSED(n2) Q_UNUSED(t)
+		ppath.lineTo(p);
+	}
+};
 void PathItem::updatePainterPath()
 {
-	_painterPath = QPainterPath();
+	painterpath_d d;
 
-	for (int i = 0; i < _path.size(); i++) {
-		const PathSegment &segment = _path.at(i);
-		_painterPath.moveTo(_map->ll2xy(segment.first().coordinates()));
-
-		for (int j = 1; j < segment.size(); j++) {
-			const PathPoint &p1 = segment.at(j-1);
-			const PathPoint &p2 = segment.at(j);
-			unsigned n = segments(p2.distance() - p1.distance());
-
-			if (n > 1) {
-				GreatCircle gc(p1.coordinates(), p2.coordinates());
-				Coordinates last = p1.coordinates();
-
-				for (unsigned k = 1; k <= n; k++) {
-					Coordinates c(gc.pointAt(k/(double)n));
-					addSegment(last, c);
-					last = c;
-				}
-			} else
-				addSegment(p1.coordinates(), p2.coordinates());
-		}
-	}
+	for (int i = 0; i < _path.size(); i++)
+		drawSegment(d, *_map, _path.at(i));
+	
+	_painterPath = d.ppath;
 }
 
 void PathItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,

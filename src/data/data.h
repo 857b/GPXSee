@@ -15,14 +15,14 @@
 class Data
 {
 public:
-	Data(QObject* parent, const QString &fileName);
+	Data(const QString &fileName);
 
 	bool isValid() const {return _valid;}
 	const QString &errorString() const {return _errorString;}
 	int errorLine() const {return _errorLine;}
 
-	const QList<Track*> &tracks() const {return _tracks;}
-	const QList<Route>  &routes() const {return _routes;}
+	const QList<Track> &tracks() const {return _tracks;}
+	const QList<Route> &routes() const {return _routes;}
 	const QVector<Waypoint> &waypoints() const {return _waypoints;}
 	const QList<Area> &areas() const {return _polygons;}
 
@@ -30,16 +30,11 @@ public:
 	static QStringList filter();
 
 private:
-	//delete
-	Data(const Data&);
-	Data& operator=(const Data&);
-
-
 	bool    _valid;
 	QString _errorString;
 	int     _errorLine;
 
-	QList<Track*>     _tracks;
+	QList<Track>      _tracks;
 	QList<Route>      _routes;
 	QList<Area>       _polygons;
 	QVector<Waypoint> _waypoints;

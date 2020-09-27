@@ -23,7 +23,7 @@ Path Route::path() const
 	PathSegment &ps = ret.last();
 
 	for (int i = 0; i < _data.size(); i++)
-		ps.append(PathPoint(_data.at(i).coordinates(), _distance.at(i)));
+		ps.append(PathPoint(i, _data.at(i).coordinates(), _distance.at(i)));
 
 	return ret;
 }

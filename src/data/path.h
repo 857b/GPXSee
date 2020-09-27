@@ -10,16 +10,18 @@ class PathPoint
 {
 public:
 	PathPoint() :
-	  _coordinates(Coordinates()), _distance(NAN) {}
-	PathPoint(const Coordinates &coordinates, qreal distance)
-	  : _coordinates(coordinates), _distance(distance) {}
+	  _num(~0), _coordinates(Coordinates()), _distance(NAN) {}
+	PathPoint(int num, const Coordinates &coordinates, qreal distance)
+	  : _num(num), _coordinates(coordinates), _distance(distance) {}
 
+	int num() const {return _num;}
 	const Coordinates &coordinates() const {return _coordinates;}
 	qreal distance() const {return _distance;}
 
 private:
+	int         _num;
 	Coordinates _coordinates;
-	qreal _distance;
+	qreal       _distance;
 };
 
 Q_DECLARE_TYPEINFO(PathPoint, Q_PRIMITIVE_TYPE);

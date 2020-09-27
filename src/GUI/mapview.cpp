@@ -4,7 +4,6 @@
 #include <QApplication>
 #include <QScrollBar>
 #include "data/poi.h"
-#include "data/data.h"
 #include "map/map.h"
 #include "map/pcs.h"
 #include "opengl.h"
@@ -17,6 +16,7 @@
 #include "keys.h"
 #include "graphicsscene.h"
 #include "mapview.h"
+#include "gdata.h"
 
 
 #define MAX_DIGITAL_ZOOM 2
@@ -107,7 +107,7 @@ void MapView::centerOn(const QPointF &pos)
 	_coordinates->setCoordinates(Coordinates());
 }
 
-PathItem *MapView::addTrack(const Track &track)
+PathItem *MapView::addTrack(GTrack &track)
 {
 	if (!track.isValid()) {
 		skipColor();
@@ -125,6 +125,7 @@ PathItem *MapView::addTrack(const Track &track)
 	ti->setMarkerColor(_markerColor);
 	ti->showMarker(_showMarkers);
 	ti->showTicks(_showPathTicks);
+	track.setItem(ti);
 	_scene->addItem(ti);
 
 	if (_showTracks)
@@ -204,7 +205,7 @@ void MapView::addWaypoints(const QVector<Waypoint> &waypoints)
 	}
 }
 
-QList<PathItem *> MapView::loadData(const Data &data)
+QList<PathItem *> MapView::loadData(GData &data)
 {
 	QList<PathItem *> paths;
 	int zoom = _map->zoom();
@@ -212,7 +213,7 @@ QList<PathItem *> MapView::loadData(const Data &data)
 	for (int i = 0; i < data.areas().count(); i++)
 		addArea(data.areas().at(i));
 	for (int i = 0; i < data.tracks().count(); i++)
-		paths.append(addTrack(*data.tracks().at(i)));
+		addTrack(*data.tracks().at(i));
 	for (int i = 0; i < data.routes().count(); i++)
 		paths.append(addRoute(data.routes().at(i)));
 	addWaypoints(data.waypoints());

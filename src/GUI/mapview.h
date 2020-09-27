@@ -16,10 +16,10 @@
 #include "palette.h"
 
 
-class Data;
+class GData;
 class POI;
 class Map;
-class Track;
+class GTrack;
 class Route;
 class TrackItem;
 class RouteItem;
@@ -40,7 +40,8 @@ class MapView : public QGraphicsView
 public:
 	MapView(Map *map, POI *poi, QWidget *parent = 0);
 
-	QList<PathItem *> loadData(const Data &data);
+	// return routes items
+	QList<PathItem *> loadData(GData &data);
 
 	void setPalette(const Palette &palette);
 	void setPOI(POI *poi);
@@ -97,7 +98,7 @@ private slots:
 private:
 	typedef QHash<SearchPointer<Waypoint>, WaypointItem*> POIHash;
 
-	PathItem *addTrack(const Track &track);
+	PathItem *addTrack(GTrack &track);
 	PathItem *addRoute(const Route &route);
 	void addArea(const Area &area);
 	void addWaypoints(const QVector<Waypoint> &waypoints);

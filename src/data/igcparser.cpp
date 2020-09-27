@@ -217,8 +217,8 @@ IGCParser::CTX::CTX()
 
 static const unsigned max_line_len = 76;
 
-bool IGCParser::parse(QObject* parent, QFile *file,
-		QList<Track*>     &tracks,
+bool IGCParser::parse(QFile *file,
+		QList<Track>      &tracks,
 		QList<Route>      &routes,
 		QList<Area>       &polygons,
 		QVector<Waypoint> &waypoints)
@@ -229,7 +229,7 @@ bool IGCParser::parse(QObject* parent, QFile *file,
 	qint64 len;
 	// limit len + CRLF + \0 + 1 to check limit
 	char line[max_line_len + 2 + 1 + 1];
-	bool route = false;
+	bool route = false, track = false;
 	RouteData rdt;
 	CTX ctx;
 	TrackBuilder bld;
@@ -267,8 +267,7 @@ bool IGCParser::parse(QObject* parent, QFile *file,
 					_errorString = "Missing date header";
 					return false;
 				}
-				if (!bld.started()) {
-					bld.begin(parent);
+				if (!track) {
 					int gpsAltId = bld.newChannel(Track::ChannelDescr(
 							CTelevation, CSbase, tr("GPS"))),
 					    prsAltId = bld.newChannel(Track::ChannelDescr(
@@ -281,6 +280,8 @@ bool IGCParser::parse(QObject* parent, QFile *file,
 					ctx.gpsAlt = &ctx.sg->chan[gpsAltIdx];
 
 					ctx.time = QTime(0, 0);
+
+					track = true;
 				}
 				if (!readBRecord(ctx, line, len))
 					return false;
@@ -290,7 +291,7 @@ bool IGCParser::parse(QObject* parent, QFile *file,
 		_errorLine++;
 	}
 
-	if (bld.started()) {
+	if (track) {
 		bld.infos().setName(*file);
 		tracks.append(bld.finalize());
 	}

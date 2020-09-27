@@ -120,9 +120,9 @@ ElevationGraphRItem *ElevationGraph::loadRGraph(const Graph &graph,
 	return gi;
 }
 
-QList<QList<GraphItem*> > ElevationGraph::loadData(Data &data)
+QList<GraphItem*> ElevationGraph::loadData(GData &data)
 {
-	QList<QList<GraphItem*> > graphs = GraphTab1::loadData(data);
+	QList<GraphItem*> graphs = GraphTab1::loadData(data);
 
 	for (int i = 0; i < data.routes().count(); i++) {
 		QColor color(_palette.nextColor());
@@ -131,9 +131,7 @@ QList<QList<GraphItem*> > ElevationGraph::loadData(Data &data)
 		ElevationGraphRItem *primary 
 					= loadRGraph(gp.primary(), color, true);
 		if (!primary) continue;
-		while (i >= graphs.size())
-			graphs.append(QList<GraphItem*>());
-		graphs[i].append(primary);
+		graphs[i] = primary;
 		ElevationGraphRItem *secondary
 					= loadRGraph(gp.secondary(), color, false);
 		if (secondary)

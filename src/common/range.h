@@ -41,6 +41,15 @@ public:
 	RangeF operator&(const RangeF &r) const;
 	RangeF &operator&=(const RangeF &r) {*this = *this & r; return *this;}
 
+	RangeF operator|(const RangeF& r) const;
+	RangeF &operator|=(const RangeF &r) {*this = *this | r; return *this;}
+	RangeF &operator|=(qreal v);
+
+	bool operator==(const RangeF& r) const
+		{return _min == r._min && _max == r._max;}
+
+	static RangeF bottom(); // [+inf, -inf]
+
 	qreal min() const {return _min;}
 	qreal max() const {return _max;}
 	qreal size() const {return (_max - _min);}

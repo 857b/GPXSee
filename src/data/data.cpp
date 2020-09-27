@@ -74,7 +74,7 @@ static QMap<QString, Parser*> parsers()
 
 QMap<QString, Parser*> Data::_parsers = parsers();
 
-Data::Data(QObject* parent, const QString &fileName)
+Data::Data(const QString &fileName)
 {
 	QFile file(fileName);
 	QFileInfo fi(fileName);
@@ -89,7 +89,7 @@ Data::Data(QObject* parent, const QString &fileName)
 
 	QMap<QString, Parser*>::iterator it;
 	if ((it = _parsers.find(fi.suffix().toLower())) != _parsers.end()) {
-		if (it.value()->parse(parent, &file, _tracks, _routes, _polygons,
+		if (it.value()->parse(&file, _tracks, _routes, _polygons,
 					_waypoints)) {
 			_valid = true;
 			return;
@@ -99,7 +99,7 @@ Data::Data(QObject* parent, const QString &fileName)
 		}
 	} else {
 		for (it = _parsers.begin(); it != _parsers.end(); it++) {
-			if (it.value()->parse(parent, &file, _tracks, _routes,
+			if (it.value()->parse(&file, _tracks, _routes,
 						_polygons, _waypoints)) {
 				_valid = true;
 				return;

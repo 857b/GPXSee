@@ -8,17 +8,13 @@
 #include "units.h"
 #include "timetype.h"
 #include "graphitem.h"
-#include "data/track.h"
+#include "gdata.h"
 #include "tooltip.h"
 
 class GraphTab;
 class GraphTab1;
 class GraphSet;
 class GraphItem1;
-
-class Data;
-class GraphItem;
-
 
 
 class GraphTab : public GraphView
@@ -30,7 +26,12 @@ public:
 	virtual ~GraphTab() {}
 
 	virtual QString label() const = 0;
-	virtual QList<QList<GraphItem*> > loadData(Data &data) = 0;
+
+	/* return:
+	 *   a list of size data.routes().size() such that
+	 *   ret[i] is the item associated with data.routes()[i] or NULL
+	 */
+	virtual QList<GraphItem* > loadData(GData &data) = 0;
 	virtual void clear() {GraphView::clear();}
 	virtual void setUnits(enum Units units) {GraphView::setUnits(units);}
 	virtual void setGraphType(GraphType type) {GraphView::setGraphType(type);}
@@ -41,13 +42,14 @@ public:
 
 // 1
 
+// All children are GraphItem1
 class GraphSet : public QObject
 {
 	Q_OBJECT
 
 public:
-	GraphSet(Track* parent);
-	Track& track() const {return (Track&)*parent();}
+	GraphSet(GTrack* parent);
+	GTrack& track() const {return (GTrack&)*parent();}
 	
 	bool isValid(GraphType ty) const;
 };
@@ -75,7 +77,7 @@ public:
 	virtual void finalize();
 
 	GraphSet&     set()   const {return (GraphSet&)*parent();}
-	Track&        track() const {return set().track();}
+	GTrack&       track() const {return set().track();}
 	const Track::ChannelDescr& chanDescr() const 
 		{return track().chanDescr().at(_chId);}
 	GraphTab1&    graph() const {return *_graph;}
@@ -94,6 +96,7 @@ public:
 
 private slots:
 	void mainGraphAction(QAction* action);
+	void channelOnPathAction(bool display);
 
 protected:
 	virtual void updatePath();
@@ -118,7 +121,7 @@ public:
 	~GraphTab1();
 
 	QString label() const;
-	QList<QList<GraphItem*> > loadData(Data &data);
+	QList<GraphItem* > loadData(GData &data);
 	void clear();
 	void setUnits(Units units);
 	void setGraphType(GraphType type);
@@ -161,12 +164,12 @@ public:
 	}
 
 private:
-	QList<GraphItem*> loadGraphSet(Track& t, const QColor &color);
+	void loadGraphSet(GTrack& t, const QColor &color);
 private slots:
 	void setDestroyed();
 
 protected:
-	virtual QList<int> channelsOfTrack(const Track& t);
+	virtual QList<int> channelsOfTrack(const GTrack& t);
 
 	qreal max() const {return bounds().bottom();}
 	qreal min() const {return bounds().top();}

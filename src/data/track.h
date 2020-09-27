@@ -1,7 +1,7 @@
 #ifndef TRACK_H
 #define TRACK_H
 
-#include <QObject>
+#include <QCoreApplication>
 #include <QString>
 #include <QVector>
 #include <QList>
@@ -42,8 +42,8 @@ enum ChanSrc
 
 class TrackBuilder; // parser.h
 
-class Track : public QObject, public TrackInfos {
-	Q_OBJECT
+class Track : public TrackInfos {
+	Q_DECLARE_TR_FUNCTIONS(Track)
 
 	friend TrackBuilder;
 public:
@@ -157,7 +157,7 @@ public:
 	};
 
 
-	Track(QObject* parent, const TrackData &data);
+	Track(const TrackData &data);
 
 	Path path() const;
 
@@ -182,7 +182,7 @@ public:
 	bool hasData(int chanId) const;
 
 private:
-	Track(QObject* parent);
+	Track();
 
 	int newChannel(const ChannelDescr& ch);
 	int findChannel(int ct, int cs = -1) const;

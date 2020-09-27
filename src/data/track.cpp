@@ -84,10 +84,9 @@ static QString nameComputedFrom(QString src) {
 		: Track::tr("computed from %1").arg(src);
 }
 
-Track::Track(QObject* parent) : QObject(parent) {}
+Track::Track() {}
 
-Track::Track(QObject* parent, const TrackData& data)
-	: QObject(parent), TrackInfos(data)
+Track::Track(const TrackData& data) : TrackInfos(data)
 {
 	int fieldChan[NbTrackpointFields];
 	std::fill(fieldChan, fieldChan + NbTrackpointFields, ~0);
@@ -254,7 +253,7 @@ Path Track::path() const
 
 		for (int j = 0; j < sg.coord.size(); ++j)
 			if (!sg.outliers.contains(j) && !sg.discardStopPoint(j))
-				ps.append(PathPoint(
+				ps.append(PathPoint(j,
 							sg.coord[j],
 							sg.dist0 + dist[j]));
 	}

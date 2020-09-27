@@ -18,8 +18,8 @@ class Parser
 public:
 	virtual ~Parser() {}
 
-	virtual bool parse(QObject* parent, QFile *file,
-			QList<Track*>     &tracks,
+	virtual bool parse(QFile *file,
+			QList<Track>      &tracks,
 			QList<Route>      &routes,
 			QList<Area>       &polygons,
 			QVector<Waypoint> &waypoints);
@@ -57,20 +57,16 @@ protected:
 class TrackBuilder
 {
 public:
-	TrackBuilder() : _track(NULL) {}
-	TrackBuilder(QObject* parent) {begin(parent);}
-	~TrackBuilder() {delete _track;}
+	TrackBuilder() : _track() {}
+	~TrackBuilder() {}
 
-	void            begin(QObject* parent);
 	TrackInfos&     infos();
 	int             newChannel(const Track::ChannelDescr& ch);
 	Track::Segment& beginSegment(bool timePres);
-	Track*          finalize();
-	void            abort();
-	bool            started() const {return _track;}
+	const Track&    finalize();
 
 private:
-	Track* _track;
+	Track _track;
 };
 
 #endif // PARSER_H
