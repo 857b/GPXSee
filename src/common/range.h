@@ -61,7 +61,7 @@ public:
 	void setMax(qreal max) {_max = max;}
 
 	bool contains(qreal v) const {return _min <= v && v <= _max;}
-	qreal into(qreal v) const {return qMax(_min, qMin(_max, v));} 
+	qreal into(qreal v) const {return qMax(_min, qMin(_max, v));}
 
 	void resize(qreal size);
 

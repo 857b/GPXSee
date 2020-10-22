@@ -10,31 +10,53 @@ static inline QColor color_i(QColor base, qreal t)
 		t * base.blueF());
 }
 
-QColor ColorScales::entry::colorAt(QColor base, qreal v)
+QColor ColorScales::scale::at(QColor base, qreal v)
 {
-	if (!range.isValid()) return base;
-	v = range.into(v);
-	if (ty == CTvSpeed)
-		return v > 0
-		  ? color_i(QColor(Qt::green), v / range.max())
-		  : color_i(QColor(Qt::red),   v / range.min());
-	else
-		return color_i(base, (v - range.min()) / range.size());
-}
-
-ColorScales::entry ColorScales::entry::color(ColorScales* css) const {
-	entry e = css ? css->colorFor(*this) : *this;
-	e.normalize();
-	return e;
-}
-
-void ColorScales::entry::normalize() {
-	if (ty == CTvSpeed) {
-		range.setMax(qMax(range.max(), -range.min()));
-		range.setMin(-range.max());
+	switch (ty) {
+		case Base:
+			return base;
+		case Range:
+			return color_i(base,
+					(qMin(range.max, qMax(range.min, v)) - range.min)
+				/ (range.max - range.min));
+		case Sign:
+			return v > 0
+			  ? color_i(QColor(Qt::green), v / abs)
+			  : color_i(QColor(Qt::red),  -v / abs);
 	}
+	return Base;
 }
 
+void ColorScales::scale::gradient(QGradient& out,
+		QColor base, qreal v0, qreal v1)
+{
+	out.setStops(QGradientStops());
+	out.setColorAt(0., at(base, v0));
+	switch (ty) {
+		case Sign:
+			if (v0 * v1 < 0)
+				out.setColorAt(v0 / (v0 - v1), Qt::black);
+			break;
+		case Base: case Range: break;
+	}
+	out.setColorAt(1., at(base, v1));
+}
+
+ColorScales::scale ColorScales::entry::color(ColorScales* css) const {
+	entry e = css ? css->entryFor(*this) : *this;
+	scale rt;
+	if (e.range.size() <= 0)
+		rt.ty = scale::Base;
+	else if (e.ty == CTvSpeed) {
+		rt.ty  = scale::Sign;
+		rt.abs = qMax(e.range.max(), -e.range.min());
+	} else {
+		rt.ty = scale::Range;
+		rt.range.min = e.range.min();
+		rt.range.max = e.range.max();
+	}
+	return rt;
+}
 
 void ColorScales::addEntry(const entry& e)
 {
@@ -48,7 +70,7 @@ void ColorScales::removeEntry(const entry& e)
 	updateTy(e.ty);
 }
 
-ColorScales::entry ColorScales::colorFor(const entry& e) const
+ColorScales::entry ColorScales::entryFor(const entry& e) const
 {
 	QMap<ChanTy, RangeF>::const_iterator irg = _ranges.find(e.ty);
 	return irg == _ranges.end() ? e : entry(e.ty, irg.value());

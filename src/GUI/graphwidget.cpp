@@ -388,10 +388,11 @@ QRectF GraphContent::visibleRect()
 
 void GraphContent::mousePressEvent(QMouseEvent *e)
 {
-	if (e->button() == Qt::LeftButton)
+	QGraphicsView::mousePressEvent(e);
+	if (!e->isAccepted() && e->button() == Qt::LeftButton) {
+		e->accept();
 		_slider->setPos(mapToScene(e->pos()));
-	else
-		QGraphicsView::mousePressEvent(e);
+	}
 }
 
 void GraphContent::wheelEvent(QWheelEvent *e)

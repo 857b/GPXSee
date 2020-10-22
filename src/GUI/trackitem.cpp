@@ -109,42 +109,41 @@ struct paint_nchan_d {
 	}
 };
 struct paint_chan_d : public paint_nchan_d {
-	ColorScales::entry    cs;
+	ColorScales::scale    cs;
 	const Track::Channel& ch;
 	QColor base;
 	QPen   pen;
 	QLinearGradient color;
-	QColor prev_c;
+	qreal  prev_v;
 
-	paint_chan_d(ColorScales::entry cs, const Track::Channel& ch,
+	paint_chan_d(ColorScales::scale cs, const Track::Channel& ch,
 			const QPen& pen0, QPainter& painter)
 		: paint_nchan_d(painter), cs(cs), ch(ch), base(pen0.color()),
 		  pen(pen0) {
 		color.setSpread(QGradient::PadSpread);
 	}
 
-	QColor colorAt(int n1, int n2, qreal t) {
-		return cs.colorAt(base, (1 - t) * ch.at(n1) + t * ch.at(n2));
+	qreal valAt(int n1, int n2, qreal t) {
+		return (1 - t) * ch.at(n1) + t * ch.at(n2);
 	}
 
 	void move(const QPointF& p, int n1, int n2, qreal t) {
 		prev   = p;
-		prev_c = colorAt(n1, n2, t);
+		prev_v = valAt(n1, n2, t);
 	}
 	
 	void line(const QPointF& p, int n1, int n2, qreal t) {
-		QColor c = colorAt(n1, n2, t);
-		
+		qreal v = valAt(n1, n2, t);
+
 		color.setStart(prev);
 		color.setFinalStop(p);
-		color.setColorAt(0., prev_c);
-		color.setColorAt(1., c);
+		cs.gradient(color, base, prev_v, v);
 		pen.setBrush(QBrush(color));
 		painter.setPen(pen);
 		painter.drawLine(prev, p);
 		
 		prev   = p;
-		prev_c = c;
+		prev_v = v;
 	}
 };
 void TrackItem::paint(QPainter *painter,
@@ -155,7 +154,7 @@ void TrackItem::paint(QPainter *painter,
 		return;
 	}
 
-	ColorScales::entry cs = _csEntry.color(colorScales());
+	ColorScales::scale cs = _csEntry.color(colorScales());
 
 	for (int i = 0; i < _path.size(); i++) {
 		const PathSegment &segment = _path.at(i);

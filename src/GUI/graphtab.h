@@ -50,7 +50,7 @@ class GraphSet : public QObject
 public:
 	GraphSet(GTrack* parent);
 	GTrack& track() const {return (GTrack&)*parent();}
-	
+
 	bool isValid(GraphType ty) const;
 };
 
@@ -97,6 +97,7 @@ public:
 private slots:
 	void mainGraphAction(QAction* action);
 	void channelOnPathAction(bool display);
+	void hideAction();
 
 protected:
 	virtual void updatePath();
@@ -105,6 +106,8 @@ protected:
 	virtual void makeTooltip(ToolTip& tt) const;
 
 	void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+	void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 private:
 	int        _chId;
 	GraphTab1* _graph;
@@ -136,6 +139,15 @@ public:
 	GraphItem1* getMainGraph(bool secondary = false);
 
 	template<typename F>
+	void iterTrackItems(F& f) {
+		for (QSet<GraphSet*>::const_iterator s = _sets.begin();
+				s != _sets.end(); ++s) {
+			const QObjectList& gs = (**s).children();
+			for (int i = 0; i < gs.size(); ++i)
+				f(static_cast<GraphItem1&>(*gs.at(i)));
+		}
+	}
+	template<typename F>
 	void iterTrackItems(F& f) const {
 		for (QSet<GraphSet*>::const_iterator s = _sets.begin();
 				s != _sets.end(); ++s) {
@@ -149,7 +161,7 @@ public:
 	struct sum_f {
 		qreal (I::*get)() const;
 		qreal s;
-		
+
 		sum_f(qreal (I::*get)() const) : get(get), s(0) {}
 		void operator()(const GraphItem1& itm) {
 			s += (static_cast<const I&>(itm).*get)();
@@ -167,6 +179,7 @@ private:
 	void loadGraphSet(GTrack& t, const QColor &color);
 private slots:
 	void setDestroyed();
+	void showHiddenGraphs();
 
 protected:
 	virtual QList<int> channelsOfTrack(const GTrack& t);
@@ -184,6 +197,8 @@ protected:
 
 	void addInfo(const QString &key, qreal val, const Unit& u,
 				 const Unit::Fmt& fmt = Unit::Fmt());
+
+	void contextMenuEvent(QContextMenuEvent *event);
 
 	ChanTy   _ty;
 

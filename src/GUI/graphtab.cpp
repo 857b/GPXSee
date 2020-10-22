@@ -1,10 +1,13 @@
 #include "graphtab.h"
 
+#include <QContextMenuEvent>
 #include <QGraphicsSceneContextMenuEvent>
+#include <QGraphicsSceneMouseEvent>
 #include <QMenu>
 #include <QAction>
 #include <QActionGroup>
 #include <QWidgetAction>
+#include <QApplication>
 #include <limits>
 #include <cmath>
 
@@ -31,7 +34,9 @@ GraphItem1::GraphItem1(GraphSet* set, int chId, GraphType type,
 			GraphTab1* graph, QGraphicsItem *iParent)
 	: GraphItem(set, type, st.width, st.color, st.pen, iParent),
 	  _chId(chId),
-	  _graph(graph) {}
+	  _graph(graph) {
+	setAcceptedMouseButtons(Qt::LeftButton);
+}
 
 void GraphItem1::finalize()
 {
@@ -233,6 +238,10 @@ void GraphItem1::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	menu->addAction(title_act);
 	menu->addSeparator();
 	{
+		QAction* hideAct = menu->addAction(tr("Hide"));
+		connect(hideAct, SIGNAL(triggered()),
+				this,    SLOT(hideAction()));
+
 		QAction* copAct = menu->addAction(tr("Display on path"));
 		copAct->setCheckable(true);
 		copAct->setChecked(track().displayedChannel() == chanId());
@@ -261,6 +270,20 @@ void GraphItem1::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	menu->popup(event->screenPos());
 }
 
+void GraphItem1::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+	event->accept();
+	if (QApplication::keyboardModifiers() & Qt::ControlModifier)
+		channelOnPathAction(track().displayedChannel() != chanId());
+}
+
+//TODO: option
+void GraphItem1::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
+{
+	event->accept();
+	graph().setMainGraph(this, true);
+}
+
 void GraphItem1::mainGraphAction(QAction* action)
 {
 	int  dt = action->data().toInt();
@@ -271,6 +294,12 @@ void GraphItem1::mainGraphAction(QAction* action)
 void GraphItem1::channelOnPathAction(bool display)
 {
 	track().setDispChannel(display ? chanId() : ~0);
+}
+
+void GraphItem1::hideAction()
+{
+	graph().setMainGraph(this, false);
+	hide();
 }
 
 // GraphTab1
@@ -302,6 +331,23 @@ void GraphTab1::addInfo(const QString &key, qreal val,
 {
 	if (std::isfinite(val))
 		GraphView::addInfo(key, u.format(val, fmt));
+}
+
+struct all_visible_f {
+	bool av; all_visible_f():av(true){}
+	void operator()(const GraphItem1& i) {av &= i.isVisible();}
+};
+void GraphTab1::contextMenuEvent(QContextMenuEvent *event)
+{
+	event->accept();
+	QMenu *menu = new QMenu;
+	QAction* showAct = menu->addAction(tr("Show hidden graphs"));
+	all_visible_f f;
+	iterTrackItems(f);
+	if (f.av) showAct->setEnabled(false);
+	connect(showAct, SIGNAL(triggered()),
+			this,    SLOT(showHiddenGraphs()));
+	menu->popup(event->globalPos());
 }
 
 QList<int> GraphTab1::channelsOfTrack(const GTrack& t)
@@ -355,6 +401,13 @@ void GraphTab1::setDestroyed()
 			_mainGraphs[i] = NULL;
 
 	onGSetChange();
+}
+
+struct show_f{void operator()(GraphItem1& i){i.show();}};
+void GraphTab1::showHiddenGraphs()
+{
+	show_f f;
+	iterTrackItems(f);
 }
 
 QList<GraphItem*> GraphTab1::loadData(GData &data)
@@ -462,7 +515,10 @@ void GraphTab1::setMainGraph(GraphItem1* item, bool set, bool secondary)
 		int i = secondary ? 1 : 0;
 		if (_mainGraphs[i^1] == item)
 			std::swap(_mainGraphs[0], _mainGraphs[1]);
-		else
+		else if (!secondary && _mainGraphs[i] != item) {
+			_mainGraphs[1] = _mainGraphs[0];
+			_mainGraphs[0] = item;
+		} else
 			_mainGraphs[i] = item;
 	} else
 		for (int i = 0; i < 2; ++i)

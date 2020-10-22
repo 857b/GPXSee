@@ -856,19 +856,32 @@
 <context>
     <name>GraphItem1</name>
     <message>
-        <location filename="../src/GUI/graphtab.cpp" line="236"/>
+        <location filename="../src/GUI/graphtab.cpp" line="241"/>
+        <source>Hide</source>
+        <translation>Masquer</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/graphtab.cpp" line="245"/>
         <source>Display on path</source>
         <translation>Afficher sur la trace</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphtab.cpp" line="248"/>
+        <location filename="../src/GUI/graphtab.cpp" line="257"/>
         <source>Main graph</source>
         <translation>Graphe principal</translation>
     </message>
     <message>
-        <location filename="../src/GUI/graphtab.cpp" line="248"/>
+        <location filename="../src/GUI/graphtab.cpp" line="257"/>
         <source>Secondary graph</source>
         <translation>Graphe secondaire</translation>
+    </message>
+</context>
+<context>
+    <name>GraphTab1</name>
+    <message>
+        <location filename="../src/GUI/graphtab.cpp" line="344"/>
+        <source>Show hidden graphs</source>
+        <translation>Afficher les graphes masqués</translation>
     </message>
 </context>
 <context>
