@@ -217,7 +217,7 @@ static bool readShape(NODFile *nod, SubFile::Handle &nodHdl,
 		poly.points.append(QPointF(c.lon(), c.lat()));
 		poly.boundingRect = poly.boundingRect.united(c);
 
-		while (!(adj.flags & 1)) {
+		while (!adj.eog) {
 			int ret = nod->nextNode(nodHdl, adj);
 			if (ret < 0)
 				return false;
@@ -299,7 +299,7 @@ static bool readShape(NODFile *nod, SubFile::Handle &nodHdl,
 			steps = 0;
 			startWithStream = false;
 
-			if (adj.flags & 1)
+			if (adj.eog)
 				eos = 0;
 		}
 
@@ -330,7 +330,7 @@ static bool readShape(NODFile *nod, SubFile::Handle &nodHdl,
 				poly.points.append(QPointF(c.lon(), c.lat()));
 				poly.boundingRect = poly.boundingRect.united(c);
 				pos = adj.nodeInfo.pos;
-			} while (!(adj.flags & 1) && nodes < cnt);
+			} while (!adj.eog && nodes < cnt);
 
 			if (nodes == cnt)
 				break;
@@ -352,21 +352,19 @@ bool NETFile::linkLabel(Handle &hdl, quint32 offset, quint32 size, LBLFile *lbl,
 		return false;
 	BitStream1 bs(*this, hdl, size);
 
-	quint32 flags, b, labelPtr = 0;
+	quint32 flags, labelPtr;
 	if (!bs.read(8, flags))
 		return false;
-	for (int i = 0; i < 3; i++) {
-		if (!bs.read(8, b))
-			return false;
-		labelPtr |= (b << (i * 8));
-	}
+	if (!(flags & 1))
+		return true;
 
-	if (lbl && (labelPtr & 0x3FFFFF)) {
+	if (!bs.readUInt24(labelPtr))
+		return false;
+	if (labelPtr & 0x3FFFFF) {
 		if (labelPtr & 0x400000) {
 			quint32 lblOff;
 			if (lblOffset(hdl, labelPtr & 0x3FFFFF, lblOff) && lblOff)
 				label = lbl->label(lblHdl, lblOff);
-
 		} else
 			label = lbl->label(lblHdl, labelPtr & 0x3FFFFF);
 	}
@@ -401,7 +399,7 @@ bool NETFile::init(Handle &hdl)
 
 bool NETFile::link(const SubDiv *subdiv, quint32 shift, Handle &hdl,
   NODFile *nod, Handle &nodHdl, LBLFile *lbl, Handle &lblHdl,
-  const NODFile::BlockInfo blockInfo, quint8 linkId, quint8 lineId,
+  const NODFile::BlockInfo &blockInfo, quint8 linkId, quint8 lineId,
   const HuffmanTable &table, QList<IMG::Poly> *lines)
 {
 	if (!_init && !init(hdl))
@@ -489,8 +487,9 @@ bool NETFile::link(const SubDiv *subdiv, quint32 shift, Handle &hdl,
 			return false;
 	}
 
-	linkLabel(hdl, linkOffset, _linksSize - (linkOffset - _linksOffset), lbl,
-	  lblHdl, poly.label);
+	if (lbl)
+		linkLabel(hdl, linkOffset, _linksSize - (linkOffset - _linksOffset),
+		  lbl, lblHdl, poly.label);
 
 	lines->append(poly);
 

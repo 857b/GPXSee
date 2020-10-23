@@ -237,14 +237,14 @@ void GUI::createActions()
 	_exportPDFFileAction = new QAction(QIcon(EXPORT_FILE_ICON),
 	  tr("Export to PDF..."), this);
 	_exportPDFFileAction->setMenuRole(QAction::NoRole);
-	_exportPDFFileAction->setShortcut(EXPORT_SHORTCUT);
+	_exportPDFFileAction->setShortcut(PDF_EXPORT_SHORTCUT);
 	_exportPDFFileAction->setActionGroup(_fileActionGroup);
 	connect(_exportPDFFileAction, SIGNAL(triggered()), this, SLOT(exportPDFFile()));
 	addAction(_exportPDFFileAction);
 	_exportPNGFileAction = new QAction(QIcon(EXPORT_FILE_ICON),
 	  tr("Export to PNG..."), this);
 	_exportPNGFileAction->setMenuRole(QAction::NoRole);
-	_exportPNGFileAction->setShortcut(EXPORT_SHORTCUT);
+	_exportPNGFileAction->setShortcut(PNG_EXPORT_SHORTCUT);
 	_exportPNGFileAction->setActionGroup(_fileActionGroup);
 	connect(_exportPNGFileAction, SIGNAL(triggered()), this, SLOT(exportPNGFile()));
 	addAction(_exportPNGFileAction);
@@ -1063,8 +1063,8 @@ void GUI::exportPNGFile()
 	img.save(_pngExport.fileName);
 
 	if (!_tabs.isEmpty() && _options.separateGraphPage) {
-		QImage img2(_pngExport.size.width(), (int)graphPlotHeight(rect, 1),
-		  QImage::Format_ARGB32_Premultiplied);
+		QImage img2(_pngExport.size.width(), (int)graphPlotHeight(rect, 1)
+		  + _pngExport.margins.bottom(), QImage::Format_ARGB32_Premultiplied);
 		QPainter p2(&img2);
 		QRectF rect2(0, 0, img2.width(), img2.height());
 
@@ -2228,7 +2228,7 @@ void GUI::readSettings()
 	  .toInt();
 	int mbi = settings.value(PNG_MARGIN_BOTTOM_SETTING, PNG_MARGIN_BOTTOM_DEFAULT)
 	  .toInt();
-	_pngExport.margins = Margins(mli, mti, mri, mbi);
+	_pngExport.margins = QMargins(mli, mti, mri, mbi);
 	_pngExport.antialiasing = settings.value(PNG_ANTIALIASING_SETTING,
 	  PNG_ANTIALIASING_DEFAULT).toBool();
 	_pngExport.fileName = settings.value(PNG_FILENAME_SETTING,

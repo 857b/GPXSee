@@ -2,18 +2,19 @@
 #define PNGEXPORTDIALOG_H
 
 #include <QDialog>
+#include <QMargins>
 #include "margins.h"
 
 class FileSelectWidget;
+class MarginsWidget;
 class QSpinBox;
-class QDoubleSpinBox;
 class QCheckBox;
 
 struct PNGExport
 {
 	QString fileName;
 	QSize size;
-	Margins margins;
+	QMargins margins;
 	bool antialiasing;
 };
 
@@ -33,10 +34,7 @@ private:
 	FileSelectWidget *_fileSelect;
 	QSpinBox *_width;
 	QSpinBox *_height;
-	QDoubleSpinBox *_topMargin;
-	QDoubleSpinBox *_bottomMargin;
-	QDoubleSpinBox *_leftMargin;
-	QDoubleSpinBox *_rightMargin;
+	MarginsWidget *_margins;
 	QCheckBox *_antialiasing;
 };
 

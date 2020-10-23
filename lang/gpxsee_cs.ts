@@ -243,22 +243,22 @@
 <context>
     <name>FileSelectWidget</name>
     <message>
-        <location filename="../src/GUI/fileselectwidget.cpp" line="38"/>
+        <location filename="../src/GUI/fileselectwidget.cpp" line="39"/>
         <source>Select file</source>
         <translation>Vybrat soubor</translation>
     </message>
     <message>
-        <location filename="../src/GUI/fileselectwidget.cpp" line="48"/>
+        <location filename="../src/GUI/fileselectwidget.cpp" line="49"/>
         <source>No output file selected.</source>
         <translation type="unfinished">Nebyl zvolen žádný výstupní soubor.</translation>
     </message>
     <message>
-        <location filename="../src/GUI/fileselectwidget.cpp" line="58"/>
+        <location filename="../src/GUI/fileselectwidget.cpp" line="59"/>
         <source>%1 is a directory.</source>
         <translation type="unfinished">%1 je adresář.</translation>
     </message>
     <message>
-        <location filename="../src/GUI/fileselectwidget.cpp" line="62"/>
+        <location filename="../src/GUI/fileselectwidget.cpp" line="63"/>
         <source>%1 is not writable.</source>
         <translation type="unfinished">%1 nelze zapsat.</translation>
     </message>
@@ -1500,82 +1500,86 @@
 <context>
     <name>PDFExportDialog</name>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="24"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="22"/>
         <source>PDF files</source>
         <translation type="unfinished">Soubory PDF</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="24"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="22"/>
         <source>All files</source>
         <translation type="unfinished">Všechny soubory</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="51"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="49"/>
         <source>Portrait</source>
         <translation type="unfinished">Na výšku</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="52"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="50"/>
         <source>Landscape</source>
         <translation type="unfinished">Na šířku</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="65"/>
         <source>mm</source>
-        <translation type="unfinished">mm</translation>
+        <translation type="obsolete">mm</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="65"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="60"/>
         <source>in</source>
         <translation type="unfinished">in</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="93"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="60"/>
+        <source>cm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="66"/>
         <source>Page Setup</source>
         <translation type="unfinished">Nastavení stránky</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="96"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="69"/>
         <source>Page size:</source>
         <translation type="unfinished">Velikost stránky:</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="97"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="70"/>
         <source>Resolution:</source>
         <translation type="unfinished">Rozlišení:</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="98"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="71"/>
         <source>Orientation:</source>
         <translation type="unfinished">Orientace:</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="99"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="72"/>
         <source>Margins:</source>
         <translation type="unfinished">Okraje:</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="105"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="78"/>
         <source>File:</source>
         <translation type="unfinished">Soubor:</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="112"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="85"/>
         <source>Output file</source>
         <translation type="unfinished">Výstupní soubor</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="119"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="92"/>
         <source>Export</source>
         <translation type="unfinished">Exportovat</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="134"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="107"/>
         <source>Export to PDF</source>
         <translation type="unfinished">Exportovat do PDF</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pdfexportdialog.cpp" line="142"/>
+        <location filename="../src/GUI/pdfexportdialog.cpp" line="115"/>
         <source>Error</source>
         <translation type="unfinished">Chyba</translation>
     </message>
@@ -1583,67 +1587,69 @@
 <context>
     <name>PNGExportDialog</name>
     <message>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="22"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="19"/>
         <source>PNG files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="22"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="19"/>
         <source>All files</source>
         <translation type="unfinished">Všechny soubory</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="30"/>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="35"/>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="41"/>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="42"/>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="43"/>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="44"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="27"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="32"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="36"/>
         <source>px</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="60"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="38"/>
+        <source>Use anti-aliasing</source>
+        <translation type="unfinished">Vyhlazovat hrany</translation>
+    </message>
+    <message>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="42"/>
         <source>Image Setup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="63"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="45"/>
         <source>Image width:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="64"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="46"/>
         <source>Image height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="65"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="47"/>
         <source>Margins:</source>
         <translation type="unfinished">Okraje:</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="72"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="54"/>
         <source>File:</source>
         <translation type="unfinished">Soubor:</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="79"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="61"/>
         <source>Output file</source>
         <translation type="unfinished">Výstupní soubor</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="86"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="68"/>
         <source>Export</source>
         <translation type="unfinished">Exportovat</translation>
     </message>
     <message>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="101"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="83"/>
         <source>Export to PNG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/GUI/pngexportdialog.cpp" line="109"/>
+        <location filename="../src/GUI/pngexportdialog.cpp" line="91"/>
         <source>Error</source>
         <translation type="unfinished">Chyba</translation>
     </message>

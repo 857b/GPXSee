@@ -7,7 +7,7 @@
 ; The name of the installer
 Name "GPXSee"
 ; Program version
-!define VERSION "7.32"
+!define VERSION "7.34"
 
 ; The file to write
 OutFile "GPXSee-${VERSION}_x64.exe"
@@ -16,6 +16,9 @@ SetCompressor /SOLID lzma
 
 ; Required execution level
 RequestExecutionLevel admin
+
+; Don't let the OS scale(blur) the installer GUI
+ManifestDPIAware true
 
 ; The default installation directory
 InstallDir "$PROGRAMFILES64\GPXSee"

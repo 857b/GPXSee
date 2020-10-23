@@ -28,7 +28,7 @@ static int minPOIZoom(Style::POIClass cl)
 		case Style::Food:
 		case Style::Shopping:
 		case Style::Services:
-			return 27;
+			return 26;
 		case Style::Accommodation:
 		case Style::Recreation:
 			return 25;
@@ -237,10 +237,28 @@ void RasterTile::drawTextItems(QPainter *painter,
 		textItems.at(i)->paint(painter);
 }
 
+static void removeDuplicitLabel(QList<TextItem *> &labels, const QString &text,
+  const QRectF &tileRect)
+{
+	for (int i = 0; i < labels.size(); i++) {
+		TextItem *item = labels.at(i);
+		if (tileRect.contains(item->boundingRect()) && *(item->text()) == text) {
+			labels.removeAt(i);
+			delete item;
+			return;
+		}
+	}
+}
+
 void RasterTile::processPolygons(QList<TextItem*> &textItems)
 {
+	QRectF tileRect(_xy, _img.size());
+	QSet<QString> set;
+	QList<TextItem *> labels;
+
 	for (int i = 0; i < _polygons.size(); i++) {
 		MapData::Poly &poly = _polygons[i];
+		bool exists = set.contains(poly.label.text());
 
 		if (poly.label.text().isEmpty())
 			continue;
@@ -253,12 +271,20 @@ void RasterTile::processPolygons(QList<TextItem*> &textItems)
 			  centroid(poly.points).toPoint(), &poly.label.text(),
 			  poiFont(), 0, &style.brush().color());
 			if (item->isValid() && !item->collides(textItems)
-			  && rectNearPolygon(poly.points, item->boundingRect()))
-				textItems.append(item);
-			else
+			  && !item->collides(labels)
+			  && !(exists && tileRect.contains(item->boundingRect()))
+			  && rectNearPolygon(poly.points, item->boundingRect())) {
+				if (exists)
+					removeDuplicitLabel(labels, poly.label.text(), tileRect);
+				else
+					set.insert(poly.label.text());
+				labels.append(item);
+			} else
 				delete item;
 		}
 	}
+
+	textItems.append(labels);
 }
 
 void RasterTile::processLines(QList<TextItem*> &textItems)
@@ -372,14 +398,15 @@ void RasterTile::processPoints(QList<TextItem*> &textItems)
 	for (int i = 0; i < _points.size(); i++) {
 		MapData::Point &point = _points[i];
 		const Style::Point &style = _style->point(point.type);
+		bool poi = Style::isPOI(point.type);
 
-		if (point.poi && _zoom < minPOIZoom(Style::poiClass(point.type)))
+		if (poi && _zoom < minPOIZoom(Style::poiClass(point.type)))
 			continue;
 
 		const QString *label = point.label.text().isEmpty()
 		  ? 0 : &(point.label.text());
 		const QImage *img = style.img().isNull() ? 0 : &style.img();
-		const QFont *fnt = point.poi
+		const QFont *fnt = poi
 		  ? poiFont(style.textFontSize()) : font(style.textFontSize());
 		const QColor *color = style.textColor().isValid()
 		  ? &style.textColor() : 0;
