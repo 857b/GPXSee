@@ -251,9 +251,12 @@ void GraphItem1::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	menu->addSeparator();
 
 	QActionGroup* mainGmenu = new QActionGroup(menu);
-	// TODO Qt5:
-	// setExclusionPolicy(QActionGroup::ExclusionPolicy::ExclusiveOptional)
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
 	mainGmenu->setExclusive(false);
+#else
+	mainGmenu->setExclusionPolicy(
+			QActionGroup::ExclusionPolicy::ExclusiveOptional);
+#endif
 	QString act_name[2] = {tr("Main graph"), tr("Secondary graph")};
 	for (int i = 0; i < 2; ++i) {
 		bool sec = i;

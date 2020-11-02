@@ -2,6 +2,7 @@
 #define SLIDERITEM_H
 
 #include <QGraphicsObject>
+#include <QPen>
 
 #include "common/range.h"
 
@@ -36,7 +37,7 @@ protected:
 
 private:
 	RangeF _range;
-	QColor _color;
+	QPen   _pen;
 	qreal  _fixY;
 	qreal  _height;
 };

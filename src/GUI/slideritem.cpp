@@ -5,14 +5,12 @@
 
 #define SIZE        10
 
-SliderItem::SliderItem(QGraphicsItem *parent) : QGraphicsObject(parent)
+SliderItem::SliderItem(QGraphicsItem *parent) : QGraphicsObject(parent),
+	_pen(Qt::red), _fixY(0), _height(0)
 {
 	setFlag(ItemIsMovable);
 	setFlag(ItemSendsGeometryChanges);
-
-	_color  = Qt::red;
-	_height = 0;
-	_fixY   = 0;
+	_pen.setCosmetic(true);
 }
 
 QRectF SliderItem::boundingRect() const
@@ -26,7 +24,7 @@ void SliderItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option
 	Q_UNUSED(option);
 
 	painter->setRenderHint(QPainter::Antialiasing, false);
-	painter->setPen(_color);
+	painter->setPen(_pen);
 	painter->drawLine(QLineF(0, 0, 0, _height));
 
 	if (widget) {
@@ -81,6 +79,6 @@ void SliderItem::setSliderFixY(qreal y) {
 
 void SliderItem::setColor(const QColor &color)
 {
-	_color = color;
+	_pen.setColor(color);
 	update();
 }

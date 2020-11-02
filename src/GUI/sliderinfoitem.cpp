@@ -4,6 +4,7 @@
 
 
 #define SIZE 5
+#define DESCENT_SHRINK 0.
 
 SliderInfoItem::SliderInfoItem(QGraphicsItem *parent) : QGraphicsItem(parent)
 {
@@ -22,7 +23,7 @@ void SliderInfoItem::updateBoundingRect()
 
 	qreal width = qMax(fm.width(_d), qMax(fm.width(_x), fm.width(_y)));
 	int lc = _d.isEmpty() ? 2 : 3;
-	qreal height = lc * (fm.height() - fm.descent());
+	qreal height = lc * (fm.height() - DESCENT_SHRINK * fm.descent());
 
 	_boundingRect = _side == Right
 	  ? QRectF(-SIZE/2, _top, width + 1.5*SIZE, height)
@@ -44,7 +45,7 @@ void SliderInfoItem::paint(QPainter *painter, const QStyleOptionGraphicsItem
 		dW    = hasD ? fm.width(_d) : 0,
 		width = qMax(dW, qMax(xW, yW)),
 		fh    = fm.height(),
-		fd    = fm.descent(),
+		fd    = DESCENT_SHRINK * fm.descent(),
 		semih = fh - fd;
 
 	if (_side == Right) {

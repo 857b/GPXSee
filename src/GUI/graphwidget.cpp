@@ -174,7 +174,7 @@ void GraphWidget::updateLayout()
 	crect.adjust(0, Y_PADDING, 0, -my-Y_PADDING);
 
 	RangeF uyr = _yUnit.toUnit(RangeF(br.top(), br.bottom()));
-	_yTicks  = Ticks(uyr, (int)floor(crect.height() / 10.));
+	_yTicks  = Ticks(uyr, qMin(20, (int)floor(crect.height() / 10.)));
 	_zeroPos = uyr.max() * crect.height() / uyr.size();
 	_vyTicks = vTicks(_yTicks, uyr, Range(0, crect.height()));
 	_yAxis->setLen(crect.height());
