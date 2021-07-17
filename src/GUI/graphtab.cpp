@@ -17,6 +17,8 @@
 #include "tooltip.h"
 #include "format.h"
 
+#define SELECT_MENU 1
+
 // GraphSet
 
 GraphSet::GraphSet(GTrack* parent)
@@ -270,6 +272,8 @@ void GraphItem1::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 	connect(mainGmenu, SIGNAL(triggered(QAction*)),
 			this,      SLOT(mainGraphAction(QAction*)));
 
+	setSelected(SELECT_MENU, true);
+	connect(menu, SIGNAL(aboutToHide()), this, SLOT(menuClose()));
 	menu->popup(event->screenPos());
 }
 
@@ -285,6 +289,11 @@ void GraphItem1::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 {
 	event->accept();
 	graph().setMainGraph(this, true);
+}
+
+void GraphItem1::menuClose()
+{
+	setSelected(SELECT_MENU, false);
 }
 
 void GraphItem1::mainGraphAction(QAction* action)

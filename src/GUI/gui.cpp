@@ -1156,7 +1156,7 @@ void GUI::plotMainPage(QPainter *painter, const QRectF &rect, qreal ratio,
 	QLocale l(QLocale::system());
 	TrackInfo info;
 	qreal ih, gh, mh;
-	int sc;
+	int sc = 1;
 
 
 	if (!_pathName.isNull() && _options.printName)

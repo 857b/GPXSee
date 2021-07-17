@@ -95,6 +95,7 @@ public:
 	int chanId() const {return _chId;}
 
 private slots:
+	void menuClose();
 	void mainGraphAction(QAction* action);
 	void channelOnPathAction(bool display);
 	void hideAction();

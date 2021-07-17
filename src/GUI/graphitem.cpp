@@ -3,13 +3,17 @@
 #include "popup.h"
 #include "graphitem.h"
 
+#define SHAPE_WIDTH  4.
+#define SELECT_HOVER 0
 
 GraphItem::GraphItem(QObject* oParent, GraphType type,
 			int width, const QColor &color, Qt::PenStyle style,
 			QGraphicsItem *iParent)
 	: QObject(oParent), GraphicsItem(iParent),
+	  _baseZValue(2.0), _baseWidth(width),
 	  _type(type),
-	  _shpWidth(8)
+	  _shpScale_x(1.), _shpScale_y(1.),
+	  _selState(0)
 {
 	_units = Metric;
 	_pen = QPen(color, width, style);
@@ -29,9 +33,15 @@ void GraphItem::updateG()
 
 void GraphItem::updateShape()
 {
+	QTransform toView, fromView;
+	toView.scale(_shpScale_x, _shpScale_y);
+	fromView.scale(1./_shpScale_x, 1./_shpScale_y);
+
+	QPainterPath viewPath = toView.map(_path);
 	QPainterPathStroker s;
-	s.setWidth(qMax(_shpWidth, _pen.widthF()));
-	_shape = s.createStroke(_path);
+	s.setWidth(SHAPE_WIDTH);
+	QPainterPath viewShape = s.createStroke(viewPath);
+	_shape = fromView.map(viewShape);
 }
 
 void GraphItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
@@ -46,6 +56,7 @@ void GraphItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 /*
 	QPen p = QPen(QBrush(Qt::red), 0);
 	painter->setPen(p);
+	painter->drawPath(shape());
 	painter->drawRect(boundingRect());
 */
 }
@@ -80,9 +91,10 @@ void GraphItem::setWidth(int width)
 	updateShape();
 }
 
-void GraphItem::setShapeWidth(qreal shpWidth)
+void GraphItem::setShapeScale(qreal sx, qreal sy)
 {
-	_shpWidth = shpWidth;
+	_shpScale_x = sx;
+	_shpScale_y = sy;
 	updateShape();
 }
 
@@ -97,36 +109,34 @@ void GraphItem::emitSliderPositionChanged(qreal pos)
 void GraphItem::hover(bool hover)
 {
 	if (hover) {
-		_pen.setWidth(_pen.width() + 1);
-		setZValue(zValue() + 1.0);
+		_pen.setWidth(_baseWidth + 1);
+		GraphicsItem::setZValue(_baseZValue + 1.0);
 	} else {
-		_pen.setWidth(_pen.width() - 1);
-		setZValue(zValue() - 1.0);
+		_pen.setWidth(_baseWidth);
+		GraphicsItem::setZValue(_baseZValue);
 	}
 
 	update();
 }
 
+void GraphItem::setSelected(unsigned sk, bool sel)
+{
+	if (sel) _selState |=   ((unsigned)1) << sk;
+	else     _selState &= ~(((unsigned)1) << sk);
+	hover((bool)_selState);
+	emit selected((bool)_selState);
+}
+
 void GraphItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
 	Q_UNUSED(event);
-
-	_pen.setWidth(_pen.width() + 1);
-	setZValue(zValue() + 1.0);
-	update();
-
-	emit selected(true);
+	setSelected(SELECT_HOVER, true);
 }
 
 void GraphItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
 	Q_UNUSED(event);
-
-	_pen.setWidth(_pen.width() - 1);
-	setZValue(zValue() - 1.0);
-	update();
-
-	emit selected(false);
+	setSelected(SELECT_HOVER, false);
 }
 
 void GraphItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

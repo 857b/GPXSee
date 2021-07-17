@@ -32,8 +32,9 @@ public:
 	void setGraphType(GraphType type);
 	void setColor(const QColor &color);
 	void setWidth(int width);
-	void setShapeWidth(qreal shpWidth);
+	void setShapeScale(qreal sx, qreal sy);
 	void setUnits(Units units) {_units = units;}
+	void setSelected(unsigned sk, bool sel);
 
 	virtual GraphItem *secondaryGraph() const = 0;
 
@@ -71,10 +72,13 @@ protected:
 private:
 	void updateShape();
 
+	qreal        _baseZValue;
+	int          _baseWidth;
 	GraphType    _type;
 	QPainterPath _shape;
 	QPen         _pen;
-	qreal        _shpWidth;
+	qreal        _shpScale_x, _shpScale_y;
+	unsigned     _selState;
 };
 
 class GraphItem0 : public GraphItem

@@ -17,6 +17,10 @@
 #define AXIS_PADDING	6
 #define MAX_TICK_LEN	5
 
+// limit the number of y-ticks
+#define YTICKS_MAX_COUNT 20
+#define YTICKS_MIN_SPACE 15.
+
 #define X_PADDING     5
 #define Y_PADDING     5
 #define VIEW_MARGIN .05
@@ -174,7 +178,8 @@ void GraphWidget::updateLayout()
 	crect.adjust(0, Y_PADDING, 0, -my-Y_PADDING);
 
 	RangeF uyr = _yUnit.toUnit(RangeF(br.top(), br.bottom()));
-	_yTicks  = Ticks(uyr, qMin(20, (int)floor(crect.height() / 10.)));
+	_yTicks  = Ticks(uyr, qMin(YTICKS_MAX_COUNT,
+				            (int)floor(crect.height() / YTICKS_MIN_SPACE)));
 	_zeroPos = uyr.max() * crect.height() / uyr.size();
 	_vyTicks = vTicks(_yTicks, uyr, Range(0, crect.height()));
 	_yAxis->setLen(crect.height());
@@ -228,9 +233,8 @@ void GraphWidget::updateLayout()
 	_content->setSceneRect(br);
 	setSliderPosition(_content->_slider->x());
 
-	qreal shpWidth = 4 * br.height() / height();
 	for (int i = 0; i < _graphs.size(); ++i)
-		_graphs[i]->setShapeWidth(shpWidth);
+		_graphs[i]->setShapeScale(sx, sy);
 
 	update();
 	show();
