@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) and export_objects.py -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   sodipodi:docname="document-print-symbolic.svg"
+   inkscape:version="1.1 (c4e8f9ed74, 2021-05-24)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs11" />
+  <sodipodi:namedview
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     id="namedview"
+     showgrid="true"
+     inkscape:zoom="24.704543"
+     inkscape:cx="6.9015646"
+     inkscape:cy="7.1849133"
+     inkscape:window-width="1366"
+     inkscape:window-height="768"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g10817"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid" />
+  </sodipodi:namedview>
+  <g
+     transform="translate(-317,-1131.3622)"
+     id="document-print"
+     inkscape:label="00374">
+    <g
+       transform="translate(269,733.3622)"
+       id="g10817"
+       inkscape:label="printer">
+      <path
+         inkscape:connector-curvature="0"
+         id="rect10821"
+         d="m 48,398 h 16 v 16 H 48 Z"
+         style="opacity:0;fill:#ffffff" />
+      <path
+         inkscape:connector-curvature="0"
+         style="opacity:1;fill:#ffffff;stroke-width:1.14286"
+         d="M 49.142857,402 C 48.571429,402 48,402.57143 48,403.14286 v 4.57143 c 0,0.57143 0.571429,1.14285 1.142857,1.14285 h 1.142857 v -2.28571 h 11.428572 v 2.28571 h 1.142857 C 63.428571,408.85714 64,408.28572 64,407.71429 v -4.57143 C 64,402.57143 63.428571,402 62.857143,402 Z"
+         id="path3520" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path4804"
+         d="m 51.428571,398.57143 v 2.28571 h 9.142858 v -2.28571 z"
+         style="opacity:1;fill:#ffffff;stroke-width:1.14286" />
+      <path
+         inkscape:connector-curvature="0"
+         style="opacity:1;fill:#ffffff;stroke-width:1.14286"
+         d="m 51.428571,407.71429 v 5.71428 h 9.142858 v -5.71428 z"
+         id="path4806" />
+    </g>
+  </g>
+</svg>

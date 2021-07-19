@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) and export_objects.py -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   sodipodi:docname="document-open.svg"
+   inkscape:version="1.1 (c4e8f9ed74, 2021-05-24)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs9" />
+  <sodipodi:namedview
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     id="namedview"
+     showgrid="true"
+     inkscape:zoom="13.583094"
+     inkscape:cx="3.6810466"
+     inkscape:cy="8.8713222"
+     inkscape:window-width="1366"
+     inkscape:window-height="768"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid" />
+  </sodipodi:namedview>
+  <g
+     transform="translate(-285.00211,-1131.3622)"
+     id="document-open"
+     inkscape:label="00375"
+     style="fill:#ffffff">
+    <g
+       transform="translate(24.0019,734.3622)"
+       id="g14298"
+       inkscape:label="folder-open"
+       style="fill:#ffffff">
+      <path
+         inkscape:connector-curvature="0"
+         id="rect12206"
+         d="m 261.00021,397 h 16 v 16 h -16 z"
+         style="opacity:0;fill:#ffffff" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path12212"
+         d="m 261.572,398 c -0.2878,0 -0.5288,0.242 -0.5288,0.5312 v 12.9363 c 0,0.2984 0.2315,0.5312 0.5288,0.5312 h 13.7485 c 0.2972,0 0.5288,-0.2327 0.5288,-0.5312 l 1.1509,-5.9369 c 0,-0.2891 -0.241,-0.5312 -0.5288,-0.5312 h -11.4156 l -1.0265,4.4995 c 0,0.277 -0.222,0.5 -0.4977,0.5 -0.2757,0 -0.4963,-0.223 -0.4977,-0.5 L 263.0002,403 c 2.4928,0 8.3465,0 12,0 0,0 0.2366,-2 -0.4806,-2 h -7.5215 v -2.4686 c 0,-0.2891 -0.241,-0.5312 -0.5288,-0.5312 L 263.9981,398 h -1.9285 z"
+         style="opacity:1;fill:#ffffff" />
+    </g>
+  </g>
+</svg>

@@ -59,7 +59,7 @@
 
 //TODO #define GRAPH_PLOT
 
-#define TOOLBAR_ICON_SIZE 22
+#define TOOLBAR_ICON_SIZE 14
 
 GUI::GUI()
 {
@@ -416,6 +416,11 @@ void GUI::createActions()
 	_showToolbarsAction->setCheckable(true);
 	connect(_showToolbarsAction, SIGNAL(triggered(bool)), this,
 	  SLOT(showToolbars(bool)));
+	_moveToolbarsAction = new QAction(tr("Move toolbars"), this);
+	_moveToolbarsAction->setMenuRole(QAction::NoRole);
+	_moveToolbarsAction->setCheckable(true);
+	connect(_moveToolbarsAction, SIGNAL(triggered(bool)), this,
+	  SLOT(moveToolbars(bool)));
 	ag = new QActionGroup(this);
 	ag->setExclusive(true);
 	_totalTimeAction = new QAction(tr("Total time"), this);
@@ -577,6 +582,7 @@ void GUI::createMenus()
 	coordinatesMenu->addAction(_dmsAction);
 	settingsMenu->addSeparator();
 	settingsMenu->addAction(_showToolbarsAction);
+	settingsMenu->addAction(_moveToolbarsAction);
 	settingsMenu->addAction(_fullscreenAction);
 	settingsMenu->addSeparator();
 	settingsMenu->addAction(_openOptionsAction);
@@ -1377,6 +1383,14 @@ void GUI::showToolbars(bool show)
 		removeToolBar(_showToolBar);
 		removeToolBar(_navigationToolBar);
 	}
+	_moveToolbarsAction->setEnabled(show);
+}
+
+void GUI::moveToolbars(bool move)
+{
+	_fileToolBar->setMovable(move);
+	_showToolBar->setMovable(move);
+	_navigationToolBar->setMovable(move);
 }
 
 void GUI::showFullscreen(bool show)
@@ -1829,6 +1843,9 @@ void GUI::writeSettings()
 	if (_showToolbarsAction->isChecked() != SHOW_TOOLBARS_DEFAULT)
 		settings.setValue(SHOW_TOOLBARS_SETTING,
 		  _showToolbarsAction->isChecked());
+	if (_moveToolbarsAction->isChecked() != MOVE_TOOLBARS_DEFAULT)
+		settings.setValue(MOVE_TOOLBARS_SETTING,
+		  _moveToolbarsAction->isChecked());
 	settings.endGroup();
 
 	settings.beginGroup(MAP_SETTINGS_GROUP);
@@ -2084,6 +2101,10 @@ void GUI::readSettings()
 		showToolbars(false);
 	else
 		_showToolbarsAction->setChecked(true);
+	bool move_toolbars = settings.value(
+				MOVE_TOOLBARS_SETTING, MOVE_TOOLBARS_DEFAULT).toBool();
+	_moveToolbarsAction->setChecked(move_toolbars);
+	moveToolbars(move_toolbars);
 	settings.endGroup();
 
 	settings.beginGroup(MAP_SETTINGS_GROUP);

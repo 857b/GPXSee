@@ -20,6 +20,8 @@
 #define COORDINATES_DEFAULT               DecimalDegrees
 #define SHOW_TOOLBARS_SETTING             "toolbar"
 #define SHOW_TOOLBARS_DEFAULT             true
+#define MOVE_TOOLBARS_SETTING             "toolbarMove"
+#define MOVE_TOOLBARS_DEFAULT             true
 
 #define GRAPH_SETTINGS_GROUP              "Graph"
 #define SHOW_GRAPHS_SETTING               "show"

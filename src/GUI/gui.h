@@ -59,6 +59,7 @@ private slots:
 	void showGraphGrids(bool show);
 	void showGraphSliderInfo(bool show);
 	void showToolbars(bool show);
+	void moveToolbars(bool move);
 	void showFullscreen(bool show);
 	void showTracks(bool show);
 	void showRoutes(bool show);
@@ -180,6 +181,7 @@ private:
 	QAction *_distanceGraphAction;
 	QAction *_timeGraphAction;
 	QAction *_showToolbarsAction;
+	QAction *_moveToolbarsAction;
 	QAction *_nextAction;
 	QAction *_prevAction;
 	QAction *_lastAction;
